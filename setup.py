@@ -12,14 +12,16 @@ with open("requirements.txt", "r") as f:
 
 setuptools.setup(
     name="httpdbg",
-    version="0.0.1",
+    version="0.0.2",
     author="cle-b",
     author_email="cle@tictac.pm",
     description="A very simple tool to debug HTTP client requests",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/cle-b/httpdbg",
-    packages=["httpdbg",],
+    packages=[
+        "httpdbg",
+    ],
     python_requires=">=3.8",
     install_requires=requirements,
     classifiers=[
