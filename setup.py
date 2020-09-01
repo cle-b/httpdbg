@@ -12,7 +12,7 @@ with open("requirements.txt", "r") as f:
 
 setuptools.setup(
     name="httpdbg",
-    version="0.0.2",
+    version="0.0.3",
     author="cle-b",
     author_email="cle@tictac.pm",
     description="A very simple tool to debug HTTP client requests",
