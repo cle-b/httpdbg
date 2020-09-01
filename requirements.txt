@@ -1,0 +1,4 @@
+vcrpy >= 4.0
+flask
+flask-restful
+beautifulsoup4

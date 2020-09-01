@@ -1,0 +1,120 @@
+* {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background-color: beige;
+}
+
+.scroll {
+  overflow: auto;
+  overflow-x: hidden;
+}
+
+.req-list {
+  height: 30vh;
+}
+
+.req-detail {
+  height: 60vh;
+}
+
+hr{
+  border-top: 1px solid #555555 !important;
+}
+
+#requests-list {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid black;
+}
+
+#requests-list th {
+  background-color: #050505;
+  color: white;
+}
+
+#requests-list tr {
+  background-color: #f8f8f8;
+}
+
+#requests-list td {
+  border: 1px solid  #444444;
+}
+
+#requests-list tr:hover {
+  background-color: rgb(145, 173, 224) !important;
+}
+
+#requests-list tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+#headers table{
+  border: 0px;
+  text-align: left;
+  font-weight: normal !important;
+}
+
+#headers .header{
+  color: #13550a;
+}
+
+#cookies .cookie{
+  color: #13550a;
+}
+
+#cookies .attribute{
+  color: #4a550a;
+}
+
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+th {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-center {
+  text-align: center;
+}
