@@ -7,9 +7,6 @@ with open("README.md", "r") as fh:
     title_index = desc.find("# httpdbg")
     long_description = desc[title_index:]  # remove bagde
 
-with open("requirements.txt", "r") as f:
-    requirements = f.read().split("\n")
-
 setuptools.setup(
     name="httpdbg",
     version="0.0.4",
