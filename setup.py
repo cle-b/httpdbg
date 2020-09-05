@@ -21,7 +21,7 @@ setuptools.setup(
     url="https://github.com/cle-b/httpdbg",
     packages=setuptools.find_packages(),
     package_data={"httpdbg": ["webapp/static/*"]},
-    python_requires=">=3.8",
+    python_requires=">=3.6",
     install_requires=requirements,
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -1,0 +1,33 @@
+dist: xenial
+sudo: required
+language: python
+
+
+matrix:
+  include:
+    - python: 3.6
+      env: TOX_ENV=py36
+      name: "python 3.6 - linux"
+    - python: 3.7
+      env: TOX_ENV=py37
+      name: "python 3.7 - linux"
+    - python: 3.8
+      env: TOX_ENV=py38
+      name: "python 3.8 - linux"
+    - python: 3.7
+      env: TOX_ENV=flake8
+      name: "flake8 check (linting)"
+    - python: 3.7
+      env: TOX_ENV=black
+      name: "black check (code format)"      
+
+
+install:
+  - python -m pip install --upgrade pip
+  - pip install -r requirements-dev.txt
+  - pip install -e .
+
+
+script: 
+  - tox -e $TOX_ENV
+
