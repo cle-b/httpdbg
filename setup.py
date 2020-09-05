@@ -7,12 +7,9 @@ with open("README.md", "r") as fh:
     title_index = desc.find("# httpdbg")
     long_description = desc[title_index:]  # remove bagde
 
-with open("requirements.txt", "r") as f:
-    requirements = f.read().split("\n")
-
 setuptools.setup(
     name="httpdbg",
-    version="0.0.3",
+    version="0.0.4",
     author="cle-b",
     author_email="cle@tictac.pm",
     description="A very simple tool to debug HTTP client requests",
@@ -20,9 +17,9 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/cle-b/httpdbg",
     packages=setuptools.find_packages(),
-    package_data={'httpdbg': ['webapp/static/*']},
-    python_requires=">=3.8",
-    install_requires=requirements,
+    package_data={"httpdbg": ["webapp/static/*"]},
+    python_requires=">=3.6",
+    install_requires=["vcrpy >= 4.0", "flask", "flask-restful", "beautifulsoup4"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",

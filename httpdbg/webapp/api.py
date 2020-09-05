@@ -10,22 +10,22 @@ from ..vcrpy import get_header, get_headers, list_cookies_request, list_cookies_
 from .preview import generate_preview
 
 
-httpdebugconfig = {
+httpdebugk7 = {
     "k7": None
 }  # this global variable is used to share the cassettes (requests's informations recorded)
 
 
 class Request(Resource):
     def get(self, req_id):
-        global httpdebugconfig
+        global httpdebugk7
 
-        if httpdebugconfig["k7"] is None:
+        if httpdebugk7["k7"] is None:
             abort(404)
 
-        if int(req_id) > len(httpdebugconfig["k7"].requests):
+        if int(req_id) > len(httpdebugk7["k7"].requests):
             abort(404)
 
-        request = httpdebugconfig["k7"].requests[int(req_id)]
+        request = httpdebugk7["k7"].requests[int(req_id)]
 
         details = {
             "uri": request.uri,
@@ -47,9 +47,9 @@ class Request(Resource):
                 request.body,
             )
 
-        if int(req_id) < len(httpdebugconfig["k7"].responses):
+        if int(req_id) < len(httpdebugk7["k7"].responses):
 
-            response = httpdebugconfig["k7"].responses[int(req_id)]
+            response = httpdebugk7["k7"].responses[int(req_id)]
 
             details.update(
                 {
@@ -75,16 +75,16 @@ class Request(Resource):
 
 class RequestContentDown(Resource):
     def get(self, req_id):
-        global httpdebugconfig
+        global httpdebugk7
 
-        if httpdebugconfig["k7"] is None:
+        if httpdebugk7["k7"] is None:
             abort(404)
 
-        if int(req_id) > len(httpdebugconfig["k7"].responses):
+        if int(req_id) > len(httpdebugk7["k7"].responses):
             abort(404)
 
-        request = httpdebugconfig["k7"].requests[int(req_id)]
-        response = httpdebugconfig["k7"].responses[int(req_id)]
+        request = httpdebugk7["k7"].requests[int(req_id)]
+        response = httpdebugk7["k7"].responses[int(req_id)]
 
         filename = os.path.basename(urlparse(request.uri).path)
 
@@ -97,15 +97,15 @@ class RequestContentDown(Resource):
 
 class RequestContentUp(Resource):
     def get(self, req_id):
-        global httpdebugconfig
+        global httpdebugk7
 
-        if httpdebugconfig["k7"] is None:
+        if httpdebugk7["k7"] is None:
             abort(404)
 
-        if int(req_id) > len(httpdebugconfig["k7"].requests):
+        if int(req_id) > len(httpdebugk7["k7"].requests):
             abort(404)
 
-        request = httpdebugconfig["k7"].requests[int(req_id)]
+        request = httpdebugk7["k7"].requests[int(req_id)]
 
         return send_file(
             io.BytesIO(request.body),
@@ -116,12 +116,12 @@ class RequestContentUp(Resource):
 
 class RequestList(Resource):
     def get(self):
-        global httpdebugconfig
+        global httpdebugk7
 
         requests = []
-        for i in range(len(httpdebugconfig["k7"].requests)):
-            request = httpdebugconfig["k7"].requests[i]
-            response = httpdebugconfig["k7"].responses[i]
+        for i in range(len(httpdebugk7["k7"].requests)):
+            request = httpdebugk7["k7"].requests[i]
+            response = httpdebugk7["k7"].responses[i]
 
             simple_content_type = (
                 get_header(response["headers"], "Content-Type")

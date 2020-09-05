@@ -1,2 +1,6 @@
 flake8
 black
+pytest
+requests
+pytest-httpbin
+tox
