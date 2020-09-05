@@ -1,4 +1,4 @@
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black) [![Build Status](https://travis-ci.org/cle-b/httpdbg.svg?branch=master)](https://travis-ci.org/cle-b/httpdbg) [![PyPI version](https://badge.fury.io/py/niobium.svg)](https://badge.fury.io/py/httpdbg) 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black) [![Build Status](https://travis-ci.org/cle-b/httpdbg.svg?branch=master)](https://travis-ci.org/cle-b/httpdbg) [![PyPI version](https://badge.fury.io/py/httpdbg.svg)](https://badge.fury.io/py/httpdbg) 
 # httpdbg
 
 A very simple tool to debug HTTP client requests
