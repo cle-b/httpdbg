@@ -10,7 +10,10 @@ def get_headers(headers):
                 all_headers.append({"name": key, "value": val})
         else:  # request
             all_headers.append({"name": key, "value": value})
-    return sorted(all_headers, key=lambda h: h["name"].lower(),)
+    return sorted(
+        all_headers,
+        key=lambda h: h["name"].lower(),
+    )
 
 
 def get_header(headers, name):

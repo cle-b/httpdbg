@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
-from .httpdb import httpdbg
+from .httpdbg import httpdbg
 
 __all__ = ["httpdbg"]

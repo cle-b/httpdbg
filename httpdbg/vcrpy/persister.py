@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class HTTPDBGPersister(object):
     @classmethod
     def load_cassette(cls, cassette_path, serializer):

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from contextlib import contextmanager
 import threading
 
 import vcr
@@ -9,9 +10,9 @@ from .webapp import app, httpdebugk7
 
 
 class ServerThread(threading.Thread):
-    def __init__(self, app):
+    def __init__(self, port, app):
         threading.Thread.__init__(self)
-        self.srv = make_server("localhost", 5000, app, threaded=True)
+        self.srv = make_server("localhost", port, app, threaded=True)
         self.ctx = app.app_context()
         self.ctx.push()
 
@@ -22,9 +23,10 @@ class ServerThread(threading.Thread):
         self.srv.shutdown()
 
 
-def httpdbg(function_to_watch):
-    def wrapper_httpdbg(*args, **kwargs):
-        server = ServerThread(app)
+@contextmanager
+def httpdbg(port=5000):
+    try:
+        server = ServerThread(port, app)
         server.start()
 
         my_vcr = vcr.VCR(
@@ -37,9 +39,6 @@ def httpdbg(function_to_watch):
         ) as k7:
             httpdebugk7["k7"] = k7
 
-            ret = function_to_watch(*args, **kwargs)
-
+            yield
+    finally:
         server.shutdown()
-        return ret
-
-    return wrapper_httpdbg
