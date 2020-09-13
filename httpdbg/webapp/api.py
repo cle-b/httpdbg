@@ -13,7 +13,7 @@ from .preview import generate_preview
 
 httpdebugk7 = {
     "k7": None,
-    "id": str(uuid.uuid4())
+    "id": str(uuid.uuid4()),
 }  # this global variable is used to share the cassettes (requests's informations recorded)
 
 
@@ -120,10 +120,7 @@ class RequestList(Resource):
     def get(self):
         global httpdebugk7
 
-        k7 = {
-            "id": httpdebugk7["id"],
-            "requests": []
-        }
+        k7 = {"id": httpdebugk7["id"], "requests": []}
         for i in range(len(httpdebugk7["k7"].requests)):
             request = httpdebugk7["k7"].requests[i]
             response = httpdebugk7["k7"].responses[i]
