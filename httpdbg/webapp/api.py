@@ -2,6 +2,7 @@
 import io
 import os
 from urllib.parse import urlparse
+import uuid
 
 from flask import abort, send_file
 from flask_restful import Resource
@@ -11,7 +12,8 @@ from .preview import generate_preview
 
 
 httpdebugk7 = {
-    "k7": None
+    "k7": None,
+    "id": str(uuid.uuid4())
 }  # this global variable is used to share the cassettes (requests's informations recorded)
 
 
@@ -118,7 +120,10 @@ class RequestList(Resource):
     def get(self):
         global httpdebugk7
 
-        requests = []
+        k7 = {
+            "id": httpdebugk7["id"],
+            "requests": []
+        }
         for i in range(len(httpdebugk7["k7"].requests)):
             request = httpdebugk7["k7"].requests[i]
             response = httpdebugk7["k7"].responses[i]
@@ -131,7 +136,7 @@ class RequestList(Resource):
 
             uri = urlparse(request.uri)
 
-            requests.append(
+            k7["requests"].append(
                 {
                     "id": i,
                     "uri": request.uri,
@@ -148,4 +153,4 @@ class RequestList(Resource):
                 }
             )
 
-        return requests
+        return k7
