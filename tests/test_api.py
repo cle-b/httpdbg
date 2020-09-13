@@ -13,8 +13,10 @@ def test_api_requests_one_request(httpbin):
     ret = requests.get("http://127.0.0.1:%d/requests" % current_httpdbg_port)
     stop_httpdbg()
 
-    assert len(ret.json()) == 1
-    assert ret.json()[0]["uri"] == httpbin.url + "/get"
+    reqs = ret.json()["requests"]
+
+    assert len(reqs) == 1
+    assert reqs[0]["uri"] == httpbin.url + "/get"
 
 
 def test_api_requests_two_requests(httpbin):
@@ -27,6 +29,8 @@ def test_api_requests_two_requests(httpbin):
     ret = requests.get("http://127.0.0.1:%d/requests" % current_httpdbg_port)
     stop_httpdbg()
 
-    assert len(ret.json()) == 2
-    assert ret.json()[0]["uri"] == httpbin.url + "/get/abc"
-    assert ret.json()[1]["uri"] == httpbin.url + "/get/def"
+    reqs = ret.json()["requests"]
+
+    assert len(reqs) == 2
+    assert reqs[0]["uri"] == httpbin.url + "/get/abc"
+    assert reqs[1]["uri"] == httpbin.url + "/get/def"
