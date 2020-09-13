@@ -118,3 +118,9 @@ th {
 .text-center {
   text-align: center;
 }
+
+#refresh {
+  display: none;
+  background-color: purple;
+  color: #ddd;
+}

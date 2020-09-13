@@ -14,6 +14,9 @@
 </head>
 
 <body>
+    <div id="refresh">
+        &#9888 disconnected - <button onclick="enable_refresh()">try reconnect</button> 
+    </div>
     <div class="scroll req-list">
         <table id="requests-list">
             <colgroup>
@@ -26,7 +29,7 @@
                 <col span="1" style="width: 30px;">
             </colgroup>
 
-            <tbody>
+            <thead>
                 <tr>
                     <th class="text-center" style="max-width: 40px;" title="status">status</th>
                     <th class="text-center" style="max-width: 40px;" title="method">method</th>
@@ -36,20 +39,22 @@
                     <th class="text-center" style="max-width: 30px;" title="transferred">transferred</th>
                     <th class="text-center" style="max-width: 30px;" title="size">size</th>
                 </tr>
+            </thead>
 
-                <script id="template_request" type="x-tmpl-mustache">
-                    <tr id="request-{{id}}" title="{{uri}}" onclick="show_request({{id}})">
-                        <td class="text-center">{{status.code}}</td>
-                        <td class="text-center">{{method}}</td>
-                        <td>{{domain}}</td>
-                        <td>{{file}}</td>
-                        <td class="text-center">{{type}}</td>
-                        <td class="text-center">{{transferred}}</td>
-                        <td class="text-center">{{size}}</td>
-                    </tr>
-                </script>
-
+            <tbody>
             </tbody>
+
+            <script id="template_request" type="x-tmpl-mustache">
+                <tr id="request-{{id}}" title="{{uri}}" onclick="show_request({{id}})">
+                    <td class="text-center">{{status.code}}</td>
+                    <td class="text-center">{{method}}</td>
+                    <td>{{domain}}</td>
+                    <td>{{file}}</td>
+                    <td class="text-center">{{type}}</td>
+                    <td class="text-center">{{transferred}}</td>
+                    <td class="text-center">{{size}}</td>
+                </tr>
+            </script>
         </table>
     </div>
 
@@ -64,7 +69,6 @@
 
         <!-- Tab content -->
         <div id="tabHeaders" class="tabcontent">
-
             <div id="headers">select a request to view details</div>
             <script id="template_headers" type="x-tmpl-mustache">
                <b>{{ method }}</b> <a href="{{ uri }}">{{ uri }}</a>
@@ -143,7 +147,7 @@
     </div>
 
     <script>        
-        setInterval(function () {  refresh_resquests(); }, 1000);
+        enable_refresh();        
         opentab(document.getElementById("btn-tab-headers"), "tabHeaders");
     </script>
 </body>
