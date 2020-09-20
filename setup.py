@@ -26,4 +26,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Development Status :: 4 - Beta",
     ],
+    entry_points={
+        "console_scripts": ["pyhttpdbg=httpdbg.__main__:pyhttpdbg"],
+    },
 )

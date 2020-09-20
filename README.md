@@ -11,15 +11,42 @@ pip install httpdbg
 
 ## usage
 
+### interactive console
+
 Open an interactive console with the following command
 
 ```
-python -m httpdbg
+pyhttpdbg
+```
+```
+(venv) dev@host:~/dir$ pyhttpdbg
+-- -- -- httpdbg - recorded requests available at http://localhost:5000/ 
+Python 3.8.2 (default, Jul 16 2020, 14:00:26) 
+[GCC 9.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> 
 ```
 
 Perform HTTP requests (using the requests library for example).
 
 You can inspect the HTTP requests directly in your web browser at http://localhost:5000.
+
+### script
+
+You can trace all the HTTP requests performed by a script
+
+```
+pyhttpdbg filename.py [arg1 --arg2 ...]
+```
+
+### pytest
+
+You can trace all the HTTP requests performed during your tests
+
+```
+pyhttpdbg pytest [arg1 --arg2 ...]
+```
 
 ## thanks
 
