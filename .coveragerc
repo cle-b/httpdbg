@@ -1,0 +1,6 @@
+[run]
+source =
+    httpdbg
+
+[report]
+omit = */tests/*

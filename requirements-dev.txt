@@ -4,3 +4,4 @@ pytest
 requests
 pytest-httpbin
 tox
+coverage
