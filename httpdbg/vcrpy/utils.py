@@ -33,8 +33,8 @@ def list_cookies_request(headers):
             for cookie in value.split(";"):
                 cookies.append(
                     {
-                        "name": cookie[: cookie.find("=")],
-                        "value": cookie[cookie.find("=") + 1 :],
+                        "name": cookie[: cookie.find("=")].strip(),
+                        "value": cookie[cookie.find("=") + 1 :].strip(),
                     }
                 )
     return sorted(cookies, key=lambda h: h["name"])
