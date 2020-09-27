@@ -16,7 +16,7 @@ def generate_preview(path, filename, content_type, raw_data):
             soup = BeautifulSoup(raw_data, "html.parser")
             body["text"] = soup.prettify()
         except Exception:
-            body["text"] = raw_data
+            body["text"] = "error during html parsing"
 
     if "application/json" in content_type.lower():
         try:
