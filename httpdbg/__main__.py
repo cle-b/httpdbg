@@ -1,55 +1,33 @@
 # -*- coding: utf-8 -*-
-import code
-import importlib.util
 import readline  # noqa: F401 enable the 'up arrow' history in the console
 import sys
 
 from .httpdbg import httpdbg
+from .mode_console import run_console
+from .mode_pytest import run_pytest
+from .mode_script import run_script
 
 
-def console_exit():
-    raise SystemExit
-
-
-def console():
-    try:
-        code.InteractiveConsole(locals={"exit": console_exit}).interact()
-    except SystemExit:
-        pass
-
-
-def pyhttpdbg():
+def pyhttpdbg(argv):
 
     print("-- -- -- httpdbg - recorded requests available at http://localhost:5000/ ")
 
-    argv = sys.argv[1:]
-
     with httpdbg():
         if len(argv) == 0:
-            console()
+            run_console()
         elif argv[0] == "pytest":
-            sys.argv = argv
-            try:
-                import pytest
-
-                pytest.main()
-            except Exception as exp:
-                print(exp)
-            input(
-                "-- -- -- httpdbg - recorded requests available at http://localhost:5000/ until you press enter"
-            )
+            run_pytest(argv)
         else:
-            sys.argv = argv
-            try:
-                spec = importlib.util.spec_from_file_location("torun", argv[0])
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-            except Exception as exp:
-                print(exp)
-            input(
-                "-- -- -- httpdbg - recorded requests available at http://localhost:5000/ until you press enter"
-            )
+            run_script(argv)
+
+    input(
+        "-- -- -- httpdbg - recorded requests available at http://localhost:5000/ until you press enter"
+    )
+
+
+def pyhttpdbg_entry_point():
+    pyhttpdbg(sys.argv[1:])
 
 
 if __name__ == "__main__":
-    pyhttpdbg()
+    pyhttpdbg(sys.argv[1:])
