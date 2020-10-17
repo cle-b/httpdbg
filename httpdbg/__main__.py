@@ -20,9 +20,9 @@ def pyhttpdbg(argv):
         else:
             run_script(argv)
 
-    input(
-        "-- -- -- httpdbg - recorded requests available at http://localhost:5000/ until you press enter"
-    )
+        input(
+            "-- -- -- httpdbg - recorded requests available at http://localhost:5000/ until you press enter"
+        )
 
 
 def pyhttpdbg_entry_point():
