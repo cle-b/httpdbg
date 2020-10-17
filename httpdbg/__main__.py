@@ -8,13 +8,13 @@ from .mode_pytest import run_pytest
 from .mode_script import run_script
 
 
-def pyhttpdbg(argv):
+def pyhttpdbg(argv, test_mode=False):
 
     print("-- -- -- httpdbg - recorded requests available at http://localhost:5000/ ")
 
     with httpdbg():
         if len(argv) == 0:
-            run_console()
+            run_console(test_mode)
         elif argv[0] == "pytest":
             run_pytest(argv)
         else:
@@ -25,8 +25,8 @@ def pyhttpdbg(argv):
         )
 
 
-def pyhttpdbg_entry_point():
-    pyhttpdbg(sys.argv[1:])
+def pyhttpdbg_entry_point(test_mode=False):
+    pyhttpdbg(sys.argv[1:], test_mode=test_mode)
 
 
 if __name__ == "__main__":
