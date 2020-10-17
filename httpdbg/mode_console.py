@@ -10,8 +10,8 @@ def run_console(test_mode=False):
     try:
         new_console = code.InteractiveConsole(locals={"exit": console_exit})
         if not test_mode:
-            new_console.interact()
+            new_console.interact()  # pragma: no cover
         else:
             return new_console
-    except SystemExit:
+    except SystemExit:  # pragma: no cover
         pass

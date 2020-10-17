@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import importlib
 import sys
+import traceback
 
 
 def run_script(argv):
@@ -9,5 +10,5 @@ def run_script(argv):
         spec = importlib.util.spec_from_file_location("torun", argv[0])
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-    except Exception as exp:
-        print(exp)
+    except Exception:
+        traceback.print_exc()
