@@ -27,6 +27,6 @@ setuptools.setup(
         "Development Status :: 4 - Beta",
     ],
     entry_points={
-        "console_scripts": ["pyhttpdbg=httpdbg.__main__:pyhttpdbg"],
+        "console_scripts": ["pyhttpdbg=httpdbg.__main__:pyhttpdbg_entry_point"],
     },
 )
