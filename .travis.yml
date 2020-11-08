@@ -8,52 +8,38 @@ stages:
 
 dist: focal
 language: python
+install:
+  - python -m pip install --upgrade pip
+  - pip install -r requirements-dev.txt
+  - pip install -e .
 
 jobs:
   include:
 
     - stage: coding rules
       python: 3.8
-      install:
-        - python -m pip install --upgrade pip
-        - pip install -r requirements-dev.txt
       script: flake8 .
       env: L="flake8"
 
     - stage: coding rules
       python: 3.8
-      install:
-        - python -m pip install --upgrade pip
-        - pip install -r requirements-dev.txt
       script: black --check .
       env: L="black"
 
     - stage: tests
       python: 3.6
-      install:
-        - python -m pip install --upgrade pip
-        - pip install -r requirements-dev.txt
       script: coverage run -m pytest -v tests
 
     - stage: tests
       python: 3.7
-      install:
-        - python -m pip install --upgrade pip
-        - pip install -r requirements-dev.txt
       script: coverage run -m pytest -v tests
 
     - stage: tests
       python: 3.8
-      install:
-        - python -m pip install --upgrade pip
-        - pip install -r requirements-dev.txt
       script: coverage run -m pytest -v tests
 
     - stage: tests
       python: 3.9
-      install:
-        - python -m pip install --upgrade pip
-        - pip install -r requirements-dev.txt
       script: coverage run -m pytest -v tests
       after_success:
         - pip install coveralls
