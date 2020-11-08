@@ -14,11 +14,17 @@ jobs:
 
     - stage: coding rules
       python: 3.8
+      install:
+        - python -m pip install --upgrade pip
+        - pip install -r requirements-dev.txt
       script: flake8 .
       env: L="flake8"
 
     - stage: coding rules
       python: 3.8
+      install:
+        - python -m pip install --upgrade pip
+        - pip install -r requirements-dev.txt
       script: black --check . --exclude=(\.tox|venv)
       env: L="black"
 
