@@ -1,11 +1,13 @@
-dist: focal
-language: python
-
 stages:
   - coding rules
-  - test
+  - tests
   - name: deploy
-    if: branch = master
+    if: 
+      - branch = master
+      - tag IS present
+
+dist: focal
+language: python
 
 jobs:
   include:
@@ -58,3 +60,4 @@ jobs:
         distributions: sdist bdist_wheel
         on:
           tags: true    
+
