@@ -25,7 +25,7 @@ jobs:
       install:
         - python -m pip install --upgrade pip
         - pip install -r requirements-dev.txt
-      script: black --check . --exclude=(\.tox|venv)
+      script: black --check .
       env: L="black"
 
     - stage: tests
