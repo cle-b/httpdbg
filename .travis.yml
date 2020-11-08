@@ -15,10 +15,12 @@ jobs:
     - stage: coding rules
       python: 3.8
       script: flake8 .
+      env: L="flake8"
 
     - stage: coding rules
       python: 3.8
       script: black --check . --exclude=(\.tox|venv)
+      env: L="black"
 
     - stage: tests
       python: 3.6
