@@ -2,7 +2,7 @@ stages:
   - coding rules
   - tests
   - name: deploy
-    if: (branch = master) AND (tag IS present)
+    if: tag IS present
 
 dist: focal
 language: python
@@ -52,5 +52,6 @@ jobs:
           secure: Zj3QwtUNNDUN38Sku8dtixA0M7HoM8CCiF5Cz3Gie06Ay4p+4GMolaa0j9bTzc29T+cG/g8JEFaR+ZRiqAP+PsZLJY8tms5u4uJ3b8wqVUDxqfHmPBYLUUZE1orKcy/cyByFsjsXinO7qI+zTrNzw4SGRxuZ3aPzIurZE+XEec8RkIRvsskgXv+0XKFlQ7YoBVk5PG/nNOtFVCJPPekzJeJJYYRplTv0wMFyCE92mtW9l7+Sp2HCR4iEPz3Onyd2xwXvmL6d3M8pUYJBdgfYv4niMqmE6U19uCis3gJPeO8INFmJiU+R0h0eD/Xy9ZP3lnpR3Ydb4ZU5pZHYgJsVfus169i+tXjtZrlSHaEiDuaACWcUpqNWLtbr4WhDmkuIgml+vjshLu8a31Tau/ZRvj4oOfmgqYsakbzkZ5W5OfMVmrfEEYHpQMqOfQ7BKMmZ3jyiWw6BPfhVO1Km3yfLfAcEK69pDWtlMZEQzLvi2o+h8QU5HeDz2oF50eAAf8f2+fIrVaYw+XILftPIBQj/g/N6HNQ7knBj1rZB5gjWJEmDeIC9OlbLmolGY/sQiEA7fc51/g9unIL/syDN9UCoHKCLnwwzPA7uHXICpbKBHwxO4dJixs/Ke1PtZRtT8W6woPAUc/xfe/XS+xAzR/TB5HuMV2fPyaVa+UZCLMCndMs=
         distributions: sdist bdist_wheel
         on:
-          tags: true    
+          tags: true
+          branch: master
 
