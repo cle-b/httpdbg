@@ -2,9 +2,7 @@ stages:
   - coding rules
   - tests
   - name: deploy
-    if: 
-      - branch = master
-      - tag IS present
+    if: (branch = master) AND (tag IS present)
 
 dist: focal
 language: python
