@@ -44,6 +44,7 @@ jobs:
         - coveralls
 
     - stage: deploy
+      python: 3.8
       deploy:
         provider: pypi
         username: __token__
