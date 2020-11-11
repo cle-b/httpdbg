@@ -45,6 +45,7 @@ jobs:
 
     - stage: deploy
       python: 3.8
+      script: echo 'deploy on pypi'
       deploy:
         provider: pypi
         username: __token__
