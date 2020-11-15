@@ -54,6 +54,14 @@ function update_with_template(template_id, target_id, data){
 
 
 function show_request(request_id) {
+
+    var active_rows = document.getElementsByClassName("active-row");
+    [].forEach.call(active_rows, function(el) {
+        el.classList.remove("active-row");
+    });
+
+    document.getElementById("request-" + request_id).classList.add("active-row");
+
     fetch("http://localhost:5000/request/" + request_id)
         .then(res => res.json())
         .then(data => function (data) {

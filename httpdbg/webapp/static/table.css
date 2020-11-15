@@ -1,0 +1,42 @@
+.requests-table {
+    border-collapse: collapse;
+    font-size: 0.9em;
+    width: 99%;
+    table-layout: fixed;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.requests-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: center;
+}
+
+.uri {
+    text-align: left;
+    overflow-wrap: break-word;
+}
+
+.requests-table th,
+.requests-table td {
+    padding: 12px 15px;
+}
+
+
+.requests-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.requests-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.requests-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+
+
+.requests-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
