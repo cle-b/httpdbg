@@ -9,145 +9,153 @@
     <link rel="shortcut icon" href="static/favicon.ico">
 
     <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="static/table.css">
+    <link rel="stylesheet" href="static/column.css">
+    <link rel="stylesheet" href="static/detail.css">
     <script src="static/mustache.min.js"></script>
     <script src="static/render.js"></script>
 </head>
 
 <body>
     <div id="refresh">
-        &#9888 disconnected - <button onclick="enable_refresh()">try reconnect</button> 
-    </div>
-    <div class="scroll req-list">
-        <table id="requests-list">
-            <colgroup>
-                <col span="1" style="width: 40px;">
-                <col span="1" style="width: 40px;">
-                <col span="1">
-                <col span="1">
-                <col span="1" style="width: 50px;">
-                <col span="1" style="width: 30px;">
-                <col span="1" style="width: 30px;">
-            </colgroup>
-
-            <thead>
-                <tr>
-                    <th class="text-center" style="max-width: 40px;" title="status">status</th>
-                    <th class="text-center" style="max-width: 40px;" title="method">method</th>
-                    <th class="text-center" title="domain">domain</th>
-                    <th class="text-center" title="file">file</th>
-                    <th class="text-center" style="max-width: 50px;" title="type">type</th>
-                    <th class="text-center" style="max-width: 30px;" title="transferred">transferred</th>
-                    <th class="text-center" style="max-width: 30px;" title="size">size</th>
-                </tr>
-            </thead>
-
-            <tbody>
-            </tbody>
-
-            <script id="template_request" type="x-tmpl-mustache">
-                <tr id="request-{{id}}" title="{{uri}}" onclick="show_request({{id}})">
-                    <td class="text-center">{{status.code}}</td>
-                    <td class="text-center">{{method}}</td>
-                    <td>{{domain}}</td>
-                    <td>{{file}}</td>
-                    <td class="text-center">{{type}}</td>
-                    <td class="text-center">{{transferred}}</td>
-                    <td class="text-center">{{size}}</td>
-                </tr>
-            </script>
-        </table>
+        &#9888 disconnected - <button onclick="enable_refresh()">try reconnect</button>
     </div>
 
-    <!-- Tab links -->
-    <div class="scroll req-detail">
-        <div class="tab">
-            <button id="btn-tab-headers" class="tablinks" onclick="opentab(event.currentTarget, 'tabHeaders')">headers</button>
-            <button id="btn-tab-cookies" class="tablinks" onclick="opentab(event.currentTarget, 'tabCookies')">cookies</button>
-            <button id="btn-tab-request" class="tablinks" onclick="opentab(event.currentTarget, 'tabRequest')">request</button>
-            <button id="btn-tab-response" class="tablinks" onclick="opentab(event.currentTarget, 'tabResponse')">response</button>
+    <div class="grid-container">
+
+        <div class="grid-column grid-column-left">
+
+            <table class="requests-table" id="requests-list">
+                <colgroup>
+                    <col span="1" style="width: 40px;">
+                    <col span="1" style="width: 40px;">
+                    <col span="1">
+                </colgroup>
+
+                <thead>
+                    <tr>
+                        <th style="max-width: 40px;" title="status"></th>
+                        <th style="max-width: 40px;" title="method"></th>
+                        <th title="url">url</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                </tbody>
+
+                <script id="template_request" type="x-tmpl-mustache">
+                        <tr id="request-{{id}}" title="{{uri}}" onclick="show_request({{id}})">
+                            <td>{{status.code}}</td>
+                            <td>{{method}}</td>
+                            <td class="uri">{{uri}}</td>
+                        </tr>
+                    </script>
+            </table>
+
         </div>
 
-        <!-- Tab content -->
-        <div id="tabHeaders" class="tabcontent">
-            <div id="headers">select a request to view details</div>
-            <script id="template_headers" type="x-tmpl-mustache">
-               <b>{{ method }}</b> <a href="{{ uri }}">{{ uri }}</a>
-               <hr>
-               <table class="headers">
-                <tr>
-                    <th> status </th>
-                    <td> {{ status.code }} {{ status.message }}</td>
-                </tr>
-               </table>
-               <hr>
-               <h4>response headers</h4>
-               {{#response.headers}}
-               <span class="header">{{name}}:</span> {{value}}
-               <br>
-               {{/response.headers}}
-               <hr>
-               <h4>request headers</h4>
-               {{#request.headers}}
-               <span class="header">{{name}}:</span> {{value}}
-               <br>
-               {{/request.headers}}
-            </script>
+        <div class="grid-column">
+
+
+            <div class="req-detail">
+
+                <div class="tab">
+                    <button id="btn-tab-headers" class="tablinks"
+                        onclick="opentab(event.currentTarget, 'tabHeaders')">headers</button>
+                    <button id="btn-tab-cookies" class="tablinks"
+                        onclick="opentab(event.currentTarget, 'tabCookies')">cookies</button>
+                    <button id="btn-tab-request" class="tablinks"
+                        onclick="opentab(event.currentTarget, 'tabRequest')">request</button>
+                    <button id="btn-tab-response" class="tablinks"
+                        onclick="opentab(event.currentTarget, 'tabResponse')">response</button>
+                </div>
+
+
+                <div id="tabHeaders" class="tabcontent">
+                    <div id="headers">select a request to view details</div>
+                    <script id="template_headers" type="x-tmpl-mustache">
+                           <b>{{ method }}</b> <a href="{{ uri }}">{{ uri }}</a>
+                           <hr>
+                           <table class="headers">
+                            <tr>
+                                <th> status </th>
+                                <td> {{ status.code }} {{ status.message }}</td>
+                            </tr>
+                           </table>
+                           <hr>
+                           <h4>response headers</h4>
+                           {{#response.headers}}
+                           <span class="header">{{name}}:</span> {{value}}
+                           <br>
+                           {{/response.headers}}
+                           <hr>
+                           <h4>request headers</h4>
+                           {{#request.headers}}
+                           <span class="header">{{name}}:</span> {{value}}
+                           <br>
+                           {{/request.headers}}
+                        </script>
+                </div>
+
+                <div id="tabCookies" class="tabcontent">
+                    <div id="cookies">select a request to view details</div>
+                    <script id="template_cookies" type="x-tmpl-mustache">
+                           <h4>response cookies</h4>
+                           {{#response.cookies}}
+                           <span class="cookie">{{name}}:</span> {{value}}
+                             <ul>
+                               {{#attributes}}
+                               <li>
+                                    <span class="attribute">{{name}}:</span> {{value}}
+                               </li>
+                               {{/attributes}}
+                             </ul>
+                           <br>
+                           {{/response.cookies}}
+                           <hr>
+                           <h4>request cookies</h4>
+                           {{#request.cookies}}
+                           <span class="cookie">{{name}}:</span> {{value}}
+                           <br>
+                           {{/request.cookies}}
+                        </script>
+                </div>
+
+                <div id="tabRequest" class="tabcontent">
+                    <div id="body_sent">select a request to view details</div>
+                    <script id="template_body" type="x-tmpl-mustache">
+                            {{^body}}
+                            -- no content --
+                            {{/body}}
+            
+                            {{#body.path}}
+                            <a href="{{body.path}}" download="{{body.filename}}">download</a>
+                            <br>
+                            {{/body.path}}
+            
+                            {{#body.text}}
+                            <pre>{{body.text}}</pre>
+                            <br>
+                            {{/body.text}}
+            
+                            {{#body.image}}
+                            <img src="{{body.path}}">
+                            {{/body.image}}
+                        </script>
+                </div>
+
+                <div id="tabResponse" class="tabcontent">
+                    <div id="body_received">select a request to view details</div>
+                </div>
+            </div>
+
         </div>
 
-        <div id="tabCookies" class="tabcontent">
-            <div id="cookies">select a request to view details</div>
-            <script id="template_cookies" type="x-tmpl-mustache">
-               <h4>response cookies</h4>
-               {{#response.cookies}}
-               <span class="cookie">{{name}}:</span> {{value}}
-                 <ul>
-                   {{#attributes}}
-                   <li>
-                        <span class="attribute">{{name}}:</span> {{value}}
-                   </li>
-                   {{/attributes}}
-                 </ul>
-               <br>
-               {{/response.cookies}}
-               <hr>
-               <h4>request cookies</h4>
-               {{#request.cookies}}
-               <span class="cookie">{{name}}:</span> {{value}}
-               <br>
-               {{/request.cookies}}
-            </script>
-        </div>
-
-        <div id="tabRequest" class="tabcontent">
-            <div id="body_sent">select a request to view details</div>
-            <script id="template_body" type="x-tmpl-mustache">
-                {{^body}}
-                -- no content --
-                {{/body}}
-
-                {{#body.path}}
-                <a href="{{body.path}}" download="{{body.filename}}">download</a>
-                <br>
-                {{/body.path}}
-
-                {{#body.text}}
-                <pre>{{body.text}}</pre>
-                <br>
-                {{/body.text}}
-
-                {{#body.image}}
-                <img src="{{body.path}}">
-                {{/body.image}}
-            </script>
-        </div>
-
-        <div id="tabResponse" class="tabcontent">
-            <div id="body_received">select a request to view details</div>
-        </div>
     </div>
 
-    <script>        
-        enable_refresh();        
+
+    <script>
+        enable_refresh();
         opentab(document.getElementById("btn-tab-headers"), "tabHeaders");
     </script>
 </body>

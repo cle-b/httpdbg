@@ -1,0 +1,15 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-gap: 10px;
+}
+
+.grid-column {
+    height: 90vh;
+    overflow: auto;
+}
+
+.grid-column-left {
+    min-width: 33vw;
+    resize: horizontal;
+}

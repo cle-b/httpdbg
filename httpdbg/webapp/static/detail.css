@@ -1,0 +1,68 @@
+#headers table {
+  border: 0px;
+  text-align: left;
+  font-size: 0.9em;
+  font-family: sans-serif;
+}
+
+#headers .header {
+  color: #13550a;
+}
+
+#cookies .cookie {
+  color: #13550a;
+}
+
+#cookies .attribute {
+  color: #4a550a;
+}
+
+
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #009879;
+}
+
+
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0px 16px;
+  height: 42px;
+  background-color: #009879;
+  color: #ffffff;
+  font-size: 0.9em;
+}
+
+
+.tab button:hover {
+  background-color: #36e6c2;
+}
+
+
+.tab button.active {
+  background-color: #075c4b;
+}
+
+
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+.req-detail {
+  width: 99%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
