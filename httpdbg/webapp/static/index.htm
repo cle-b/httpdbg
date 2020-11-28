@@ -43,13 +43,19 @@
                 <tbody>
                 </tbody>
 
+                <script id="template_source" type="x-tmpl-mustache">
+                    <tr id="source-{{id}}" data-source="{{id}}" class="src">
+                        <td colspan="3">{{label}}</td>
+                    </tr>
+                </script>
+
                 <script id="template_request" type="x-tmpl-mustache">
-                        <tr id="request-{{id}}" title="{{uri}}" onclick="show_request({{id}})">
+                        <tr id="request-{{id}}" data-source="{{src.id}}" title="{{uri}}" onclick="show_request({{id}})">
                             <td>{{status.code}}</td>
                             <td>{{method}}</td>
                             <td class="uri">{{uri}}</td>
                         </tr>
-                    </script>
+                </script>
             </table>
 
         </div>

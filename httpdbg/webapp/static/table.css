@@ -15,6 +15,14 @@
 .uri {
     text-align: left;
     overflow-wrap: break-word;
+    background-color: #F5F5DC;
+}
+
+
+.src {
+    text-align: left;
+    overflow-wrap: break-word;
+    background-color: #f2f2f2;
 }
 
 .requests-table th,
@@ -25,10 +33,6 @@
 
 .requests-table tbody tr {
     border-bottom: 1px solid #dddddd;
-}
-
-.requests-table tbody tr:nth-of-type(even) {
-    background-color: #f3f3f3;
 }
 
 .requests-table tbody tr:last-of-type {

@@ -147,6 +147,7 @@ class RequestList(Resource):
                     "type": simple_content_type,
                     "transferred": str(len(response["body"]["string"])),
                     "size": get_header(response["headers"], "Content-Length"),
+                    "src": request.src.to_json() if hasattr(request, "src") else None,
                 }
             )
 
