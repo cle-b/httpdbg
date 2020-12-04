@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="httpdbg",
-    version="0.0.14",
+    version="0.0.15",
     author="cle-b",
     author_email="cle@tictac.pm",
     description="A very simple tool to debug HTTP client requests",
