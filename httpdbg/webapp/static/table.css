@@ -25,6 +25,17 @@
     background-color: #f2f2f2;
 }
 
+.status {
+    text-align: center;
+    width: 36px;
+}
+
+
+.method {
+    text-align: left;
+    width: 78px;
+}
+
 .requests-table th,
 .requests-table td {
     padding: 12px 15px;
