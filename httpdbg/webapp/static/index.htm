@@ -8,6 +8,7 @@
 
     <link rel="shortcut icon" href="static/favicon.ico">
 
+    <link rel="stylesheet" href="static/tooltip.css">
     <link rel="stylesheet" href="static/style.css">
     <link rel="stylesheet" href="static/table.css">
     <link rel="stylesheet" href="static/column.css">
@@ -27,16 +28,16 @@
 
             <table class="requests-table" id="requests-list">
                 <colgroup>
-                    <col span="1" style="width: 40px;">
-                    <col span="1" style="width: 40px;">
+                    <col span="1" class="status">
+                    <col span="1" class="method">
                     <col span="1">
                 </colgroup>
 
                 <thead>
                     <tr>
-                        <th style="max-width: 40px;" title="status"></th>
-                        <th style="max-width: 40px;" title="method"></th>
-                        <th title="url">url</th>
+                        <th class="status" title="status"></th>
+                        <th class="method" title="method"></th>
+                        <th>url</th>
                     </tr>
                 </thead>
 
@@ -50,11 +51,11 @@
                 </script>
 
                 <script id="template_request" type="x-tmpl-mustache">
-                        <tr id="request-{{id}}" data-source="{{src.id}}" title="{{uri}}" onclick="show_request({{id}})">
-                            <td>{{status.code}}</td>
-                            <td>{{method}}</td>
-                            <td class="uri">{{uri}}</td>
-                        </tr>
+                    <tr id="request-{{id}}" data-source="{{src.id}}" onclick="show_request({{id}})">
+                        <td class="status"><span data-tooltip="{{status.message}}" class="tooltip tooltip-status">{{status.code}}</span></td>
+                        <td class="method"><span data-tooltip="{{method.description}}" class="tooltip tooltip-method">{{method.verb}}</span></td>
+                        <td class="uri">{{uri}}</td>
+                    </tr>
                 </script>
             </table>
 
@@ -133,17 +134,17 @@
                             {{^body}}
                             -- no content --
                             {{/body}}
-            
+
                             {{#body.path}}
                             <a href="{{body.path}}" download="{{body.filename}}">download</a>
                             <br>
                             {{/body.path}}
-            
+
                             {{#body.text}}
                             <pre>{{body.text}}</pre>
                             <br>
                             {{/body.text}}
-            
+
                             {{#body.image}}
                             <img src="{{body.path}}">
                             {{/body.image}}

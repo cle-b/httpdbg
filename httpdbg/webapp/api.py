@@ -7,6 +7,7 @@ import uuid
 from flask import abort, send_file
 from flask_restful import Resource
 
+from .informations import http_verbs
 from ..vcrpy import get_header, get_headers, list_cookies_request, list_cookies_response
 from .preview import generate_preview
 
@@ -137,8 +138,11 @@ class RequestList(Resource):
                 {
                     "id": i,
                     "uri": request.uri,
-                    "status": response.get("status", ""),
-                    "method": request.method,
+                    "status": response.get("status", {"code": 0, "message": "--"}),
+                    "method": {
+                        "verb": request.method,
+                        "description": http_verbs.get(request.method.upper(), ""),
+                    },
                     "scheme": request.scheme,
                     "domain": request.host + (f":{request.port}" if uri.port else ""),
                     "port": request.port,

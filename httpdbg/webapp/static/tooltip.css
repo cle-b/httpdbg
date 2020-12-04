@@ -1,0 +1,52 @@
+.tooltip {
+  position: relative;
+}
+
+.tooltip:before {
+  content: attr(data-tooltip);
+  position: absolute;  
+  transform: translateY(-50%);
+  left: 100%;
+  top: 50%;
+  margin-left: 10px;
+  padding: 5px 5px;
+  border-radius: 6px;
+  background: #333;
+  color: #eee;
+  text-align: left;
+  display: none;
+  font-weight: normal !important;
+}
+
+.tooltip:hover:before,
+.tooltip:hover:after {
+  display: block;
+}
+
+.tooltip-status:hover:before,
+.tooltip-method:hover:before {
+  opacity: 1 !important;
+  z-index: 1;
+  text-align: left;
+}
+
+.tooltip-status:hover:before {
+  white-space: nowrap;
+}
+
+.tooltip-method:hover:before {
+  width: 20vw;
+}
+
+/* the arrow */
+.tooltip:after {
+  content: "";
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 1 !important;
+  border: 5px solid #333;
+  border-color: transparent #333 transparent transparent;
+  display: none;
+} 
