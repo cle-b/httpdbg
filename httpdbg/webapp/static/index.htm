@@ -10,11 +10,13 @@
 
     <link rel="stylesheet" href="static/tooltip.css">
     <link rel="stylesheet" href="static/style.css">
-    <link rel="stylesheet" href="static/table.css">
+    <link rel="stylesheet" href="static/table.css">    
     <link rel="stylesheet" href="static/column.css">
     <link rel="stylesheet" href="static/detail.css">
+    <style type="text/css" id="filter"></style>
     <script src="static/mustache.min.js"></script>
     <script src="static/render.js"></script>
+    <script src="static/filter.js"></script>
 </head>
 
 <body>
@@ -37,12 +39,24 @@
                     <tr>
                         <th class="status" title="status"></th>
                         <th class="method" title="method"></th>
-                        <th>url</th>
-                    </tr>
+                        <th>url 
+                            <span id="filter-url-btn" onclick="show_filter_url()">&#10729;</span>
+                            <input type="text" 
+                            value=""
+                            id="filter-url"
+                            onkeyup="update_filter_url()"
+                            oncut="update_filter_url()"
+                            onpaste="update_filter_url()"
+                            onchange="update_filter_url()"
+                            style="display: none;">
+                        </th>
+                    </tr>               
                 </thead>
 
+
+
                 <tbody>
-                </tbody>
+                </tbody>                
 
                 <script id="template_source" type="x-tmpl-mustache">
                     <tr id="source-{{id}}" data-source="{{id}}" class="src">
@@ -51,10 +65,14 @@
                 </script>
 
                 <script id="template_request" type="x-tmpl-mustache">
-                    <tr id="request-{{id}}" data-source="{{src.id}}" onclick="show_request({{id}})">
+                    <tr id="request-{{id}}" 
+                        data-source="{{src.id}}" 
+                        data-filter-url="{{uri}}"
+                        onclick="show_request({{id}})"
+                        class="request">
                         <td class="status"><span data-tooltip="{{status.message}}" class="tooltip tooltip-status">{{status.code}}</span></td>
                         <td class="method"><span data-tooltip="{{method.description}}" class="tooltip tooltip-method">{{method.verb}}</span></td>
-                        <td class="uri">{{uri}}</td>
+                        <td class="uri"><span>{{uri}}</span></td>
                     </tr>
                 </script>
             </table>
@@ -162,6 +180,7 @@
 
 
     <script>
+        update_filter_url();
         enable_refresh();
         opentab(document.getElementById("btn-tab-headers"), "tabHeaders");
     </script>
