@@ -5,7 +5,7 @@ function refresh_resquests() {
     var table = document.getElementById("requests-list");
     var template_request = document.getElementById("template_request").innerHTML;
     var template_source = document.getElementById("template_source").innerHTML;
-    fetch("http://localhost:5000/requests")
+    fetch("/requests")
         .then(res => res.json())
         .then(data => {
             if (data["id"] != k7_id) {
@@ -82,7 +82,7 @@ function show_request(request_id) {
 
     document.getElementById("request-" + request_id).classList.add("active-row");
 
-    fetch("http://localhost:5000/request/" + request_id)
+    fetch("/request/" + request_id)
         .then(res => res.json())
         .then(data => function (data) {
 
