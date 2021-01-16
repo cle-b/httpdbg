@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import readline  # noqa: F401 enable the 'up arrow' history in the console
+try:
+    import readline  # noqa: F401 enable the 'up arrow' history in the console
+except ImportError:
+    pass  # readline is not available on Windows
 import sys
 import time
 
