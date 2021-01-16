@@ -4,19 +4,19 @@ on: [push]
 
 jobs:
   linter:
-    name: linter
+    name: Linter
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: set up Python ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
-    - name: install dependencies
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install -r requirements-dev.txt
-    - name: lint with flake8
+    - name: Lint with flake8
       run: |
         flake8 .
     - name: Black
@@ -24,7 +24,7 @@ jobs:
         black . 
 
   tests:
-    name: tests
+    name: Tests
     needs: linter
     runs-on: ubuntu-latest
     strategy:
@@ -33,13 +33,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: set up Python ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: install the package
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements-dev.txt
+    - name: Install the package
       run: |
         python -m pip install -e .
-    - name: run the tests
+    - name: Run the tests
       run: |
         pytest -v tests/
