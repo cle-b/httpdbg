@@ -26,9 +26,10 @@ jobs:
   test:
     name: Test
     needs: lint
-    runs-on: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [macos-latest, windows-latest, ubuntu-18.04]
         python-version: [3.7, 3.8, 3.9]
 
     steps:
