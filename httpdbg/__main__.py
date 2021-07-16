@@ -11,6 +11,7 @@ from .httpdbg import httpdbg
 from .mode_console import run_console
 from .mode_pytest import run_pytest
 from .mode_script import run_script
+from .webapp import httpdebugk7
 
 
 def pyhttpdbg(port, delay_after_end, argv, test_mode=False):
@@ -35,7 +36,14 @@ def pyhttpdbg(port, delay_after_end, argv, test_mode=False):
             print(
                 f"-- -- -- httpdbg - recorded requests available at http://localhost:{port}/ for {delay_after_end} seconds"
             )
-            time.sleep(delay_after_end)
+            tend = time.time() + (delay_after_end)
+            while time.time() < tend:
+                time.sleep(1)
+                # if all the requests have been download in the webpage, we prematurarly stop the python process
+                if set(httpdebugk7["requests"]["available"]) == set(
+                    httpdebugk7["requests"]["getted"]
+                ):
+                    break
 
 
 def pyhttpdbg_entry_point(test_mode=False):
