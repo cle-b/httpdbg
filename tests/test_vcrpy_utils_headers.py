@@ -16,7 +16,7 @@ def test_vcrpy_utils_get_headers_request(httpbin):
 
     with my_vcr.use_cassette(path="cassettes", decode_compressed_response=True) as k7:
         requests.get(httpbin.url + "/get")
-        assert {"name": "Accept-Encoding", "value": "gzip, deflate"} in get_headers(
+        assert {'name': 'Accept', 'value': '*/*'} in get_headers(
             k7.requests[0].headers
         )
 
@@ -42,9 +42,8 @@ def test_vcrpy_utils_get_header_request(httpbin):
 
     with my_vcr.use_cassette(path="cassettes", decode_compressed_response=True) as k7:
         requests.get(httpbin.url + "/get")
-        assert get_header(k7.requests[0].headers, "Accept-Encoding") == "gzip, deflate"
-        assert get_header(k7.requests[0].headers, "ACCEPT-Encoding") == "gzip, deflate"
-
+        assert "gzip" in get_header(k7.requests[0].headers, "Accept-Encoding")
+        assert "gzip" in get_header(k7.requests[0].headers, "ACCEPT-Encoding")
 
 @pytest.mark.vcrpy
 def test_vcrpy_utils_get_header_response(httpbin):
