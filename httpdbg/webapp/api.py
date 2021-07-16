@@ -15,6 +15,7 @@ from .preview import generate_preview
 httpdebugk7 = {
     "k7": None,
     "id": str(uuid.uuid4()),
+    "requests": {"available": [], "getted": []},
 }  # this global variable is used to share the cassettes (requests's informations recorded)
 
 
@@ -27,6 +28,9 @@ class Request(Resource):
 
         if int(req_id) > len(httpdebugk7["k7"].requests):
             abort(404)
+
+        if req_id not in httpdebugk7["requests"]["getted"]:
+            httpdebugk7["requests"]["getted"].append(int(req_id))
 
         request = httpdebugk7["k7"].requests[int(req_id)]
 
@@ -123,6 +127,12 @@ class RequestList(Resource):
 
         k7 = {"id": httpdebugk7["id"], "requests": []}
         for i in range(len(httpdebugk7["k7"].requests)):
+
+            # we keep a list of all available requests to check if all of them have been getted
+            if i not in httpdebugk7["requests"]["available"]:
+                httpdebugk7["requests"]["available"].append(i)
+
+            # for each request, we prepare a summary
             request = httpdebugk7["k7"].requests[i]
             response = httpdebugk7["k7"].responses[i]
 

@@ -1,68 +1,44 @@
+"use strict";
+
 var refresh = null;
 var k7_id = null;
 
-function refresh_resquests() {
+async function refresh_resquests() {
     var table = document.getElementById("requests-list");
     var template_request = document.getElementById("template_request").innerHTML;
     var template_source = document.getElementById("template_source").innerHTML;
-    fetch("/requests")
-        .then(res => res.json())
-        .then(data => {
-            if (data["id"] != k7_id) {
-                table.getElementsByTagName("tbody")[0].innerHTML = '';
-                document.getElementById("headers").innerHTML = 'select a request to view details';
-                document.getElementById("cookies").innerHTML = 'select a request to view details';
-                document.getElementById("body_sent").innerHTML = 'select a request to view details';
-                document.getElementById("body_received").innerHTML = 'select a request to view details';
-            };
-            k7_id = data["id"];
-
-            var tbody = table.getElementsByTagName("tbody")[0];
-
-            data["requests"].forEach(request => {
-                if (!document.getElementById("request-" + request.id)) {
-
-                    if (request.src) {
-                        if (!document.getElementById("source-" + request.src.id)) {
-                            var rendered = Mustache.render(template_source, request.src);
-                            tbody.insertAdjacentHTML("beforeend", rendered);
-                        }
-                    }
-
-                    var rendered = Mustache.render(template_request, request);
-                    if (request.src) {
-                        var last_row = document.querySelector("[data-source='" + request.src.id + "']:last-of-type");
-                        last_row.insertAdjacentHTML("afterend", rendered);
-                    } else {
-                        tbody.insertAdjacentHTML("beforeend", rendered);
-                    }
-                };
-            })
-        })
-        .then(enable_refresh())
-        .catch((error) => {
-            console.error('Error:', error);
-            disable_refresh();
-        });
-};
-
-function disable_refresh() {
-    document.getElementById("refresh").style.display = "block";
-    if (refresh != null)
-        clearInterval(refresh);
-    refresh = setInterval(function () {
-        refresh_resquests();
-    }, 20000);
-}
 
 
-function enable_refresh() {
-    document.getElementById("refresh").style.display = "none";
-    if (refresh != null)
-        clearInterval(refresh);
-    refresh = setInterval(function () {
-        refresh_resquests();
-    }, 2000);
+    if (global.k7 != k7_id) {
+        table.getElementsByTagName("tbody")[0].innerHTML = '';
+        document.getElementById("headers").innerHTML = 'select a request to view details';
+        document.getElementById("cookies").innerHTML = 'select a request to view details';
+        document.getElementById("body_sent").innerHTML = 'select a request to view details';
+        document.getElementById("body_received").innerHTML = 'select a request to view details';
+    };
+    k7_id = global.k7;
+
+    var tbody = table.getElementsByTagName("tbody")[0];
+
+    for (const [request_id, request] of Object.entries(global.requests)) {
+        if (!document.getElementById("request-" + request.id)) {
+
+            if (request.src) {
+                if (!document.getElementById("source-" + request.src.id)) {
+                    var rendered = Mustache.render(template_source, request.src);
+                    tbody.insertAdjacentHTML("beforeend", rendered);
+                }
+            }
+
+            var rendered = Mustache.render(template_request, request);
+            if (request.src) {
+                var last_row = document.querySelector("[data-source='" + request.src.id + "']:last-of-type");
+                last_row.insertAdjacentHTML("afterend", rendered);
+            } else {
+                tbody.insertAdjacentHTML("beforeend", rendered);
+            }
+        };
+    };
 }
 
 
@@ -82,19 +58,15 @@ function show_request(request_id) {
 
     document.getElementById("request-" + request_id).classList.add("active-row");
 
-    fetch("/request/" + request_id)
-        .then(res => res.json())
-        .then(data => function (data) {
+    var data = global.requests[request_id].data;
 
-                update_with_template("template_headers", "headers", data);
+    update_with_template("template_headers", "headers", data);
 
-                update_with_template("template_cookies", "cookies", data);
+    update_with_template("template_cookies", "cookies", data);
 
-                update_with_template("template_body", "body_sent", data.request);
+    update_with_template("template_body", "body_sent", data.request);
 
-                update_with_template("template_body", "body_received", data.response);
-            }
-            (data));
+    update_with_template("template_body", "body_received", data.response);
 }
 
 
@@ -114,4 +86,14 @@ function opentab(btn, tabname) {
 
     document.getElementById(tabname).style.display = "block";
     btn.className += " active";
+}
+
+async function enable_refresh() {
+
+    while (true) {
+        await Promise.all([
+            refresh_resquests(),
+            wait_for(500)
+        ]);
+    }
 }
