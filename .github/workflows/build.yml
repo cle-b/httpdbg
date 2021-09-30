@@ -21,7 +21,7 @@ jobs:
         flake8 .
     - name: Black
       run: |
-        black . 
+        black --check . --exclude=(\.tox|venv)
 
   test:
     name: Test
