@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" href="static/tooltip.css">
     <link rel="stylesheet" href="static/style.css">
-    <link rel="stylesheet" href="static/table.css">    
+    <link rel="stylesheet" href="static/table.css">
     <link rel="stylesheet" href="static/column.css">
     <link rel="stylesheet" href="static/detail.css">
     <style type="text/css" id="filter"></style>
@@ -41,24 +41,19 @@
                     <tr>
                         <th class="status" title="status"></th>
                         <th class="method" title="method"></th>
-                        <th>url 
+                        <th>url
                             <span id="filter-url-btn" onclick="show_filter_url()">&#10729;</span>
-                            <input type="text" 
-                            value=""
-                            id="filter-url"
-                            onkeyup="update_filter_url()"
-                            oncut="update_filter_url()"
-                            onpaste="update_filter_url()"
-                            onchange="update_filter_url()"
-                            style="display: none;">
+                            <input type="text" value="" id="filter-url" onkeyup="update_filter_url()"
+                                oncut="update_filter_url()" onpaste="update_filter_url()" onchange="update_filter_url()"
+                                style="display: none;">
                         </th>
-                    </tr>               
+                    </tr>
                 </thead>
 
 
 
                 <tbody>
-                </tbody>                
+                </tbody>
 
                 <script id="template_source" type="x-tmpl-mustache">
                     <tr id="source-{{id}}" data-source="{{id}}" class="src">
@@ -69,12 +64,12 @@
                 <script id="template_request" type="x-tmpl-mustache">
                     <tr id="request-{{id}}" 
                         data-source="{{src.id}}" 
-                        data-filter-url="{{uri}}"
+                        data-filter-url="{{url}}"
                         onclick="show_request({{id}})"
                         class="request">
                         <td class="status"><span data-tooltip="{{status.message}}" class="tooltip tooltip-status">{{status.code}}</span></td>
                         <td class="method"><span data-tooltip="{{method.description}}" class="tooltip tooltip-method">{{method.verb}}</span></td>
-                        <td class="uri"><span>{{uri}}</span></td>
+                        <td class="url"><span>{{url}}</span></td>
                     </tr>
                 </script>
             </table>
@@ -101,7 +96,7 @@
                 <div id="tabHeaders" class="tabcontent">
                     <div id="headers">select a request to view details</div>
                     <script id="template_headers" type="x-tmpl-mustache">
-                           <b>{{ method }}</b> <a href="{{ uri }}">{{ uri }}</a>
+                           <b>{{ method }}</b> <a href="{{ url }}">{{ url }}</a>
                            <hr>
                            <table class="headers">
                             <tr>

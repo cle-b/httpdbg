@@ -20,7 +20,7 @@ def test_api_requests_one_request(httpbin):
     reqs = ret.json()["requests"]
 
     assert len(reqs) == 1
-    assert reqs[0]["uri"] == httpbin.url + "/get"
+    assert reqs[0]["url"] == httpbin.url + "/get"
 
 
 @pytest.mark.api
@@ -38,8 +38,8 @@ def test_api_requests_two_requests(httpbin):
     reqs = ret.json()["requests"]
 
     assert len(reqs) == 2
-    assert reqs[0]["uri"] == httpbin.url + "/get/abc"
-    assert reqs[1]["uri"] == httpbin.url + "/get/def"
+    assert reqs[0]["url"] == httpbin.url + "/get/abc"
+    assert reqs[1]["url"] == httpbin.url + "/get/def"
 
 
 @pytest.mark.api
@@ -53,11 +53,11 @@ def test_api_request_by_id(httpbin):
 
     ret = requests.get(f"http://127.0.0.1:{current_httpdbg_port}/request/0")
     assert ret.status_code == 200
-    assert ret.json()["uri"] == httpbin.url + "/get/abc"
+    assert ret.json()["url"] == httpbin.url + "/get/abc"
 
     ret = requests.get(f"http://127.0.0.1:{current_httpdbg_port}/request/1")
     assert ret.status_code == 200
-    assert ret.json()["uri"] == httpbin.url + "/get/def"
+    assert ret.json()["url"] == httpbin.url + "/get/def"
 
     stop_httpdbg()
 
@@ -90,7 +90,7 @@ def test_api_get_request_get(httpbin):
 
     # headers
     assert ret.status_code == 200
-    assert ret.json()["uri"] == httpbin.url + "/get"
+    assert ret.json()["url"] == httpbin.url + "/get"
     assert ret.json()["method"] == "GET"
     assert ret.json()["protocol"] == "http"
     assert ret.json()["status"] == {"code": 200, "message": "OK"}
@@ -132,7 +132,7 @@ def test_api_get_request_post(httpbin):
 
     # headers
     assert ret.status_code == 200
-    assert ret.json()["uri"] == httpbin.url + "/post"
+    assert ret.json()["url"] == httpbin.url + "/post"
     assert ret.json()["method"] == "POST"
     assert ret.json()["protocol"] == "http"
     assert ret.json()["status"] == {"code": 200, "message": "OK"}
@@ -178,5 +178,5 @@ def test_api_get_request_get_status_404(httpbin):
     stop_httpdbg()
 
     assert ret.status_code == 200
-    assert ret.json()["uri"] == httpbin.url + "/get/abc"
+    assert ret.json()["url"] == httpbin.url + "/get/abc"
     assert ret.json()["status"] == {"code": 404, "message": "NOT FOUND"}

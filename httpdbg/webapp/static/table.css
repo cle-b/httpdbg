@@ -12,12 +12,13 @@
     text-align: center;
 }
 
-.uri {
+.url {
     text-align: left;
-    overflow-wrap: break-word;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
     background-color: #F5F5DC;
 }
-
 
 .src {
     text-align: left;

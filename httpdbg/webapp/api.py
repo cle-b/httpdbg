@@ -35,7 +35,7 @@ class Request(Resource):
         request = httpdebugk7["k7"].requests[int(req_id)]
 
         details = {
-            "uri": request.uri,
+            "url": request.uri,
             "method": request.method,
             "protocol": request.protocol,
             "status": None,
@@ -136,31 +136,15 @@ class RequestList(Resource):
             request = httpdebugk7["k7"].requests[i]
             response = httpdebugk7["k7"].responses[i]
 
-            simple_content_type = (
-                get_header(response["headers"], "Content-Type")
-                .split(";")[0]
-                .split("/")[-1]
-            )
-
-            uri = urlparse(request.uri)
-
             k7["requests"].append(
                 {
                     "id": i,
-                    "uri": request.uri,
+                    "url": request.uri,
                     "status": response.get("status", {"code": 0, "message": "--"}),
                     "method": {
                         "verb": request.method,
                         "description": http_verbs.get(request.method.upper(), ""),
                     },
-                    "scheme": request.scheme,
-                    "domain": request.host + (f":{request.port}" if uri.port else ""),
-                    "port": request.port,
-                    "file": uri.path + (f"?{uri.query}" if uri.query else ""),
-                    "path": uri.path,
-                    "type": simple_content_type,
-                    "transferred": str(len(response["body"]["string"])),
-                    "size": get_header(response["headers"], "Content-Length"),
                     "src": request.src.to_json() if hasattr(request, "src") else None,
                 }
             )
