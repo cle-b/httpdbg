@@ -20,8 +20,9 @@ setuptools.setup(
     package_data={"httpdbg": ["webapp/static/*"]},
     python_requires=">=3.6",
     install_requires=[
-        "vcrpy >= 4.0",
-        "flask>=2.0.0",
+        "vcrpy>=4.0",
+        "Jinja2<3.1"
+        "flask",
         "flask-restful",
         "beautifulsoup4",
     ],
