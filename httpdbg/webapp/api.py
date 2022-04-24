@@ -97,7 +97,7 @@ class RequestContentDown(Resource):
 
         return send_file(
             io.BytesIO(response["body"]["string"]),
-            attachment_filename=filename,
+            download_name=filename,
             mimetype=get_header(response["headers"], "Content-Type"),
         )
 
@@ -116,7 +116,7 @@ class RequestContentUp(Resource):
 
         return send_file(
             io.BytesIO(request.body),
-            attachment_filename="upload",
+            download_name="upload",
             mimetype="application/octet-stream",
         )
 

@@ -19,7 +19,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_data={"httpdbg": ["webapp/static/*"]},
     python_requires=">=3.6",
-    install_requires=["vcrpy >= 4.0", "flask", "flask-restful", "beautifulsoup4"],
+    install_requires=["vcrpy >= 4.0", "flask>=2.0.0", "flask-restful", "beautifulsoup4"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
