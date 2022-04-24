@@ -4,7 +4,7 @@ import os
 import requests
 
 
-def test_demo():
+def test_demo_pytest():
     base_url = os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"]
 
     requests.post(f"{base_url}/post")

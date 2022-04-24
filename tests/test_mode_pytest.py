@@ -2,6 +2,7 @@
 import io
 import os
 
+import pytest
 import requests
 
 from httpdbg.httpdbg import ServerThread, app
@@ -16,7 +17,7 @@ def test_run_pytest(httpbin):
         script_to_run = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
         )
-        run_pytest(["pytest", script_to_run, "-k", "test_demo"])
+        run_pytest(["pytest", f"{script_to_run}::test_demo_pytest"])
 
     stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test, httpbin)
 
@@ -26,9 +27,9 @@ def test_run_pytest(httpbin):
     reqs = ret.json()["requests"]
 
     assert len(reqs) == 3
-    assert reqs[0]["uri"] == httpbin.url + "/post"
-    assert reqs[1]["uri"] == httpbin.url + "/get"
-    assert reqs[2]["uri"] == httpbin.url + "/put"
+    assert reqs[0]["url"] == httpbin.url + "/post"
+    assert reqs[1]["url"] == httpbin.url + "/get"
+    assert reqs[2]["url"] == httpbin.url + "/put"
 
 
 def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
@@ -38,8 +39,9 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
     )
 
     monkeypatch.setattr(
-        "sys.argv", ["pyhttpdb", "pytest", script_to_run, "-k", "test_demo"]
+        "sys.argv", ["pyhttpdbg", "pytest", f"{script_to_run}::test_demo_pytest"]
     )
+
     # to terminate the httpdbg server
     monkeypatch.setattr("sys.stdin", io.StringIO("\n"))
     pyhttpdbg_entry_point()
@@ -53,9 +55,9 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
     reqs = ret.json()["requests"]
 
     assert len(reqs) == 3
-    assert reqs[0]["uri"] == httpbin.url + "/post"
-    assert reqs[1]["uri"] == httpbin.url + "/get"
-    assert reqs[2]["uri"] == httpbin.url + "/put"
+    assert reqs[0]["url"] == httpbin.url + "/post"
+    assert reqs[1]["url"] == httpbin.url + "/get"
+    assert reqs[2]["url"] == httpbin.url + "/put"
 
     server.shutdown()
 
@@ -65,7 +67,7 @@ def test_run_pytest_with_exception(capsys):
         script_to_run = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
         )
-        run_pytest(["pytest", script_to_run, "-k", "test_demo_raise_exception"])
+        run_pytest(["pytest", f"{script_to_run}::test_demo_raise_exception"])
 
     stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test)
 
@@ -77,3 +79,23 @@ def test_run_pytest_with_exception(capsys):
     assert len(reqs) == 0
 
     assert "fixture_which_do_not_exists" in capsys.readouterr().out
+
+
+@pytest.mark.api
+@pytest.mark.request
+def test_run_pytest_src(httpbin):
+    def _test(httpbin):
+        os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
+        script_to_run = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
+        )
+        run_pytest(["pytest", f"{script_to_run}::test_demo_pytest"])
+
+    stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test, httpbin)
+
+    ret = requests.get(f"http://127.0.0.1:{current_httpdbg_port}/requests")
+    stop_httpdbg()
+
+    reqs = ret.json()["requests"]
+
+    assert reqs[0]["src"].get("label") == "tests/demo_run_pytest.py::test_demo_pytest"

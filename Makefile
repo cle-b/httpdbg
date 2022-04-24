@@ -10,7 +10,7 @@ prepare:
 	pip install -r requirements-dev.txt
 
 formater:
-	black httpdbg tests
+	black httpdbg tests setup.py
 
 linter: formater
 	flake8 httpdbg tests

@@ -31,7 +31,7 @@ def test_run_console(httpbin):
     reqs = ret.json()["requests"]
 
     assert len(reqs) == 1
-    assert reqs[0]["uri"] == httpbin.url + "/get"
+    assert reqs[0]["url"] == httpbin.url + "/get"
 
 
 def test_run_console_from_pyhttpdbg_entry_point(httpbin, monkeypatch, capsys):
