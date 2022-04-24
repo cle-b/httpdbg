@@ -22,7 +22,8 @@ setuptools.setup(
     install_requires=[
         "vcrpy>=4.0",
         "Jinja2<3.1",
-        "flask",
+        "Werkzeug<2.1",
+        "flask>2",
         "flask-restful",
         "beautifulsoup4",
     ],
