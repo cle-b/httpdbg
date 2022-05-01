@@ -85,3 +85,33 @@ def test_preview_image():
         "path": "path_to_img",
         "image": True,
     }
+
+
+def test_preview_application_no_content_type_text():
+    body = generate_preview(
+        "path_to_text",
+        "txt",
+        "",
+        "just text",
+    )
+
+    assert body == {
+        "filename": "txt",
+        "path": "path_to_text",
+        "text": "just text",
+    }
+
+
+def test_preview_application_no_content_type_bytes():
+    body = generate_preview(
+        "path_to_bytes",
+        "bytes",
+        "",
+        "just éà bytes".encode("utf-8"),
+    )
+
+    assert body == {
+        "filename": "bytes",
+        "path": "path_to_bytes",
+        "text": "just éà bytes",
+    }

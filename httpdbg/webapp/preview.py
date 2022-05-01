@@ -18,13 +18,22 @@ def generate_preview(path, filename, content_type, raw_data):
         except Exception:
             body["text"] = "error during html parsing"
 
-    if "application/json" in content_type.lower():
+    elif "application/json" in content_type.lower():
         try:
             body["text"] = json.dumps(json.loads(raw_data), sort_keys=True, indent=4)
         except Exception:
             body["text"] = raw_data
 
-    if "image/" in content_type.lower():
+    elif "image/" in content_type.lower():
         body["image"] = True
+
+    elif (content_type == "") and isinstance(raw_data, str):
+        body["text"] = raw_data
+
+    elif (content_type == "") and isinstance(raw_data, bytes):
+        try:
+            body["text"] = str(raw_data.decode("utf-8"))
+        except Exception:
+            pass
 
     return body
