@@ -2,10 +2,10 @@
 from contextlib import contextmanager
 import threading
 
-import vcr
 from werkzeug.serving import make_server
 
-from .vcrpy import HTTPDBGPersister
+from .hook import set_hook, unset_hook
+
 from .webapp import app, httpdebugk7
 
 
@@ -29,16 +29,15 @@ def httpdbg(port=5000):
         server = ServerThread(port, app)
         server.start()
 
-        my_vcr = vcr.VCR(
-            serializer="yaml", cassette_library_dir="cassettes", record_mode="all"
-        )
-        my_vcr.register_persister(HTTPDBGPersister)
+        set_hook(httpdebugk7)
 
-        with my_vcr.use_cassette(
-            path="cassettes", serializer="yaml", decode_compressed_response=True
-        ) as k7:
-            httpdebugk7["k7"] = k7
+        yield
 
-            yield
+        unset_hook()
+    except Exception as ex:
+        unset_hook()
+        server.shutdown()
+        raise ex
     finally:
+        unset_hook()
         server.shutdown()

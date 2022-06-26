@@ -3,8 +3,9 @@ from itertools import count
 import queue
 import threading
 
-from httpdbg import httpdbg
+import requests
 
+from httpdbg import httpdbg
 
 httpdbg_port = count(4500)
 
@@ -39,3 +40,12 @@ def _run_under_httpdbg(func, *args):
         raise excq.get()
 
     return evt_httpdbg.set, current_httpdbg_port
+
+
+def get_request_details(current_httpdbg_port, req_number):
+    ret = requests.get(f"http://127.0.0.1:{current_httpdbg_port}/requests")
+
+    reqs = ret.json()["requests"]
+
+    req_id = reqs[list(reqs.keys())[req_number]]["id"]
+    return requests.get(f"http://127.0.0.1:{current_httpdbg_port}/request/{req_id}")

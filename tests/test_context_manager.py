@@ -16,4 +16,5 @@ def test_context_manager(httpbin):
 
     with httpdbg(next(httpdbg_port)):
         requests.get(httpbin.url + "/get")
-        assert len(httpdebugk7["k7"]) == 1
+
+    assert len(httpdebugk7.requests) == 1

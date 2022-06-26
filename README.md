@@ -28,9 +28,11 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> 
 ```
 
-Perform HTTP requests (using the requests library for example).
+Perform HTTP requests.
 
 You can inspect the HTTP requests directly in your web browser at http://localhost:5000.
+
+*note: we only intercept the requests done using `requests`*.
 
 ### script
 
@@ -47,7 +49,3 @@ You can trace all the HTTP requests performed during your tests
 ```
 pyhttpdbg pytest [arg1 --arg2 ...]
 ```
-
-## thanks
-
-httpdbg is based on [VCR.py](https://vcrpy.readthedocs.io/). Thanks to Kevin McCarthy and to all the contributors of [VCR.py](https://github.com/kevin1024/vcrpy) for this awesome library.

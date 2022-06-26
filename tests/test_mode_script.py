@@ -24,9 +24,9 @@ def test_run_script(httpbin):
 
     reqs = ret.json()["requests"]
 
-    assert len(reqs) == 2
-    assert reqs[0]["url"] == httpbin.url + "/get"
-    assert reqs[1]["url"] == httpbin.url + "/post"
+    assert len(reqs) == 2 + 1  # +1 for the request to retreive the requests
+    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get"
+    assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/post"
 
 
 def test_run_script_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
@@ -47,8 +47,8 @@ def test_run_script_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
     reqs = ret.json()["requests"]
 
     assert len(reqs) == 2
-    assert reqs[0]["url"] == httpbin.url + "/get"
-    assert reqs[1]["url"] == httpbin.url + "/post"
+    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get"
+    assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/post"
 
     server.shutdown()
 
@@ -67,7 +67,7 @@ def test_run_script_with_exception(httpbin, capsys):
 
     reqs = ret.json()["requests"]
 
-    assert len(reqs) == 1
-    assert reqs[0]["url"] == httpbin.url + "/get"
+    assert len(reqs) == 1 + 1  # +1 for the request to retreive the requests
+    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get"
 
     assert "--raise_exception--" in capsys.readouterr().err
