@@ -15,6 +15,6 @@ def link_requests_to_tests():
 
     src = Source(" ".join(os.environ["PYTEST_CURRENT_TEST"].split(" ")[:-1]))
 
-    for k7_request in httpdebugk7["k7"].requests:
-        if not hasattr(k7_request, "src"):
-            k7_request.src = src
+    for _, req in httpdebugk7.requests.items():
+        if req.src is None:
+            req.src = src

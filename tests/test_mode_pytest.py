@@ -26,10 +26,10 @@ def test_run_pytest(httpbin):
 
     reqs = ret.json()["requests"]
 
-    assert len(reqs) == 3
-    assert reqs[0]["url"] == httpbin.url + "/post"
-    assert reqs[1]["url"] == httpbin.url + "/get"
-    assert reqs[2]["url"] == httpbin.url + "/put"
+    assert len(reqs) == 3 + 1  # +1 for the request to retreive the requests
+    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/post"
+    assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/get"
+    assert reqs[list(reqs.keys())[2]]["url"] == httpbin.url + "/put"
 
 
 def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
@@ -55,9 +55,9 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
     reqs = ret.json()["requests"]
 
     assert len(reqs) == 3
-    assert reqs[0]["url"] == httpbin.url + "/post"
-    assert reqs[1]["url"] == httpbin.url + "/get"
-    assert reqs[2]["url"] == httpbin.url + "/put"
+    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/post"
+    assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/get"
+    assert reqs[list(reqs.keys())[2]]["url"] == httpbin.url + "/put"
 
     server.shutdown()
 
@@ -76,7 +76,7 @@ def test_run_pytest_with_exception(capsys):
 
     reqs = ret.json()["requests"]
 
-    assert len(reqs) == 0
+    assert len(reqs) == 0 + 1  # +1 for the request to retreive the requests
 
     assert "fixture_which_do_not_exists" in capsys.readouterr().out
 
@@ -98,4 +98,9 @@ def test_run_pytest_src(httpbin):
 
     reqs = ret.json()["requests"]
 
-    assert reqs[0]["src"].get("label") == "tests/demo_run_pytest.py::test_demo_pytest"
+    print(reqs)
+
+    assert (
+        reqs[list(reqs.keys())[0]]["src"].get("label")
+        == "tests/demo_run_pytest.py::test_demo_pytest"
+    )

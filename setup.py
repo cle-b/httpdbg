@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="httpdbg",
-    version="0.0.22",
+    version="0.0.23",
     author="cle-b",
     author_email="cle@tictac.pm",
     description="A very simple tool to debug HTTP client requests",
@@ -20,7 +20,6 @@ setuptools.setup(
     package_data={"httpdbg": ["webapp/static/*"]},
     python_requires=">=3.6",
     install_requires=[
-        "vcrpy>=4.0",
         "Jinja2<3.1",
         "Werkzeug<2.1",
         "flask>2",

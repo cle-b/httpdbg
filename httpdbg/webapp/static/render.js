@@ -21,7 +21,8 @@ async function refresh_resquests() {
     var tbody = table.getElementsByTagName("tbody")[0];
 
     for (const [request_id, request] of Object.entries(global.requests)) {
-        if (!document.getElementById("request-" + request.id)) {
+        var elt = document.getElementById("request-" + request.id);
+        if (!elt) {
 
             if (request.src) {
                 if (!document.getElementById("source-" + request.src.id)) {

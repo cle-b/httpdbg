@@ -23,8 +23,7 @@
   display: block;
 }
 
-.tooltip-status:hover:before,
-.tooltip-method:hover:before {
+.tooltip-status:hover:before {
   opacity: 1 !important;
   z-index: 1;
   text-align: left;
@@ -32,10 +31,6 @@
 
 .tooltip-status:hover:before {
   white-space: nowrap;
-}
-
-.tooltip-method:hover:before {
-  width: 20vw;
 }
 
 /* the arrow */
