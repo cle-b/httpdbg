@@ -6,6 +6,14 @@ let global = {
     "connected": false
 }
 
+function save_request(request_id, request) {
+    global.requests[request_id] = request;
+    global.requests[request_id].to_refresh = true;
+    if (global.requests[request_id].status_code == 0){
+        global.requests[request_id].status_code = "&#9203";
+    }
+    get_request(request_id);
+}
 
 async function get_all_requests() {
 
@@ -21,8 +29,13 @@ async function get_all_requests() {
 
             for (const [request_id, request] of Object.entries(data.requests)) {
                 if (!(request_id in global.requests)) {
-                    global.requests[request_id] = request;
-                    get_request(request_id);
+                    // this is a new request
+                    save_request(request_id, request);
+                } else {
+                    if (global.requests[request_id].status_code != request.status_code) {
+                        // this request has been updated (probably a "big" file) 
+                        save_request(request_id, request);
+                    }
                 };
             };
         })

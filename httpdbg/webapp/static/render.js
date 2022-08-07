@@ -23,7 +23,6 @@ async function refresh_resquests() {
     for (const [request_id, request] of Object.entries(global.requests)) {
         var elt = document.getElementById("request-" + request.id);
         if (!elt) {
-
             if (request.src) {
                 if (!document.getElementById("source-" + request.src.id)) {
                     var rendered = Mustache.render(template_source, request.src);
@@ -38,6 +37,8 @@ async function refresh_resquests() {
             } else {
                 tbody.insertAdjacentHTML("beforeend", rendered);
             }
+        } else {
+            elt.innerHTML = Mustache.render(template_request, request);
         };
     };
 }
