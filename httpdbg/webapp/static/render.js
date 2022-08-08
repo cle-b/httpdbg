@@ -68,7 +68,9 @@ function show_request(request_id) {
 
     update_with_template("template_body", "body_sent", data.request);
 
-    update_with_template("template_body", "body_received", data.response);
+    if (data.response) {
+        update_with_template("template_body", "body_received", data.response);
+    }
 }
 
 

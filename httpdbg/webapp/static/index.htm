@@ -106,10 +106,12 @@
                            </table>
                            <hr>
                            <h4>response headers</h4>
-                           {{#response.headers}}
-                           <span class="header">{{name}}:</span> {{value}}
-                           <br>
-                           {{/response.headers}}
+                           {{#response}}
+                               {{#response.headers}}
+                               <span class="header">{{name}}:</span> {{value}}
+                               <br>
+                               {{/response.headers}}
+                           {{/response}}
                            <hr>
                            <h4>request headers</h4>
                            {{#request.headers}}
@@ -123,17 +125,19 @@
                     <div id="cookies">select a request to view details</div>
                     <script id="template_cookies" type="x-tmpl-mustache">
                            <h4>response cookies</h4>
-                           {{#response.cookies}}
-                           <span class="cookie">{{name}}:</span> {{value}}
-                             <ul>
-                               {{#attributes}}
-                               <li>
-                                    <span class="attribute">{{name}}:</span> {{value}}
-                               </li>
-                               {{/attributes}}
-                             </ul>
-                           <br>
-                           {{/response.cookies}}
+                           {{#response}}
+                               {{#response.cookies}}
+                               <span class="cookie">{{name}}:</span> {{value}}
+                                 <ul>
+                                   {{#attributes}}
+                                   <li>
+                                       <span class="attribute">{{name}}:</span> {{value}}
+                                   </li>
+                                   {{/attributes}}
+                                 </ul>
+                               <br>
+                               {{/response.cookies}}
+                           {{/response}}
                            <hr>
                            <h4>request cookies</h4>
                            {{#request.cookies}}
@@ -149,20 +153,21 @@
                             {{^body}}
                             -- no content --
                             {{/body}}
+                            {{#body}}
+                                {{#body.path}}
+                                <a href="{{body.path}}" download="{{body.filename}}">download</a>
+                                <br>
+                                {{/body.path}}
 
-                            {{#body.path}}
-                            <a href="{{body.path}}" download="{{body.filename}}">download</a>
-                            <br>
-                            {{/body.path}}
+                                {{#body.text}}
+                                <pre>{{body.text}}</pre>
+                                <br>
+                                {{/body.text}}
 
-                            {{#body.text}}
-                            <pre>{{body.text}}</pre>
-                            <br>
-                            {{/body.text}}
-
-                            {{#body.image}}
-                            <img src="{{body.path}}">
-                            {{/body.image}}
+                                {{#body.image}}
+                                <img src="{{body.path}}">
+                                {{/body.image}}
+                            {{/body}}
                         </script>
                 </div>
 
