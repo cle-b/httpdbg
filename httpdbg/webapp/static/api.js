@@ -9,9 +9,18 @@ let global = {
 function save_request(request_id, request) {
     global.requests[request_id] = request;
     global.requests[request_id].to_refresh = true;
-    if (global.requests[request_id].status_code == 0){
-        global.requests[request_id].status_code = "&#9203";
+    switch (global.requests[request_id].status_code) {
+        case 0:
+            global.requests[request_id].status_code_view = "&#9203";
+            break;
+        case -1:
+            global.requests[request_id].status_code_view = "&#10060";
+            break;
+        default:
+            global.requests[request_id].status_code_view = global.requests[request_id].status_code;
+            break;
     }
+
     get_request(request_id);
 }
 

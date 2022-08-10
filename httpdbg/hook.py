@@ -18,6 +18,7 @@ class HTTPRecord:
         self._request = None
         self._response = None
         self.src = None
+        self.exception = None
 
     @property
     def request(self):
@@ -38,6 +39,24 @@ class HTTPRecord:
     def response(self, r):
         self.unread = True
         self._response = r
+
+    @property
+    def status_code(self):
+        code = 0
+        if self.exception is not None:
+            code = -1
+        elif self.response is not None:
+            code = self.response.status_code
+        return code
+
+    @property
+    def reason(self):
+        desc = "in progress"
+        if self.exception is not None:
+            desc = getattr(type(self.exception), "__name__", str(type(self.exception)))
+        elif self.response is not None:
+            desc = self.response.reason
+        return desc
 
     @staticmethod
     def list_headers(headers):
@@ -70,7 +89,11 @@ def set_hook(mixtape):
 
         mixtape.requests[record.id] = record
 
-        response = requests.Session._original_send(session, request, **kwargs)
+        try:
+            response = requests.Session._original_send(session, request, **kwargs)
+        except Exception as ex:
+            record.exception = ex
+            raise
 
         record.response = response
 

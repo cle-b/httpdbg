@@ -1,4 +1,4 @@
-.PHONY: prepare linter test clean
+.PHONY: prepare format lint test clean
 
 SHELL := /bin/bash
 
@@ -9,10 +9,11 @@ prepare:
 	pip install -e . ;\
 	pip install -r requirements-dev.txt
 
-formater:
+format:
 	black httpdbg tests setup.py
 
-linter: formater
+lint:
+	black --check httpdbg tests setup.py
 	flake8 httpdbg tests
 
 test:
