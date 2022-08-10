@@ -174,7 +174,8 @@ def test_api_get_request_post(httpbin):
 @pytest.mark.request
 def test_api_get_request_get_status_404(httpbin):
     def _test(httpbin):
-        requests.get(httpbin.url + "/get/abc")
+        ret = requests.get(httpbin.url + "/get/abc")
+        assert ret.status_code == 404
 
     stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test, httpbin)
 
@@ -182,7 +183,26 @@ def test_api_get_request_get_status_404(httpbin):
 
     stop_httpdbg()
 
-    assert ret.status_code == 200
     assert ret.json()["url"] == httpbin.url + "/get/abc"
     assert ret.json()["status_code"] == 404
     assert ret.json()["reason"] == "NOT FOUND"
+
+
+@pytest.mark.api
+@pytest.mark.request
+def test_api_get_request_connection_error(httpbin):
+    def _test(httpbin):
+        try:
+            requests.get("http://u.r.l.ooooooo/get/abc")
+        except requests.exceptions.ConnectionError:
+            pass
+
+    stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test, httpbin)
+
+    ret = get_request_details(current_httpdbg_port, 0)
+
+    stop_httpdbg()
+
+    assert ret.json()["url"] == "http://u.r.l.ooooooo/get/abc"
+    assert ret.json()["status_code"] == -1
+    assert ret.json()["reason"] == "ConnectionError"

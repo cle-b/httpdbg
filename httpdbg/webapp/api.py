@@ -30,8 +30,8 @@ class Request(Resource):
         details = {
             "url": req.request.url,
             "method": req.request.method,
-            "status_code": 0 if req.response is None else req.response.status_code,
-            "reason": "" if req.response is None else req.response.reason,
+            "status_code": req.status_code,
+            "reason": req.reason,
             "request": {
                 "headers": req.list_headers(req.request.headers),
                 "cookies": req.list_headers(req.request._cookies),
@@ -43,6 +43,7 @@ class Request(Resource):
                 ),
             },
             "response": None,
+            "exception": None,
         }
 
         if req.response is not None:
@@ -58,6 +59,17 @@ class Request(Resource):
                             req.get_header(req.response.headers, "Content-Type"),
                             req.response.content,
                         ),
+                    },
+                }
+            )
+
+        if req.exception is not None:
+
+            details.update(
+                {
+                    "exception": {
+                        "type": str(type(req.exception)),
+                        "message": str(req.exception),
                     },
                 }
             )
@@ -100,8 +112,8 @@ class RequestList(Resource):
                 "id": req.id,
                 "unread": req.unread,
                 "url": req.request.url,
-                "status_code": 0 if req.response is None else req.response.status_code,
-                "reason": "" if req.response is None else req.response.reason,
+                "status_code": req.status_code,
+                "reason": req.reason,
                 "verb": req.request.method,
                 "src": None if req.src is None else req.src.to_json(),
             }

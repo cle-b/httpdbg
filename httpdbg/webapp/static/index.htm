@@ -67,7 +67,7 @@
                         data-filter-url="{{url}}"
                         onclick="show_request('{{id}}')"
                         class="request">
-                        <td class="status"><span data-tooltip="{{reason}}" class="tooltip tooltip-status">{{{status_code}}}</span></td>
+                        <td class="status"><span data-tooltip="{{reason}}" class="tooltip tooltip-status">{{{status_code_view}}}</span></td>
                         <td class="method"><span>{{verb}}</span></td>
                         <td class="url"><span>{{url}}</span></td>
                     </tr>
@@ -90,6 +90,8 @@
                         onclick="opentab(event.currentTarget, 'tabRequest')">request</button>
                     <button id="btn-tab-response" class="tablinks"
                         onclick="opentab(event.currentTarget, 'tabResponse')">response</button>
+                    <button id="btn-tab-exception" class="tablinks"
+                        onclick="opentab(event.currentTarget, 'tabException')">exception</button>
                 </div>
 
 
@@ -174,6 +176,19 @@
                 <div id="tabResponse" class="tabcontent">
                     <div id="body_received">select a request to view details</div>
                 </div>
+            </div>
+
+            <div id="tabException" class="tabcontent">
+                <div id="exception">select a request to view details</div>
+                <script id="template_exception" type="x-tmpl-mustache">
+                        {{^exception}}
+                        -- no exception --
+                        {{/exception}}
+                        {{#exception}}
+                            <span>{{exception.type}}</span>
+                            <pre>{{exception.message}}</pre>
+                        {{/exception}}
+                    </script>
             </div>
 
         </div>

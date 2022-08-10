@@ -15,6 +15,7 @@ async function refresh_resquests() {
         document.getElementById("cookies").innerHTML = 'select a request to view details';
         document.getElementById("body_sent").innerHTML = 'select a request to view details';
         document.getElementById("body_received").innerHTML = 'select a request to view details';
+        document.getElementById("exception").innerHTML = 'select a request to view details';
     };
     k7_id = global.k7;
 
@@ -66,11 +67,13 @@ function show_request(request_id) {
 
     update_with_template("template_cookies", "cookies", data);
 
-    update_with_template("template_body", "body_sent", data.request);
+    var request = data.request ? data.request : {"body": null};
+    update_with_template("template_body", "body_sent", request);
+    
+    var response = data.response ? data.response : {"body": null};
+    update_with_template("template_body", "body_received", response);
 
-    if (data.response) {
-        update_with_template("template_body", "body_received", data.response);
-    }
+    update_with_template("template_exception", "exception", data);
 }
 
 
