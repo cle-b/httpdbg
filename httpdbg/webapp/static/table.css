@@ -7,8 +7,8 @@
 }
 
 .requests-table thead tr {
-    background-color: #009879;
-    color: #ffffff;
+    background-color: var(--table-header-bg);
+    color: var(--table-header-text);
     text-align: center;
 }
 
@@ -17,13 +17,15 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    background-color: #F5F5DC;
 }
 
 .src {
+    background-color: var(--src-bg-color);
+    direction: rtl;
     text-align: left;
-    overflow-wrap: break-word;
-    background-color: #f2f2f2;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .status {
@@ -58,7 +60,7 @@
 
 .requests-table tbody tr.active-row {
     font-weight: bold;
-    color: #009879;
+    color: var(--selected-url-text);
 }
 
 #filter-url {
