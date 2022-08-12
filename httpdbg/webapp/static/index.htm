@@ -22,10 +22,6 @@
 </head>
 
 <body>
-    <div id="refresh">
-        &#9888 disconnected - <button onclick="enable_refresh()">try reconnect</button>
-    </div>
-
     <div class="grid-container">
 
         <div class="grid-column grid-column-left">
@@ -56,8 +52,8 @@
                 </tbody>
 
                 <script id="template_source" type="x-tmpl-mustache">
-                    <tr id="source-{{id}}" data-source="{{id}}" class="src">
-                        <td colspan="3">{{label}}</td>
+                    <tr id="source-{{id}}" data-source="{{id}}">
+                        <td colspan="3" class="src"><span title="{{label}}">{{label}}</span></td>
                     </tr>
                 </script>
 
@@ -69,7 +65,7 @@
                         class="request">
                         <td class="status"><span data-tooltip="{{reason}}" class="tooltip tooltip-status">{{{status_code_view}}}</span></td>
                         <td class="method"><span>{{verb}}</span></td>
-                        <td class="url"><span>{{url}}</span></td>
+                        <td class="url"><span title="{{url}}">{{url}}</span></td>
                     </tr>
                 </script>
             </table>
@@ -100,24 +96,20 @@
                     <script id="template_headers" type="x-tmpl-mustache">
                            <b>{{ method }}</b> <a href="{{ url }}">{{ url }}</a>
                            <hr>
-                           <table class="headers">
-                            <tr>
-                                <th> status </th>
-                                <td> {{ status_code }} {{ reason }}</td>
-                            </tr>
-                           </table>
+                           <h4>status</h4>
+                              {{ status_code }} {{ reason }}
                            <hr>
                            <h4>response headers</h4>
                            {{#response}}
                                {{#response.headers}}
-                               <span class="header">{{name}}:</span> {{value}}
+                               <span class="header-cookie-key">{{name}}:</span> <span class="header-cookie-value">{{value}}</span>
                                <br>
                                {{/response.headers}}
                            {{/response}}
                            <hr>
                            <h4>request headers</h4>
                            {{#request.headers}}
-                           <span class="header">{{name}}:</span> {{value}}
+                           <span class="header-cookie-key">{{name}}:</span> <span class="header-cookie-value">{{value}}</span>
                            <br>
                            {{/request.headers}}
                         </script>
@@ -129,11 +121,11 @@
                            <h4>response cookies</h4>
                            {{#response}}
                                {{#response.cookies}}
-                               <span class="cookie">{{name}}:</span> {{value}}
+                               <span class="header-cookie-key">{{name}}:</span> {{value}}
                                  <ul>
                                    {{#attributes}}
                                    <li>
-                                       <span class="attribute">{{name}}:</span> {{value}}
+                                       <span class="header-cookie-value">{{name}}:</span> {{value}}
                                    </li>
                                    {{/attributes}}
                                  </ul>

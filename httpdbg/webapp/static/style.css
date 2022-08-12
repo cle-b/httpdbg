@@ -2,12 +2,22 @@
   font-family: sans-serif;
 }
 
-body {
-  background-color: beige;
+:root {
+  --main-bg-color: #ffffff;
+  --table-header-bg: #dddddd;
+  --table-header-text: #000000;
+  --table-header-btn-active: #cccccc;
+  --table-header-btn-hover: #eeeeee;
+  --src-bg-color: #eeeeee;
+  --selected-url-text: #000000;
+  --tooltip-bg-color: #111111;
+  --tooltip-text: #ffffff;
+  --header-cookie-key-text: #111111;
+  --header-cookie-value-text: #000000;
+  --details-text: #000000;
+  --details-section-text: #000000;
 }
 
-#refresh {
-  display: none;
-  background-color: purple;
-  color: #ddd;
+body {
+  background-color: var(--main-bg-color);
 }

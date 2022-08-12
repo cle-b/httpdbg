@@ -4,15 +4,15 @@
 
 .tooltip:before {
   content: attr(data-tooltip);
-  position: absolute;  
+  position: absolute;
   transform: translateY(-50%);
   left: 100%;
   top: 50%;
   margin-left: 10px;
   padding: 5px 5px;
   border-radius: 6px;
-  background: #333;
-  color: #eee;
+  background: var(--tooltip-bg-color);
+  color: var(--tooltip-text);
   text-align: left;
   display: none;
   font-weight: normal !important;
@@ -41,7 +41,7 @@
   top: 50%;
   transform: translateY(-50%);
   opacity: 1 !important;
-  border: 5px solid #333;
-  border-color: transparent #333 transparent transparent;
+  border: 5px solid var(--tooltip-bg-color);
+  border-color: transparent var(--tooltip-bg-color) transparent transparent;
   display: none;
-} 
+}
