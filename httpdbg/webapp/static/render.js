@@ -6,8 +6,6 @@ var k7_id = null;
 async function refresh_resquests() {
     var table = document.getElementById("requests-list");
     var template_request = document.getElementById("template_request").innerHTML;
-    var template_source = document.getElementById("template_source").innerHTML;
-
 
     if (global.k7 != k7_id) {
         table.getElementsByTagName("tbody")[0].innerHTML = '';
@@ -16,6 +14,7 @@ async function refresh_resquests() {
         document.getElementById("body_sent").innerHTML = 'select a request to view details';
         document.getElementById("body_received").innerHTML = 'select a request to view details';
         document.getElementById("exception").innerHTML = 'select a request to view details';
+        document.getElementById("initiator").innerHTML = 'select a request to view details';
     };
     k7_id = global.k7;
 
@@ -24,23 +23,11 @@ async function refresh_resquests() {
     for (const [request_id, request] of Object.entries(global.requests)) {
         if (request.to_refresh) {
             var elt = document.getElementById("request-" + request.id);
+            var rendered = Mustache.render(template_request, request);
             if (!elt) {
-                if (request.src) {
-                    if (!document.getElementById("source-" + request.src.id)) {
-                        var rendered = Mustache.render(template_source, request.src);
-                        tbody.insertAdjacentHTML("beforeend", rendered);
-                    }
-                }
-
-                var rendered = Mustache.render(template_request, request);
-                if (request.src) {
-                    var last_row = document.querySelector("[data-source='" + request.src.id + "']:last-of-type");
-                    last_row.insertAdjacentHTML("afterend", rendered);
-                } else {
-                    tbody.insertAdjacentHTML("beforeend", rendered);
-                }
+                tbody.insertAdjacentHTML("beforeend", rendered);
             } else {
-                elt.innerHTML = Mustache.render(template_request, request);
+                elt.innerHTML = rendered;
             };
             request.to_refresh = false;
         }
@@ -81,6 +68,8 @@ function show_request(request_id) {
     update_with_template("template_body", "body_received", response);
 
     update_with_template("template_exception", "exception", data);
+
+    update_with_template("template_initiator", "initiator", data);
 }
 
 

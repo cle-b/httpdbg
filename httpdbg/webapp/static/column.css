@@ -11,5 +11,6 @@
 
 .grid-column-left {
     min-width: 40vw;
+    width: 50vw;
     resize: horizontal;
 }

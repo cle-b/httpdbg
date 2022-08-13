@@ -31,6 +31,7 @@
                     <col span="1" class="status">
                     <col span="1" class="method">
                     <col span="1">
+                    <col span="1">
                 </colgroup>
 
                 <thead>
@@ -43,29 +44,22 @@
                                 oncut="update_filter_url()" onpaste="update_filter_url()" onchange="update_filter_url()"
                                 style="display: none;">
                         </th>
+                        <th title="initiator">initiator</th>
                     </tr>
                 </thead>
-
-
 
                 <tbody>
                 </tbody>
 
-                <script id="template_source" type="x-tmpl-mustache">
-                    <tr id="source-{{id}}" data-source="{{id}}">
-                        <td colspan="3" class="src"><span title="{{label}}">{{label}}</span></td>
-                    </tr>
-                </script>
-
                 <script id="template_request" type="x-tmpl-mustache">
                     <tr id="request-{{id}}" 
-                        data-source="{{src.id}}" 
                         data-filter-url="{{url}}"
                         onclick="show_request('{{id}}')"
                         class="request">
                         <td class="status"><span data-tooltip="{{reason}}" class="tooltip tooltip-status">{{{status_code_view}}}</span></td>
                         <td class="method"><span>{{verb}}</span></td>
                         <td class="url"><span title="{{url}}">{{url}}</span></td>
+                        <td class="src"><span title="{{initiator.long_label}}">{{initiator.short_label}}</span></td> 
                     </tr>
                 </script>
             </table>
@@ -88,6 +82,8 @@
                         onclick="opentab(event.currentTarget, 'tabResponse')">response</button>
                     <button id="btn-tab-exception" class="tablinks"
                         onclick="opentab(event.currentTarget, 'tabException')">exception</button>
+                    <button id="btn-tab-initiator" class="tablinks"
+                        onclick="opentab(event.currentTarget, 'tabInitiator')">initiator</button>
                 </div>
 
 
@@ -180,6 +176,15 @@
                             <span>{{exception.type}}</span>
                             <pre>{{exception.message}}</pre>
                         {{/exception}}
+                    </script>
+            </div>
+
+            <div id="tabInitiator" class="tabcontent">
+                <div id="initiator">select a request to view details</div>
+                <script id="template_initiator" type="x-tmpl-mustache">
+                        {{#initiator}}
+                            <pre>{{initiator.stack}}</pre>
+                        {{/initiator}}
                     </script>
             </div>
 
