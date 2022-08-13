@@ -44,6 +44,7 @@ class Request(Resource):
             },
             "response": None,
             "exception": None,
+            "initiator": req.initiator.to_json(),
         }
 
         if req.response is not None:
@@ -115,7 +116,7 @@ class RequestList(Resource):
                 "status_code": req.status_code,
                 "reason": req.reason,
                 "verb": req.request.method,
-                "src": None if req.src is None else req.src.to_json(),
+                "initiator": req.initiator.to_json(full=False),
             }
 
         return k7

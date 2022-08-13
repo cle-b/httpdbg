@@ -1,5 +1,7 @@
 import uuid
 
+from httpdbg.initiator import get_initiator
+
 
 class HTTPRecords:
     def __init__(self):
@@ -17,7 +19,7 @@ class HTTPRecord:
         self.unread = True
         self._request = None
         self._response = None
-        self.src = None
+        self.initiator = None
         self.exception = None
 
     @property
@@ -85,6 +87,7 @@ def set_hook(mixtape):
     def _hook_send(session, request, **kwargs):
 
         record = HTTPRecord()
+        record.initiator = get_initiator()
         record.request = request
 
         mixtape.requests[record.id] = record

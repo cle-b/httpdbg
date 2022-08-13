@@ -20,8 +20,6 @@
 }
 
 .src {
-    background-color: var(--src-bg-color);
-    direction: rtl;
     text-align: left;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -43,11 +41,13 @@
     display: none;
 }
 
-.requests-table th,
-.requests-table td {
+.requests-table th {
     padding: 12px 15px;
 }
 
+.requests-table td {
+    padding: 8px 15px;
+}
 
 .requests-table tbody tr {
     border-bottom: 1px solid #dddddd;

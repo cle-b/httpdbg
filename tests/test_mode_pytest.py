@@ -83,7 +83,7 @@ def test_run_pytest_with_exception(capsys):
 
 @pytest.mark.api
 @pytest.mark.request
-def test_run_pytest_src(httpbin):
+def test_run_pytest_initiator(httpbin):
     def _test(httpbin):
         os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
         script_to_run = os.path.join(
@@ -98,9 +98,15 @@ def test_run_pytest_src(httpbin):
 
     reqs = ret.json()["requests"]
 
-    print(reqs)
-
     assert (
-        reqs[list(reqs.keys())[0]]["src"].get("label")
+        reqs[list(reqs.keys())[0]]["initiator"].get("short_label") == "test_demo_pytest"
+    )
+    assert (
+        reqs[list(reqs.keys())[0]]["initiator"].get("long_label")
         == "tests/demo_run_pytest.py::test_demo_pytest"
     )
+
+    assert len(reqs) == 3 + 1  # +1 for the request to retreive the requests
+    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/post"
+    assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/get"
+    assert reqs[list(reqs.keys())[2]]["url"] == httpbin.url + "/put"

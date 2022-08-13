@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 
 demo.py
+demo2.py
 
 # Visual Studio Code
 .vscode/*
