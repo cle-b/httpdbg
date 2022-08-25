@@ -27,10 +27,10 @@ def generate_preview(path, filename, content_type, raw_data):
     elif "image/" in content_type.lower():
         body["image"] = True
 
-    elif (content_type == "") and isinstance(raw_data, str):
+    elif isinstance(raw_data, str):
         body["text"] = raw_data
 
-    elif (content_type == "") and isinstance(raw_data, bytes):
+    elif isinstance(raw_data, bytes):
         try:
             body["text"] = str(raw_data.decode("utf-8"))
         except Exception:

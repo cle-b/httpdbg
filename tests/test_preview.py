@@ -5,9 +5,15 @@ from httpdbg.webapp.preview import generate_preview
 
 
 @pytest.mark.preview
-def test_preview_unknown_type():
-    body = generate_preview("apath", "afilename", "unknown/type", "the_data")
-    assert body == {"filename": "afilename", "path": "apath"}
+def test_preview_unknown_type_text():
+    body = generate_preview("apath", "afilename", "unknown/type", "a text")
+    assert body == {"filename": "afilename", "path": "apath", "text": "a text"}
+
+
+@pytest.mark.preview
+def test_preview_unknown_type_bytes():
+    body = generate_preview("apath", "afilename", "unknown/type", b"a text")
+    assert body == {"filename": "afilename", "path": "apath", "text": "a text"}
 
 
 @pytest.mark.preview
