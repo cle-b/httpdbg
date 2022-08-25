@@ -96,7 +96,9 @@ class RequestContentUp(Resource):
         req = get_request(req_id)
 
         return send_file(
-            io.BytesIO(req.request.body),
+            io.StringIO(req.request.body)
+            if req.request.body is str
+            else io.BytesIO(req.request.body),
             download_name="upload",
             mimetype="application/octet-stream",
         )
