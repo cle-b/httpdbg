@@ -24,6 +24,7 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    width: 20%;
 }
 
 .status {
@@ -46,7 +47,7 @@
 }
 
 .requests-table td {
-    padding: 8px 15px;
+    padding: 6px 10px;
 }
 
 .requests-table tbody tr {
