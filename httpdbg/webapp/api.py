@@ -95,11 +95,15 @@ class RequestContentUp(Resource):
     def get(self, req_id):
         req = get_request(req_id)
 
+        filename = os.path.basename(urlparse(req.request.url).path)
+
         return send_file(
-            io.StringIO(req.request.body)
-            if req.request.body is str
-            else io.BytesIO(req.request.body),
-            download_name="upload",
+            io.BytesIO(
+                req.request.body
+                if isinstance(req.request.body, bytes)
+                else bytes(req.request.body.encode("utf-8"))
+            ),
+            download_name=f"upload-{filename}",
             mimetype="application/octet-stream",
         )
 
