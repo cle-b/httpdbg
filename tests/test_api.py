@@ -4,6 +4,7 @@ import requests
 import pytest
 
 from utils import _run_under_httpdbg
+from utils import get_request_content_up
 from utils import get_request_details
 
 # TODO always execute stop_httpdbg even in case of error
@@ -206,3 +207,24 @@ def test_api_get_request_connection_error(httpbin):
     assert ret.json()["url"] == "http://u.r.l.ooooooo/get/abc"
     assert ret.json()["status_code"] == -1
     assert ret.json()["reason"] == "ConnectionError"
+
+
+@pytest.mark.api
+@pytest.mark.request_content
+def test_api_get_request_content_up_text(httpbin):
+    def _test(httpbin):
+        requests.post(httpbin.url + "/post", data={"a": 1, "b": 2})
+        requests.post(httpbin.url + "/post", data="hello")
+
+    stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test, httpbin)
+
+    ret0 = get_request_content_up(current_httpdbg_port, 0)
+    ret1 = get_request_content_up(current_httpdbg_port, 1)
+
+    stop_httpdbg()
+
+    assert ret0.status_code == 200
+    assert ret0.content == b"a=1&b=2"
+
+    assert ret1.status_code == 200
+    assert ret1.content == b"hello"
