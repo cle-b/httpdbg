@@ -21,9 +21,11 @@ os.environ["WERKZEUG_RUN_MAIN"] = "true"
 def root():
     return app.send_static_file("index.htm")
 
+
 @app.route("/config")
 def config():
     return app.send_static_file("config.htm")
+
 
 @app.after_request
 def add_header(response):
