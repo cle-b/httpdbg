@@ -8,20 +8,27 @@
 
     <link rel="shortcut icon" href="static/favicon.ico">
 
-    <link rel="stylesheet" href="static/tooltip.css">
     <link rel="stylesheet" href="static/style.css">
     <link rel="stylesheet" href="static/table.css">
     <link rel="stylesheet" href="static/column.css">
     <link rel="stylesheet" href="static/detail.css">
+    <link rel="stylesheet" href="static/tooltip.css">
     <style type="text/css" id="filter"></style>
+    <style type="text/css" id="configuration"></style>
     <script src="static/mustache.min.js"></script>
     <script src="static/utils.js"></script>
     <script src="static/api.js"></script>
     <script src="static/render.js"></script>
     <script src="static/filter.js"></script>
+    <script src="static/configuration.js"></script>
 </head>
 
 <body>
+    <header>
+        <nav id="navbar">
+            httpdbg <a id="config" href="config">&#9881;</a>
+        </nav>
+    </header>
     <div class="grid-container">
 
         <div class="grid-column grid-column-left">
@@ -30,8 +37,8 @@
                 <colgroup>
                     <col span="1" class="status">
                     <col span="1" class="method">
-                    <col span="1">
-                    <col span="1">
+                    <col span="1" class="url">
+                    <col span="1" class="initiator">
                 </colgroup>
 
                 <thead>
@@ -44,7 +51,7 @@
                                 oncut="update_filter_url()" onpaste="update_filter_url()" onchange="update_filter_url()"
                                 style="display: none;">
                         </th>
-                        <th class="src" title="initiator">initiator</th>
+                        <th class="initiator" title="initiator">initiator</th>
                     </tr>
                 </thead>
 
@@ -59,7 +66,7 @@
                         <td class="status"><span data-tooltip="{{reason}}" class="tooltip tooltip-status">{{{status_code_view}}}</span></td>
                         <td class="method"><span>{{verb}}</span></td>
                         <td class="url"><span title="{{url}}">{{url}}</span></td>
-                        <td class="src"><span title="{{initiator.long_label}}">{{initiator.short_label}}</span></td> 
+                        <td class="initiator"><span title="{{initiator.long_label}}">{{initiator.short_label}}</span></td> 
                     </tr>
                 </script>
             </table>
@@ -194,6 +201,7 @@
 
 
     <script>
+        configure_index();
         update_filter_url();
         pol_new_data();
         enable_refresh();

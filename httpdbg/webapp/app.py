@@ -22,6 +22,11 @@ def root():
     return app.send_static_file("index.htm")
 
 
+@app.route("/config")
+def config():
+    return app.send_static_file("config.htm")
+
+
 @app.after_request
 def add_header(response):
     response.cache_control.max_age = 0

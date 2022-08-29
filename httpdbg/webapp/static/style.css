@@ -20,3 +20,19 @@
 body {
   background-color: var(--main-bg-color);
 }
+
+header {
+  background-color: var(--main-bg-color);
+  padding: 0 5px 10px 0;
+}
+
+#navbar {
+  text-align: right;
+  background-color: var(--table-header-bg);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+#navbar a {
+  color: var(--table-header-text);
+  text-decoration: none;
+}

@@ -19,7 +19,7 @@
     overflow: hidden;
 }
 
-.src {
+.initiator {
     text-align: left;
     white-space: nowrap;
     text-overflow: ellipsis;
