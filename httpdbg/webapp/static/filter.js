@@ -1,3 +1,5 @@
+"use strict";
+
 function update_filter_url() {
     var sheet = document.getElementById("filter").sheet;
 
@@ -5,7 +7,7 @@ function update_filter_url() {
         sheet.deleteRule(0);
     }
 
-    value = document.getElementById("filter-url").value;
+    var value = document.getElementById("filter-url").value;
     if (value == "") {
         new_rule = '[data-filter-url] {display: table-row;}'
     } else {
@@ -14,7 +16,7 @@ function update_filter_url() {
         } else {
             sheet.insertRule("#filter-url-btn {color: #91e64b;}");
         }
-        new_rule = '[data-filter-url*="' + value + '"] {display: table-row;}'
+        var new_rule = '[data-filter-url*="' + value + '"] {display: table-row;}'
     }
 
     sheet.insertRule(new_rule);

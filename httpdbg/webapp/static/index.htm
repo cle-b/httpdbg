@@ -14,9 +14,9 @@
     <link rel="stylesheet" href="static/detail.css">
     <link rel="stylesheet" href="static/tooltip.css">
     <style type="text/css" id="filter"></style>
-    <style type="text/css" id="configuration"></style>
+    <style type="text/css" id="configurationcss"></style>
     <script src="static/mustache.min.js"></script>
-    <script src="static/utils.js"></script>
+    <script src="static/main.js"></script>
     <script src="static/api.js"></script>
     <script src="static/render.js"></script>
     <script src="static/filter.js"></script>
@@ -26,9 +26,36 @@
 <body>
     <header>
         <nav id="navbar">
-            httpdbg <a id="config" href="config">&#9881;</a>
+            httpdbg <button id="config" onclick="config()">&#9881;</button>
         </nav>
     </header>
+
+    <div id="configuration">
+        <h4>configuration</h4>
+
+        <form id="configform" onsubmit="return false;">
+
+            <input type="checkbox" id="cstatus" name="hs" onchange="load_config_from_form(true)">
+            <label for="cstatus">Hide the status column</label>
+
+            <br>
+
+            <input type="checkbox" id="cmethod" name="hm" onchange="load_config_from_form(true)">
+            <label for="cmethod">Hide the method column</label>
+
+            <br>
+
+            <input type="checkbox" id="cinitiator" name="hi" onchange="load_config_from_form(true)">
+            <label for="cinitiator">Hide the initiator method</label>
+
+            <br>
+
+            <input type="submit" value="OK" onclick="save_config_to_url(true)">
+
+        </form>
+        <br>
+    </div>
+
     <div class="grid-container">
 
         <div class="grid-column grid-column-left">
@@ -201,7 +228,7 @@
 
 
     <script>
-        configure_index();
+        load_config_from_url(true);
         update_filter_url();
         pol_new_data();
         enable_refresh();

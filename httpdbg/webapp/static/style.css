@@ -36,3 +36,7 @@ header {
   color: var(--table-header-text);
   text-decoration: none;
 }
+
+#configuration {
+  display: none;
+}
