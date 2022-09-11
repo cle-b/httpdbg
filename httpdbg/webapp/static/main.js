@@ -6,19 +6,25 @@ let httpdbgApp = {
             "checkbox": "cstatus",
             "param": "hs",
             "css": ".status {display: none;}",
-            "value": true
+            "value": false
         },
         "hide_method": {
             "checkbox": "cmethod",
             "param": "hm",
             "css": ".method {display: none;}",
-            "value": true
+            "value": false
         },
         "hide_initiator": {
             "checkbox": "cinitiator",
             "param": "hi",
             "css": ".initiator {display: none;}",
-            "value": true
+            "value": false
+        },
+        "hide_netloc": {
+            "checkbox": "curl",
+            "param": "hn",
+            "css": ".netloc {display: none;}",
+            "value": false
         }
     }
 }

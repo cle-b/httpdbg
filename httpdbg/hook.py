@@ -1,4 +1,5 @@
 import uuid
+from urllib.parse import urlparse
 
 from httpdbg.initiator import get_initiator
 
@@ -73,6 +74,19 @@ class HTTPRecord:
             if _name.lower() == name.lower():
                 return value
         return ""
+
+    @property
+    def url(self):
+        return self.request.url
+
+    @property
+    def netloc(self):
+        url = urlparse(self.url)
+        return f"{url.scheme}://{url.netloc}"
+
+    @property
+    def urlext(self):
+        return self.url[len(self.netloc) :]
 
 
 def set_hook(mixtape):

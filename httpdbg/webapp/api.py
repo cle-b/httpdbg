@@ -118,7 +118,9 @@ class RequestList(Resource):
             k7["requests"][id] = {
                 "id": req.id,
                 "unread": req.unread,
-                "url": req.request.url,
+                "url": req.url,
+                "netloc": req.netloc,
+                "urlext": req.urlext,
                 "status_code": req.status_code,
                 "reason": req.reason,
                 "verb": req.request.method,
