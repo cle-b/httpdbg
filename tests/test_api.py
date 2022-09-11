@@ -41,11 +41,28 @@ def test_api_requests_two_requests(httpbin):
 
     reqs = ret.json()["requests"]
 
-    print(reqs)
-
     assert len(reqs) == 2 + 1  # +1 for the request to retreive the requests
     assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get/abc"
     assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/get/def"
+
+
+@pytest.mark.api
+@pytest.mark.requests
+def test_api_requests_netloc(httpbin):
+    def _test(httpbin):
+        requests.get(httpbin.url + "/get/abc")
+
+    stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test, httpbin)
+
+    ret = requests.get(f"http://127.0.0.1:{current_httpdbg_port}/requests")
+    stop_httpdbg()
+
+    reqs = ret.json()["requests"]
+
+    assert len(reqs) == 1 + 1  # +1 for the request to retreive the requests
+    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get/abc"
+    assert reqs[list(reqs.keys())[0]]["netloc"] == httpbin.url
+    assert reqs[list(reqs.keys())[0]]["urlext"] == "/get/abc"
 
 
 @pytest.mark.api

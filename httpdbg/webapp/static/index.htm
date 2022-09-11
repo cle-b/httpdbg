@@ -45,6 +45,11 @@
 
             <br>
 
+            <input type="checkbox" id="curl" name="hn" onchange="load_config_from_form(true)">
+            <label for="curl">Hide the netloc in the url</label>
+
+            <br>
+
             <input type="checkbox" id="cinitiator" name="hi" onchange="load_config_from_form(true)">
             <label for="cinitiator">Hide the initiator method</label>
 
@@ -92,7 +97,7 @@
                         class="request">
                         <td class="status"><span data-tooltip="{{reason}}" class="tooltip tooltip-status">{{{status_code_view}}}</span></td>
                         <td class="method"><span>{{verb}}</span></td>
-                        <td class="url"><span title="{{url}}">{{url}}</span></td>
+                        <td class="url"><span title="{{url}}"><span class="netloc">{{netloc}}</span><span>{{urlext}}</span<></span></td>
                         <td class="initiator"><span title="{{initiator.long_label}}">{{initiator.short_label}}</span></td> 
                     </tr>
                 </script>
