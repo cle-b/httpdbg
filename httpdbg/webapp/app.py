@@ -5,7 +5,12 @@ import os
 from flask import Flask
 from flask_restful import Api
 
-from .api import Request, RequestContentDown, RequestContentUp, RequestList
+from httpdbg.webapp.api import (
+    Request,
+    RequestContentDown,
+    RequestContentUp,
+    RequestList,
+)
 
 app = Flask("httpdbgwebapp")
 app.static_folder = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static")

@@ -6,6 +6,8 @@ import traceback
 
 def run_script(argv):
     sys.argv = argv
+    if len(argv) == 0:
+        exit("script mode - error - python file required, but none set")
     try:
         spec = importlib.util.spec_from_file_location("torun", argv[0])
         module = importlib.util.module_from_spec(spec)

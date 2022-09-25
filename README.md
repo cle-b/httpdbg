@@ -20,7 +20,7 @@ pyhttpdbg
 ```
 ```
 (venv) dev@host:~/dir$ pyhttpdbg
--- -- -- httpdbg - recorded requests available at http://localhost:5000/ 
+-- -- -- httpdbg - recorded requests available at http://localhost:4909/ 
 Python 3.8.2 (default, Jul 16 2020, 14:00:26) 
 [GCC 9.3.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
@@ -30,7 +30,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 Perform HTTP requests.
 
-You can inspect the HTTP requests directly in your web browser at http://localhost:5000.
+You can inspect the HTTP requests directly in your web browser at http://localhost:4909.
 
 *note: we only intercept the requests done using `requests`*.
 
@@ -38,14 +38,14 @@ You can inspect the HTTP requests directly in your web browser at http://localho
 
 You can trace all the HTTP requests performed by a script
 
-```
-pyhttpdbg filename.py [arg1 --arg2 ...]
+```sh
+pyhttpdbg --script filename.py [arg1 --arg2 ...]
 ```
 
 ### pytest
 
 You can trace all the HTTP requests performed during your tests
 
-```
-pyhttpdbg pytest [arg1 --arg2 ...]
+```sh
+pyhttpdbg --pytest [arg1 --arg2 ...]
 ```

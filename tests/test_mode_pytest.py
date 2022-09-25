@@ -5,7 +5,7 @@ import os
 import pytest
 import requests
 
-from httpdbg.httpdbg import ServerThread, app
+from httpdbg.server import ServerThread, app
 from httpdbg.mode_pytest import run_pytest
 from httpdbg.__main__ import pyhttpdbg_entry_point
 from utils import _run_under_httpdbg
@@ -17,7 +17,7 @@ def test_run_pytest(httpbin):
         script_to_run = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
         )
-        run_pytest(["pytest", f"{script_to_run}::test_demo_pytest"])
+        run_pytest([f"{script_to_run}::test_demo_pytest"])
 
     stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test, httpbin)
 
@@ -39,7 +39,7 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
     )
 
     monkeypatch.setattr(
-        "sys.argv", ["pyhttpdbg", "pytest", f"{script_to_run}::test_demo_pytest"]
+        "sys.argv", ["pyhttpdbg", "--pytest", f"{script_to_run}::test_demo_pytest"]
     )
 
     # to terminate the httpdbg server
@@ -67,7 +67,7 @@ def test_run_pytest_with_exception(capsys):
         script_to_run = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
         )
-        run_pytest(["pytest", f"{script_to_run}::test_demo_raise_exception"])
+        run_pytest([f"{script_to_run}::test_demo_raise_exception"])
 
     stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test)
 
@@ -78,7 +78,7 @@ def test_run_pytest_with_exception(capsys):
 
     assert len(reqs) == 0 + 1  # +1 for the request to retreive the requests
 
-    assert "fixture_which_do_not_exists" in capsys.readouterr().out
+    assert "fixture_which_does_not_exist" in capsys.readouterr().out
 
 
 @pytest.mark.api
@@ -89,7 +89,7 @@ def test_run_pytest_initiator(httpbin):
         script_to_run = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
         )
-        run_pytest(["pytest", f"{script_to_run}::test_demo_pytest"])
+        run_pytest([f"{script_to_run}::test_demo_pytest"])
 
     stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test, httpbin)
 
