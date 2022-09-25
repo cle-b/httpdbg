@@ -30,7 +30,7 @@ def read_args(args):
     actions.add_argument(
         "--script",
         action="store_true",
-        help="run the script that follow this arg (the next args are passed to the script as is)",
+        help="run the script that follows this arg (the next args are passed to the script as is)",
     )
 
     httpdbg_args = args
