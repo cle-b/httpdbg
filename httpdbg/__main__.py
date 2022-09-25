@@ -18,9 +18,7 @@ def pyhttpdbg(params, subparams, test_mode=False):
 
     url = f"http://localhost:{params.port}/{'?hi=on' if params.console else ''}"
 
-    print(
-        f"-- -- -- httpdbg - recorded requests available at {url} "
-    )
+    print(f"-- -- -- httpdbg - recorded requests available at {url} ")
 
     with httpdbg(params.port):
 
