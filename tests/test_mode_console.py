@@ -4,7 +4,7 @@ import io
 import pytest
 import requests
 
-from httpdbg.httpdbg import ServerThread, app
+from httpdbg.server import ServerThread, app
 from httpdbg.mode_console import run_console, console_exit
 from httpdbg.__main__ import pyhttpdbg_entry_point
 from utils import _run_under_httpdbg

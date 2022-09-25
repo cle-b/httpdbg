@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from flask import abort, send_file
 from flask_restful import Resource
 
-from .preview import generate_preview
+from httpdbg.webapp.preview import generate_preview
 
 from httpdbg.hook import HTTPRecords
 

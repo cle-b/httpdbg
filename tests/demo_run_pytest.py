@@ -12,5 +12,5 @@ def test_demo_pytest():
     requests.put(f"{base_url}/put")
 
 
-def test_demo_raise_exception(fixture_which_do_not_exists):
+def test_demo_raise_exception(fixture_which_does_not_exist):
     pass

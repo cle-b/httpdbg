@@ -50,7 +50,7 @@ def get_initiator():
             long_label = stack[-1]
             short_label = long_label.split("\n")[1]
         else:
-            short_label = "(console)"
+            short_label = ""
             long_label = ""
 
     return Initiator(short_label, long_label, stack)

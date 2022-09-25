@@ -4,9 +4,9 @@ import threading
 
 from werkzeug.serving import make_server
 
-from .hook import set_hook, unset_hook
+from httpdbg.hook import set_hook, unset_hook
 
-from .webapp import app, httpdebugk7
+from httpdbg.webapp import app, httpdebugk7
 
 
 class ServerThread(threading.Thread):
@@ -24,7 +24,7 @@ class ServerThread(threading.Thread):
 
 
 @contextmanager
-def httpdbg(port=5000):
+def httpdbg(port):
     try:
         server = ServerThread(port, app)
         server.start()
