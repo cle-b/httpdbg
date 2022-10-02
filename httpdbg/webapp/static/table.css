@@ -10,6 +10,9 @@
     background-color: var(--table-header-bg);
     color: var(--table-header-text);
     text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 9;
 }
 
 .url {
