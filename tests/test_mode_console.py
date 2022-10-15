@@ -4,10 +4,10 @@ import io
 import pytest
 import requests
 
-from httpdbg.server import ServerThread, app
 from httpdbg.mode_console import run_console, console_exit
 from httpdbg.__main__ import pyhttpdbg_entry_point
 from utils import _run_under_httpdbg
+from utils import _run_httpdbg_server
 
 
 def test_console_exit():
@@ -23,15 +23,19 @@ def test_run_console(httpbin):
         with pytest.raises(SystemExit):
             new_console.push("exit()")
 
-    stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test, httpbin)
+    _run_under_httpdbg(_test, httpbin)
 
-    ret = requests.get(f"http://127.0.0.1:{current_httpdbg_port}/requests")
-    stop_httpdbg()
+    # we need to restart a new httpdbg server as the previous has been stopped
+    server = _run_httpdbg_server()
+
+    ret = requests.get(f"http://127.0.0.1:{server.port}/requests")
 
     reqs = ret.json()["requests"]
 
-    assert len(reqs) == 1 + 1  # +1 for the request to retreive the requests
+    assert len(reqs) == 1
     assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get"
+
+    server.shutdown()
 
 
 def test_run_console_from_pyhttpdbg_entry_point(httpbin, monkeypatch, capsys):
@@ -41,10 +45,9 @@ def test_run_console_from_pyhttpdbg_entry_point(httpbin, monkeypatch, capsys):
     pyhttpdbg_entry_point(test_mode=True)
 
     # we need to restart a new httpdbg server as the previous has been stopped
-    server = ServerThread(6000, app)
-    server.start()
+    server = _run_httpdbg_server()
 
-    ret = requests.get("http://127.0.0.1:6000/requests")
+    ret = requests.get(f"http://127.0.0.1:{server.port}/requests")
 
     reqs = ret.json()["requests"]
 

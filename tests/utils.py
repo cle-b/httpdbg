@@ -6,6 +6,7 @@ import threading
 import requests
 
 from httpdbg import httpdbg
+from httpdbg.server import ServerThread, app
 
 httpdbg_port = count(4500)
 
@@ -39,7 +40,17 @@ def _run_under_httpdbg(func, *args):
     if excq.qsize() != 0:
         raise excq.get()
 
-    return evt_httpdbg.set, current_httpdbg_port
+    evt_httpdbg.set()  # stop httpdbg
+
+
+def _run_httpdbg_server():
+
+    # we need to restart a new httpdbg server as the previous has been stopped
+    current_httpdbg_port = next(httpdbg_port)
+    server = ServerThread(current_httpdbg_port, app)
+    server.start()
+
+    return server
 
 
 def get_request_details(current_httpdbg_port, req_number):

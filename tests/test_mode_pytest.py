@@ -5,10 +5,11 @@ import os
 import pytest
 import requests
 
-from httpdbg.server import ServerThread, app
+
 from httpdbg.mode_pytest import run_pytest
 from httpdbg.__main__ import pyhttpdbg_entry_point
 from utils import _run_under_httpdbg
+from utils import _run_httpdbg_server
 
 
 @pytest.mark.pytest
@@ -20,17 +21,7 @@ def test_run_pytest(httpbin):
         )
         run_pytest([f"{script_to_run}::test_demo_pytest"])
 
-    stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test, httpbin)
-
-    ret = requests.get(f"http://127.0.0.1:{current_httpdbg_port}/requests")
-    stop_httpdbg()
-
-    reqs = ret.json()["requests"]
-
-    assert len(reqs) == 3 + 1  # +1 for the request to retreive the requests
-    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/post"
-    assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/get"
-    assert reqs[list(reqs.keys())[2]]["url"] == httpbin.url + "/put"
+    _run_under_httpdbg(_test, httpbin)
 
 
 @pytest.mark.pytest
@@ -49,10 +40,9 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
     pyhttpdbg_entry_point()
 
     # we need to restart a new httpdbg server as the previous has been stopped
-    server = ServerThread(6000, app)
-    server.start()
+    server = _run_httpdbg_server()
 
-    ret = requests.get("http://127.0.0.1:6000/requests")
+    ret = requests.get(f"http://127.0.0.1:{server.port}/requests")
 
     reqs = ret.json()["requests"]
 
@@ -72,16 +62,20 @@ def test_run_pytest_with_exception(capsys):
         )
         run_pytest([f"{script_to_run}::test_demo_raise_exception"])
 
-    stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test)
+    _run_under_httpdbg(_test)
 
-    ret = requests.get(f"http://127.0.0.1:{current_httpdbg_port}/requests")
-    stop_httpdbg()
+    # we need to restart a new httpdbg server as the previous has been stopped
+    server = _run_httpdbg_server()
+
+    ret = requests.get(f"http://127.0.0.1:{server.port}/requests")
 
     reqs = ret.json()["requests"]
 
-    assert len(reqs) == 0 + 1  # +1 for the request to retreive the requests
+    assert len(reqs) == 0
 
     assert "fixture_which_does_not_exist" in capsys.readouterr().out
+
+    server.shutdown()
 
 
 @pytest.mark.api
@@ -95,10 +89,12 @@ def test_run_pytest_initiator(httpbin):
         )
         run_pytest([f"{script_to_run}::test_demo_pytest"])
 
-    stop_httpdbg, current_httpdbg_port = _run_under_httpdbg(_test, httpbin)
+    _run_under_httpdbg(_test, httpbin)
 
-    ret = requests.get(f"http://127.0.0.1:{current_httpdbg_port}/requests")
-    stop_httpdbg()
+    # we need to restart a new httpdbg server as the previous has been stopped
+    server = _run_httpdbg_server()
+
+    ret = requests.get(f"http://127.0.0.1:{server.port}/requests")
 
     reqs = ret.json()["requests"]
 
@@ -110,7 +106,9 @@ def test_run_pytest_initiator(httpbin):
         == "tests/demo_run_pytest.py::test_demo_pytest"
     )
 
-    assert len(reqs) == 3 + 1  # +1 for the request to retreive the requests
+    assert len(reqs) == 3
     assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/post"
     assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/get"
     assert reqs[list(reqs.keys())[2]]["url"] == httpbin.url + "/put"
+
+    server.shutdown()
