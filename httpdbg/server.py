@@ -12,6 +12,7 @@ from httpdbg.webapp import app, httpdebugk7
 class ServerThread(threading.Thread):
     def __init__(self, port, app):
         threading.Thread.__init__(self)
+        self.port = port
         self.srv = make_server("localhost", port, app, threaded=True)
         self.ctx = app.app_context()
         self.ctx.push()
