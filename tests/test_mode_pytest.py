@@ -11,6 +11,7 @@ from httpdbg.__main__ import pyhttpdbg_entry_point
 from utils import _run_under_httpdbg
 
 
+@pytest.mark.pytest
 def test_run_pytest(httpbin):
     def _test(httpbin):
         os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
@@ -32,6 +33,7 @@ def test_run_pytest(httpbin):
     assert reqs[list(reqs.keys())[2]]["url"] == httpbin.url + "/put"
 
 
+@pytest.mark.pytest
 def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
     os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
     script_to_run = os.path.join(
@@ -62,6 +64,7 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
     server.shutdown()
 
 
+@pytest.mark.pytest
 def test_run_pytest_with_exception(capsys):
     def _test():
         script_to_run = os.path.join(
@@ -83,6 +86,7 @@ def test_run_pytest_with_exception(capsys):
 
 @pytest.mark.api
 @pytest.mark.request
+@pytest.mark.pytest
 def test_run_pytest_initiator(httpbin):
     def _test(httpbin):
         os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
