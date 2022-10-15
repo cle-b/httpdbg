@@ -38,9 +38,9 @@ jobs:
       run: |
         make ci
     - name: Test compatiblity with all pytest version
+      if: ${{ (matrix.os == 'ubuntu-latest') && (matrix.python-version == '3.8') }}
       run: |
         make allpytest
-      if: matrix.os == 'ubuntu-latest' and matrix.python-version == '3.8'
 
   deploy:
     name: Deploy on Pypi
