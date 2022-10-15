@@ -19,6 +19,9 @@ lint:
 test:
 	pytest -v
 
+testpytest:
+	tox -e py36-pytest4 -e py36-pytest5 -e py310-pytest6 -e py310-pytest7
+
 clean:
 	rm -rf .pytest_cache
 	rm -rf __pycache__
