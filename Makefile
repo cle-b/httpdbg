@@ -24,7 +24,7 @@ clean:
 	rm -rf venv
 
 ci:
-	pip install pip --upgrade
+	python -m pip install pip --upgrade
 	pip install .
 	pip install -r requirements-dev.txt
 	pytest -v tests/
