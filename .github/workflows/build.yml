@@ -6,84 +6,63 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
-    - name: Install dependencies
+    - name: Lint code
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements-dev.txt
-    - name: Lint with flake8
-      run: |
-        flake8 .
-    - name: Black
-      run: |
-        black --check .
+        make setup
+        make lint
 
   test:
     name: Test
     needs: lint
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
         python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
+    - name: Run tests
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements-dev.txt
-    - name: Install the package
-      run: |
-        python -m pip install -e .
-    - name: Run the tests
-      run: |
-        pytest -v tests/
+        make ci
 
   pytest:
     name: Test all pytest version
     needs: test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
-    - name: Install tox
+    - name: Test compatiblity with all pytest version
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install tox
-    - name: Pytest 4
-      run: |
-        tox -e py38-pytest4
-    - name: Pytest 5
-      run: |
-        tox -e py38-pytest5
-    - name: Pytest 6
-      run: |
-        tox -e py38-pytest6
-    - name: Pytest 7
-      run: |
-        tox -e py38-pytest7
+        make setup
+        make allpytest
 
   deploy:
     name: Deploy on Pypi
     needs: pytest
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
     - name: Install pypa/build
