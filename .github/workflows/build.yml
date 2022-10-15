@@ -37,26 +37,14 @@ jobs:
     - name: Run tests
       run: |
         make ci
-
-  pytest:
-    name: Test all pytest version
-    needs: test
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.8
     - name: Test compatiblity with all pytest version
       run: |
-        make setup
         make allpytest
+      if: matrix.os == 'ubuntu-latest' and matrix.python-version == '3.8'
 
   deploy:
     name: Deploy on Pypi
-    needs: pytest
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
