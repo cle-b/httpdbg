@@ -41,7 +41,7 @@ def pyhttpdbg(params, subparams, test_mode=False):
             print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
 
             if params.keep_up:
-                input("Press a key to quit")
+                input("Press enter to quit")
             else:
                 # we keep the server up until all the requests have been loaded in the web interface
                 while httpdebugk7.unread:
