@@ -9,12 +9,21 @@ def read_args(args):
     parser.add_argument(
         "--port", "-p", type=int, default=4909, help="the web interface port"
     )
-    parser.add_argument(
-        "--terminate",
-        "-t",
-        type=int,
-        default=-1,
-        help="delay in second before stopping the web interface after the end (-1 means infinity)",
+
+    server_state = parser.add_mutually_exclusive_group()
+
+    server_state.add_argument(
+        "--keep-up",
+        "-k",
+        action="store_true",
+        help="keep the server up even if the requests have been read",
+    )
+
+    server_state.add_argument(
+        "--force-quit",
+        "-q",
+        action="store_true",
+        help="stop the server even if the requests have not been read",
     )
 
     actions = parser.add_mutually_exclusive_group()

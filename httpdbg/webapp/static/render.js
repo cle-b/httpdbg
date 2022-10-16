@@ -1,6 +1,5 @@
 "use strict";
 
-var refresh = null;
 var k7_id = null;
 
 async function refresh_resquests() {
