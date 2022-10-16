@@ -10,7 +10,7 @@ setuptools.setup(
     version="0.0.37",
     author="cle-b",
     author_email="cle@tictac.pm",
-    description="A very simple tool to debug HTTP client requests",
+    description="A very simple tool to debug HTTP(S) client requests",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/cle-b/httpdbg",

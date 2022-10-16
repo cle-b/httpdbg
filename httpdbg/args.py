@@ -4,7 +4,7 @@ import argparse
 
 def read_args(args):
     parser = argparse.ArgumentParser(
-        description="httdbg - a very simple tool to debug HTTP client requests"
+        description="httdbg - a very simple tool to debug HTTP(S) client requests"
     )
     parser.add_argument(
         "--port", "-p", type=int, default=4909, help="the web interface port"
