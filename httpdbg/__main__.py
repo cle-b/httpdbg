@@ -3,6 +3,7 @@ try:
     import readline  # noqa: F401 enable the 'up arrow' history in the console
 except ImportError:
     pass  # readline is not available on Windows
+import pkg_resources
 import sys
 import time
 
@@ -12,7 +13,6 @@ from httpdbg.mode_console import run_console
 from httpdbg.mode_pytest import run_pytest
 from httpdbg.mode_script import run_script
 from httpdbg.webapp import httpdebugk7
-from httpdbg import __VERSION__
 
 
 def print_msg(msg):
@@ -51,7 +51,7 @@ def pyhttpdbg(params, subparams, test_mode=False):
 def pyhttpdbg_entry_point(test_mode=False):
     params, subparams = read_args(sys.argv[1:])
     if params.version:
-        print(__VERSION__)
+        print(pkg_resources.get_distribution("httpdbg").version)
     else:
         pyhttpdbg(params, subparams, test_mode=test_mode)
 

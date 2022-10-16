@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import setuptools
-from httpdbg import __VERSION__
-
 
 with open("README.md", "r") as fh:
     # remove badges and screenshot
@@ -9,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="httpdbg",
-    version=__VERSION__,
+    version="0.0.37",
     author="cle-b",
     author_email="cle@tictac.pm",
     description="A very simple tool to debug HTTP client requests",
