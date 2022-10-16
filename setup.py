@@ -3,7 +3,11 @@ import setuptools
 
 with open("README.md", "r") as fh:
     # remove badges and screenshot
-    long_description = "\n".join(fh.readlines()[1:-1])
+    lines = []
+    for line in fh.readlines()[1:]:
+        if "![ui]" not in line:
+            lines.append(line)
+    long_description = "\n".join(lines)
 
 setuptools.setup(
     name="httpdbg",
