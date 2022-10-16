@@ -10,6 +10,10 @@ def read_args(args):
         "--port", "-p", type=int, default=4909, help="the web interface port"
     )
 
+    parser.add_argument(
+        "--version", "-v", action="store_true", help="print the httpdbg version"
+    )
+
     server_state = parser.add_mutually_exclusive_group()
 
     server_state.add_argument(
