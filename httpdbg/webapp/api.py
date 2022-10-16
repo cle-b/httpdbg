@@ -3,7 +3,7 @@ import io
 import os
 from urllib.parse import urlparse
 
-from flask import abort, send_file
+from flask import abort, send_file, request
 from flask_restful import Resource
 
 from httpdbg.webapp.preview import generate_preview
@@ -111,6 +111,13 @@ class RequestContentUp(Resource):
 class RequestList(Resource):
     def get(self):
         global httpdebugk7
+
+        if request.args.get("id") == httpdebugk7.id:
+            httpdebugk7.requests_already_loaded = int(
+                request.args.get("requests_already_loaded", 0)
+            )
+        else:
+            httpdebugk7.requests_already_loaded = 0
 
         k7 = {"id": httpdebugk7.id, "requests": {}}
         for id, req in httpdebugk7.requests.items():

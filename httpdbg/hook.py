@@ -8,10 +8,15 @@ class HTTPRecords:
     def __init__(self):
         self.id = str(uuid.uuid4())
         self.requests = {}
+        self.requests_already_loaded = 0
 
     def reset(self):
         self.id = str(uuid.uuid4())
         self.requests = {}
+
+    @property
+    def unread(self):
+        return self.requests_already_loaded < len(self.requests)
 
 
 class HTTPRecord:

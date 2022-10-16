@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
-
 import setuptools
 
 with open("README.md", "r") as fh:
-    desc = fh.read()
-    title_index = desc.find("# httpdbg")
-    long_description = desc[title_index:]  # remove bagde
+    # remove badges and screenshot
+    lines = []
+    for line in fh.readlines()[1:]:
+        if "![ui]" not in line:
+            lines.append(line)
+    long_description = "\n".join(lines)
 
 setuptools.setup(
     name="httpdbg",
-    version="0.0.36",
+    version="0.0.37",
     author="cle-b",
     author_email="cle@tictac.pm",
-    description="A very simple tool to debug HTTP client requests",
+    description="A very simple tool to debug HTTP(S) client requests",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/cle-b/httpdbg",
