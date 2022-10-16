@@ -3,7 +3,7 @@
 let global = {
     "k7": null,
     "requests": {},
-    "connected": false,
+    "connected": false
 }
 
 function save_request(request_id, request) {
