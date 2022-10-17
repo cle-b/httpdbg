@@ -7,11 +7,11 @@ with open("README.md", "r") as fh:
     for line in fh.readlines()[1:]:
         if "![ui]" not in line:
             lines.append(line)
-    long_description = "\n".join(lines)
+    long_description = "".join(lines)
 
 setuptools.setup(
     name="httpdbg",
-    version="0.0.37",
+    version="0.0.38",
     author="cle-b",
     author_email="cle@tictac.pm",
     description="A very simple tool to debug HTTP(S) client requests",
