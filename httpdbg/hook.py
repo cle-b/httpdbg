@@ -110,6 +110,7 @@ def set_hook(mixtape):
         record.request = request
 
         mixtape.requests[record.id] = record
+        record.stream = kwargs.get("stream", False)
 
         try:
             response = requests.Session._original_send(session, request, **kwargs)

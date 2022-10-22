@@ -6,7 +6,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -22,7 +22,7 @@ jobs:
     name: Test
     needs: lint
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    timeout-minutes: 5
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]

@@ -49,6 +49,12 @@ class Request(Resource):
 
         if req.response is not None:
 
+            if not req.stream:
+                content = req.response.content
+            else:
+                # TODO: we can't retrieve the content of the response if the stream mode has been used
+                content = "-- the content is unavailable because of the stream mode used to download it --"
+
             details.update(
                 {
                     "response": {
@@ -58,7 +64,7 @@ class Request(Resource):
                             f"/request/{req_id}/down",
                             "download",
                             req.get_header(req.response.headers, "Content-Type"),
-                            req.response.content,
+                            content,
                         ),
                     },
                 }
