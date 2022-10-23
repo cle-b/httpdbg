@@ -35,51 +35,43 @@ class Request(Resource):
             "request": {
                 "headers": req.list_headers(req.request.headers),
                 "cookies": req.list_headers(req.request._cookies),
-                "body": generate_preview(
-                    f"/request/{req_id}/up",
-                    "upload",
-                    req.get_header(req.request.headers, "Content-Type"),
-                    req.request.body,
-                ),
             },
             "response": None,
             "exception": None,
             "initiator": req.initiator.to_json(),
         }
 
+        if req.request.body:
+            details["request"]["body"] = generate_preview(
+                f"/request/{req_id}/up",
+                "upload",
+                req.get_header(req.request.headers, "Content-Type"),
+                req.request.body,
+            )
+
         if req.response is not None:
 
-            if not req.stream:
-                content = req.response.content
-            else:
-                # TODO: we can't retrieve the content of the response if the stream mode has been used
-                content = "-- the content is unavailable because of the stream mode used to download it --"
+            details["response"] = {
+                "headers": req.list_headers(req.response.headers),
+                "cookies": req.list_headers(req.response.cookies),
+                "stream": req.stream,
+            }
 
-            details.update(
-                {
-                    "response": {
-                        "headers": req.list_headers(req.response.headers),
-                        "cookies": req.list_headers(req.response.cookies),
-                        "body": generate_preview(
-                            f"/request/{req_id}/down",
-                            "download",
-                            req.get_header(req.response.headers, "Content-Type"),
-                            content,
-                        ),
-                    },
-                }
-            )
+            if not req.stream:
+                # TODO: we can't retrieve the content of the response if the stream mode has been used
+                details["response"]["body"] = generate_preview(
+                    f"/request/{req_id}/down",
+                    "download",
+                    req.get_header(req.response.headers, "Content-Type"),
+                    req.response.content,
+                )
 
         if req.exception is not None:
 
-            details.update(
-                {
-                    "exception": {
-                        "type": str(type(req.exception)),
-                        "message": str(req.exception),
-                    },
-                }
-            )
+            details["exception"] = {
+                "type": str(type(req.exception)),
+                "message": str(req.exception),
+            }
 
         return details
 

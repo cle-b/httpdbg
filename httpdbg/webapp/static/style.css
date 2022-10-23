@@ -15,6 +15,7 @@
   --header-cookie-value-text: #000000;
   --details-text: #000000;
   --details-section-text: #000000;
+  --link-server-disconnected: #444444;
 }
 
 body {

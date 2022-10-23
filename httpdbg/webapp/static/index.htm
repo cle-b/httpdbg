@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="static/tooltip.css">
     <style type="text/css" id="filter"></style>
     <style type="text/css" id="configurationcss"></style>
+    <style type="text/css" id="serverstatuscss"></style>
     <script src="static/mustache.min.js"></script>
     <script src="static/main.js"></script>
     <script src="static/api.js"></script>
@@ -91,14 +92,14 @@
                 </tbody>
 
                 <script id="template_request" type="x-tmpl-mustache">
-                    <tr id="request-{{id}}" 
+                    <tr id="request-{{id}}"
                         data-filter-url="{{url}}"
                         onclick="show_request('{{id}}')"
                         class="request">
                         <td class="status"><span data-tooltip="{{reason}}" class="tooltip tooltip-status">{{{status_code_view}}}</span></td>
                         <td class="method"><span>{{verb}}</span></td>
                         <td class="url"><span title="{{url}}"><span class="netloc">{{netloc}}</span><span>{{urlext}}</span<></span></td>
-                        <td class="initiator"><span title="{{initiator.long_label}}">{{initiator.short_label}}</span></td> 
+                        <td class="initiator"><span title="{{initiator.long_label}}">{{initiator.short_label}}</span></td>
                     </tr>
                 </script>
             </table>
@@ -181,10 +182,16 @@
                     <script id="template_body" type="x-tmpl-mustache">
                             {{^body}}
                             -- no content --
+                            {{#stream}}
+                            (because stream mode on)
+                            {{/stream}}
                             {{/body}}
                             {{#body}}
                                 {{#body.path}}
-                                <a href="{{body.path}}" download="{{body.filename}}">download</a>
+                                <a href="{{body.path}}" download="{{body.filename}}" class="need-server">
+                                    download
+                                </a>
+                                <span class="need-server-info" title="Use the '-k' option to keep the server up and being able to download the content.">&#128712</span>
                                 <br>
                                 {{/body.path}}
 

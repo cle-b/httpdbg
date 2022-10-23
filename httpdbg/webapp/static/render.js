@@ -90,12 +90,38 @@ function opentab(btn, tabname) {
     btn.className += " active";
 }
 
+async function disable_link_if_server_disconnected() {
+    var sheet = document.getElementById("serverstatuscss").sheet;
+
+    while (sheet.cssRules.length > 0) {
+        sheet.deleteRule(0);
+    }
+
+    if (global.connected) {
+        sheet.insertRule(".need-server {}");
+        sheet.insertRule(".need-server-info {display: none;}");
+    } else {
+        sheet.insertRule(".need-server {\
+            color: var(--link-server-disconnected);\
+            pointer-events: none;\
+            opacity: 0.5;\
+            text-decoration: none;\
+        }");
+        sheet.insertRule(".need-server-info {\
+             display: inline;\
+             color: var(--link-server-disconnected);\
+             opacity: 0.5;\
+         }");
+    }
+}
+
 async function enable_refresh() {
 
     while (true) {
         await Promise.all([
+            disable_link_if_server_disconnected(),
             refresh_resquests(),
-            wait_for(500)
+            wait_for(500),
         ]);
     }
 }
