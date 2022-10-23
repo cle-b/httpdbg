@@ -3,6 +3,7 @@ import pytest
 import requests
 
 from httpdbg.mode_console import run_console, console_exit
+from httpdbg.__main__ import pyhttpdbg_entry_point
 from utils import _run_under_httpdbg
 from utils import _run_httpdbg_server
 
@@ -33,3 +34,22 @@ def test_run_console(httpbin):
     assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get"
 
     server.shutdown()
+
+
+def test_run_console_from_pyhttpdbg_entry_point(httpbin, monkeypatch, capsys):
+    monkeypatch.setattr("sys.argv", ["pyhttpdb"])
+
+    pyhttpdbg_entry_point(test_mode=True)
+
+    # we need to restart a new httpdbg server as the previous has been stopped
+    server = _run_httpdbg_server()
+
+    ret = requests.get(f"http://127.0.0.1:{server.port}/requests")
+
+    reqs = ret.json()["requests"]
+
+    assert len(reqs) == 0
+
+    server.shutdown()
+
+    assert "test_mode is on" in capsys.readouterr().out
