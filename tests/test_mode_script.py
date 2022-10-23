@@ -28,8 +28,7 @@ def test_run_script_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
     monkeypatch.setattr(
         "sys.argv", ["pyhttpdbg", "--script", script_to_run, httpbin.url]
     )
-    # to terminate the httpdbg server
-    monkeypatch.setattr("sys.stdin", io.StringIO("\n"))
+
     pyhttpdbg_entry_point(test_mode=True)
 
     # we need to restart a new httpdbg server as the previous has been stopped

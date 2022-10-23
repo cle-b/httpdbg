@@ -35,8 +35,6 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
         "sys.argv", ["pyhttpdbg", "--pytest", f"{script_to_run}::test_demo_pytest"]
     )
 
-    # to terminate the httpdbg server
-    monkeypatch.setattr("sys.stdin", io.StringIO("\n"))
     pyhttpdbg_entry_point(test_mode=True)
 
     # we need to restart a new httpdbg server as the previous has been stopped
