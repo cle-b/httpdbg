@@ -46,6 +46,7 @@ def httpdbg_hook():
 
 @contextmanager
 def httpdbg_srv(port):
+    server = None
     try:
         server = ServerThread(port, app)
         server.start()
@@ -54,5 +55,6 @@ def httpdbg_srv(port):
 
         server.shutdown()
     except Exception as ex:
-        server.shutdown()
+        if server:
+            server.shutdown()
         raise ex
