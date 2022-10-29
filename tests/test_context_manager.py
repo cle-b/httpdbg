@@ -42,7 +42,7 @@ def test_context_manager_two_calls(httpbin, httpdbg_port):
     for _, req in httpdebugk7.requests.items():
         assert req.request.method.lower() == "get"
 
-    with httpdbg(httpdbg_port):
+    with httpdbg(httpdbg_port + 1000):
         requests.post(httpbin.url + "/post")
 
     assert len(httpdebugk7.requests) == 1

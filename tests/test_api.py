@@ -99,6 +99,11 @@ def test_api_get_request_get(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port):
         ret = get_request_details(httpdbg_port, 1)
 
+        path_to_content = ret.json()["response"]["body"]["path"]
+        req_response_content = requests.get(
+            f"http://127.0.0.1:{httpdbg_port}/{path_to_content}"
+        )
+
     # headers
     assert ret.status_code == 200
     assert ret.json()["url"] == httpbin.url + "/get"
@@ -119,13 +124,7 @@ def test_api_get_request_get(httpbin, httpdbg_port):
     assert ret.json()["response"]["cookies"] == []
     assert ret.json()["response"]["body"]["filename"] == "download"
 
-    with httpdbg_srv(httpdbg_port):
-        path_to_content = ret.json()["response"]["body"]["path"]
-        status_code = requests.get(
-            f"http://127.0.0.1:{httpdbg_port}/{path_to_content}"
-        ).status_code
-
-    assert status_code == 200
+    assert req_response_content.status_code == 200
 
 
 @pytest.mark.api
@@ -137,6 +136,16 @@ def test_api_get_request_post(httpbin, httpdbg_port):
 
     with httpdbg_srv(httpdbg_port):
         ret = get_request_details(httpdbg_port, 1)
+
+        path_to_content = ret.json()["request"]["body"]["path"]
+        req_request_content = requests.get(
+            f"http://127.0.0.1:{httpdbg_port}/{path_to_content}"
+        )
+
+        path_to_content = ret.json()["response"]["body"]["path"]
+        req_response_content = requests.get(
+            f"http://127.0.0.1:{httpdbg_port}/{path_to_content}"
+        )
 
     # headers
     assert ret.status_code == 200
@@ -152,11 +161,7 @@ def test_api_get_request_post(httpbin, httpdbg_port):
     assert ret.json()["request"]["cookies"] == []
     assert ret.json()["request"]["body"]["filename"] == "upload"
 
-    with httpdbg_srv(httpdbg_port):
-        path_to_content = ret.json()["request"]["body"]["path"]
-        text = requests.get(f"http://127.0.0.1:{httpdbg_port}/{path_to_content}").text
-
-    assert text == "data to post"
+    assert req_request_content.text == "data to post"
 
     # response
     assert {"name": "Content-Type", "value": "application/json"} in ret.json()[
@@ -165,12 +170,7 @@ def test_api_get_request_post(httpbin, httpdbg_port):
     assert ret.json()["response"]["cookies"] == []
     assert ret.json()["response"]["body"]["filename"] == "download"
 
-    with httpdbg_srv(httpdbg_port):
-        path_to_content = ret.json()["response"]["body"]["path"]
-        status_code = requests.get(
-            f"http://127.0.0.1:{httpdbg_port}/{path_to_content}"
-        ).status_code
-    assert status_code == 200
+    assert req_response_content.status_code == 200
 
 
 @pytest.mark.api
