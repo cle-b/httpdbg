@@ -13,6 +13,7 @@ class HTTPRecords:
     def reset(self):
         self.id = str(uuid.uuid4())
         self.requests = {}
+        self.requests_already_loaded = 0
 
     @property
     def unread(self):
@@ -96,38 +97,39 @@ class HTTPRecord:
 
 def set_hook(mixtape):
     """Intercepts the HTTP requests"""
-
     import requests
 
-    mixtape.reset()
+    if not hasattr(requests.Session, "_original_send"):
 
-    requests.Session._original_send = requests.Session.send
+        mixtape.reset()
 
-    def _hook_send(session, request, **kwargs):
+        requests.Session._original_send = requests.Session.send
 
-        record = HTTPRecord()
-        record.initiator = get_initiator()
-        record.request = request
+        def _hook_send(session, request, **kwargs):
 
-        mixtape.requests[record.id] = record
-        record.stream = kwargs.get("stream", False)
+            record = HTTPRecord()
+            record.initiator = get_initiator()
+            record.request = request
 
-        try:
-            response = requests.Session._original_send(session, request, **kwargs)
-        except Exception as ex:
-            record.exception = ex
-            raise
+            mixtape.requests[record.id] = record
+            record.stream = kwargs.get("stream", False)
 
-        record.response = response
+            try:
+                response = requests.Session._original_send(session, request, **kwargs)
+            except Exception as ex:
+                record.exception = ex
+                raise
 
-        return response
+            record.response = response
 
-    requests.Session.send = _hook_send
+            return response
+
+        requests.Session.send = _hook_send
 
 
 def unset_hook():
-
     import requests
 
-    if getattr(requests.Session, "_original_send", None):
+    if hasattr(requests.Session, "_original_send"):
         requests.Session.send = requests.Session._original_send
+        delattr(requests.Session, "_original_send")

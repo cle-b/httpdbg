@@ -26,10 +26,14 @@ class ServerThread(threading.Thread):
 
 @contextmanager
 def httpdbg(port):
-    try:
-        server = ServerThread(port, app)
-        server.start()
+    with httpdbg_srv(port):
+        with httpdbg_hook():
+            yield
 
+
+@contextmanager
+def httpdbg_hook():
+    try:
         set_hook(httpdebugk7)
 
         yield
@@ -37,8 +41,20 @@ def httpdbg(port):
         unset_hook()
     except Exception as ex:
         unset_hook()
-        server.shutdown()
         raise ex
-    finally:
-        unset_hook()
+
+
+@contextmanager
+def httpdbg_srv(port):
+    server = None
+    try:
+        server = ServerThread(port, app)
+        server.start()
+
+        yield
+
         server.shutdown()
+    except Exception as ex:
+        if server:
+            server.shutdown()
+        raise ex

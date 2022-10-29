@@ -6,21 +6,19 @@ import requests
 
 from httpdbg.mode_script import run_script
 from httpdbg.__main__ import pyhttpdbg_entry_point
-from utils import _run_under_httpdbg
-from utils import _run_httpdbg_server
+from httpdbg.server import httpdbg_hook
+from httpdbg.server import httpdbg_srv
 
 
 def test_run_script(httpbin):
-    def _test(httpbin):
+    with httpdbg_hook():
         script_to_run = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
         )
         run_script([script_to_run, httpbin.url])
 
-    _run_under_httpdbg(_test, httpbin)
 
-
-def test_run_script_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
+def test_run_script_from_pyhttpdbg_entry_point(httpbin, httpdbg_port, monkeypatch):
     script_to_run = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
     )
@@ -30,10 +28,8 @@ def test_run_script_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
 
     pyhttpdbg_entry_point(test_mode=True)
 
-    # we need to restart a new httpdbg server as the previous has been stopped
-    server = _run_httpdbg_server()
-
-    ret = requests.get(f"http://127.0.0.1:{server.port}/requests")
+    with httpdbg_srv(httpdbg_port):
+        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
 
@@ -41,22 +37,16 @@ def test_run_script_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
     assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get"
     assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/post"
 
-    server.shutdown()
 
-
-def test_run_script_with_exception(httpbin, capsys):
-    def _test(httpbin):
+def test_run_script_with_exception(httpbin, httpdbg_port, capsys):
+    with httpdbg_hook():
         script_to_run = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
         )
         run_script([script_to_run, httpbin.url, "raise_exception"])
 
-    _run_under_httpdbg(_test, httpbin)
-
-    # we need to restart a new httpdbg server as the previous has been stopped
-    server = _run_httpdbg_server()
-
-    ret = requests.get(f"http://127.0.0.1:{server.port}/requests")
+    with httpdbg_srv(httpdbg_port):
+        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
 
@@ -64,8 +54,6 @@ def test_run_script_with_exception(httpbin, capsys):
     assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get"
 
     assert "--raise_exception--" in capsys.readouterr().err
-
-    server.shutdown()
 
 
 def test_run_script_no_args(httpbin, capsys):
