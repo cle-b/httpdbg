@@ -6,6 +6,7 @@ Javascript:
 * [mustache.js - Logic-less {{mustache}} templates with JavaScript](https://github.com/janl/mustache.js)
 
 Python:
+* [Requests - A simple, yet elegant, HTTP library](https://github.com/psf/requests)
 * [Flask -  The Python micro framework for building web applications](https://github.com/pallets/flask/)
 * [Werkzeug - The comprehensive WSGI web application library](https://github.com/pallets/Werkzeug)
 * [Jinja2 - A very fast and expressive template engine](https://github.com/pallets/jinja/)
