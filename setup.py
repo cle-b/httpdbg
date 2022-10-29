@@ -27,6 +27,7 @@ setuptools.setup(
         "flask>2",
         "flask-restful",
         "beautifulsoup4",
+        "requests",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
