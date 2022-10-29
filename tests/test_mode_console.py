@@ -4,8 +4,8 @@ import requests
 
 from httpdbg.mode_console import run_console, console_exit
 from httpdbg.__main__ import pyhttpdbg_entry_point
-from utils import _run_under_httpdbg
-from utils import _run_httpdbg_server
+from httpdbg.server import httpdbg_hook
+from httpdbg.server import httpdbg_srv
 
 
 def test_console_exit():
@@ -13,43 +13,35 @@ def test_console_exit():
         console_exit()
 
 
-def test_run_console(httpbin):
-    def _test(httpbin):
+def test_run_console(httpbin, httpdbg_port):
+    with httpdbg_hook():
         new_console = run_console(test_mode=True)
         new_console.push("import requests")
         new_console.push(f"requests.get('{httpbin.url}/get')")
         with pytest.raises(SystemExit):
             new_console.push("exit()")
 
-    _run_under_httpdbg(_test, httpbin)
+    with httpdbg_srv(httpdbg_port):
+        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
-    # we need to restart a new httpdbg server as the previous has been stopped
-    server = _run_httpdbg_server()
-
-    ret = requests.get(f"http://127.0.0.1:{server.port}/requests")
-
-    reqs = ret.json()["requests"]
+        reqs = ret.json()["requests"]
 
     assert len(reqs) == 1
     assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get"
 
-    server.shutdown()
 
-
-def test_run_console_from_pyhttpdbg_entry_point(httpbin, monkeypatch, capsys):
+def test_run_console_from_pyhttpdbg_entry_point(
+    httpbin, httpdbg_port, monkeypatch, capsys
+):
     monkeypatch.setattr("sys.argv", ["pyhttpdb"])
 
     pyhttpdbg_entry_point(test_mode=True)
 
-    # we need to restart a new httpdbg server as the previous has been stopped
-    server = _run_httpdbg_server()
+    with httpdbg_srv(httpdbg_port):
+        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
-    ret = requests.get(f"http://127.0.0.1:{server.port}/requests")
-
-    reqs = ret.json()["requests"]
+        reqs = ret.json()["requests"]
 
     assert len(reqs) == 0
-
-    server.shutdown()
 
     assert "test_mode is on" in capsys.readouterr().out

@@ -1,56 +1,5 @@
 # -*- coding: utf-8 -*-
-from itertools import count
-import queue
-import threading
-
 import requests
-
-from httpdbg import httpdbg
-from httpdbg.server import ServerThread, app
-
-httpdbg_port = count(4500)
-
-
-def _run_under_httpdbg(func, *args):
-    current_httpdbg_port = next(httpdbg_port)
-    excq = queue.Queue()
-
-    evt_httpdbg = threading.Event()
-    evt_main = threading.Event()
-
-    def __test(evt_httpdbg, evt_main, current_httpdbg_port, excq, *args):
-        with httpdbg(current_httpdbg_port):
-            try:
-                func(*args)
-                evt_main.set()
-                evt_httpdbg.wait()
-            except Exception as e:
-                excq.put(e)
-                evt_main.set()
-                evt_httpdbg.set()
-
-    threading.Thread(
-        name="testapi",
-        target=__test,
-        args=(evt_httpdbg, evt_main, current_httpdbg_port, excq, *args),
-    ).start()
-
-    evt_main.wait()
-
-    if excq.qsize() != 0:
-        raise excq.get()
-
-    evt_httpdbg.set()  # stop httpdbg
-
-
-def _run_httpdbg_server():
-
-    # we need to restart a new httpdbg server as the previous has been stopped
-    current_httpdbg_port = next(httpdbg_port)
-    server = ServerThread(current_httpdbg_port, app)
-    server.start()
-
-    return server
 
 
 def get_request_details(current_httpdbg_port, req_number):
