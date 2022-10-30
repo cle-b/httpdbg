@@ -34,7 +34,7 @@ class Request(Resource):
             "reason": req.reason,
             "request": {
                 "headers": req.list_headers(req.request.headers),
-                "cookies": req.list_headers(req.request._cookies),
+                "cookies": req.list_cookies(req.request._cookies),
             },
             "response": None,
             "exception": None,
@@ -53,7 +53,7 @@ class Request(Resource):
 
             details["response"] = {
                 "headers": req.list_headers(req.response.headers),
-                "cookies": req.list_headers(req.response.cookies),
+                "cookies": req.list_cookies(req.response.cookies),
                 "stream": req.stream,
             }
 
