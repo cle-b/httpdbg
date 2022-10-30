@@ -81,6 +81,35 @@ class HTTPRecord:
                 return value
         return ""
 
+    @staticmethod
+    def list_cookies(cookies):
+        lst = []
+        for cookie in cookies:
+            madeleine = {"name": cookie.name, "value": cookie.value}
+            attributes = []
+            # https://docs.python.org/3/library/http.cookiejar.html#cookie-objects
+            for attr in [
+                "version",
+                "port",
+                "domain",
+                "path",
+                "secure",
+                "expires",
+                "discard",
+                "comment",
+                "comment_url",
+                "rfc2109",
+            ]:
+                if getattr(cookie, attr):
+                    attributes.append({"name": attr, "value": getattr(cookie, attr)})
+            for name, value in cookie._rest.items():  # "HttpOnly", "SameSite"
+                if value and (value.lower() != "none"):
+                    attributes.append({"name": name, "value": value})
+            if attributes:
+                madeleine["attributes"] = attributes
+            lst.append(madeleine)
+        return lst
+
     @property
     def url(self):
         return self.request.url

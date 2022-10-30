@@ -138,14 +138,16 @@
                            <h4>response headers</h4>
                            {{#response}}
                                {{#response.headers}}
-                               <span class="header-cookie-key">{{name}}:</span> <span class="header-cookie-value">{{value}}</span>
+                               <span class="header-cookie-key">{{name}}</span>:
+                               <span class="header-cookie-value">{{value}}</span>
                                <br>
                                {{/response.headers}}
                            {{/response}}
                            <hr>
                            <h4>request headers</h4>
                            {{#request.headers}}
-                           <span class="header-cookie-key">{{name}}:</span> <span class="header-cookie-value">{{value}}</span>
+                           <span class="header-cookie-key">{{name}}</span>:
+                           <span class="header-cookie-value">{{value}}</span>
                            <br>
                            {{/request.headers}}
                         </script>
@@ -157,22 +159,31 @@
                            <h4>response cookies</h4>
                            {{#response}}
                                {{#response.cookies}}
-                               <span class="header-cookie-key">{{name}}:</span> {{value}}
+                               <span class="header-cookie-key">{{name}}</span>: 
+                               <span class="header-cookie-value">{{value}}</span> 
                                  <ul>
                                    {{#attributes}}
                                    <li>
-                                       <span class="header-cookie-value">{{name}}:</span> {{value}}
+                                    <span class="header-cookie-key">{{name}}</span>: 
+                                    <span class="header-cookie-value">{{value}}</span> 
                                    </li>
                                    {{/attributes}}
                                  </ul>
-                               <br>
                                {{/response.cookies}}
                            {{/response}}
                            <hr>
                            <h4>request cookies</h4>
                            {{#request.cookies}}
-                           <span class="cookie">{{name}}:</span> {{value}}
-                           <br>
+                           <span class="header-cookie-key">{{name}}</span>: 
+                           <span class="header-cookie-value">{{value}}</span> 
+                             <ul>
+                               {{#attributes}}
+                               <li>
+                                <span class="header-cookie-key">{{name}}</span>: 
+                                <span class="header-cookie-value">{{value}}</span> 
+                               </li>
+                               {{/attributes}}
+                             </ul>
                            {{/request.cookies}}
                         </script>
                 </div>
@@ -191,7 +202,7 @@
                                 <a href="{{body.path}}" download="{{body.filename}}" class="need-server">
                                     download
                                 </a>
-                                <span class="need-server-info" title="Use the '-k' option to keep the server up and being able to download the content.">&#128712</span>
+                                <span class="need-server-info" title="Use the '-k' option to keep the server up and being able to download the content.">&#x1F6C8;</span>
                                 <br>
                                 {{/body.path}}
 
