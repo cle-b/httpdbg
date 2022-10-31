@@ -28,3 +28,6 @@ ci:
 	pip install .
 	pip install -r requirements-dev.txt
 	pytest -v tests/
+
+coverage:
+	coverage run -m pytest -v tests/

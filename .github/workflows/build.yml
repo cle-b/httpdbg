@@ -41,6 +41,15 @@ jobs:
       if: ${{ (matrix.os == 'ubuntu-latest') && (matrix.python-version == '3.8') }}
       run: |
         make allpytest
+    - name: Code coverage (coveralls)
+      if: ${{ (matrix.os == 'ubuntu-latest') && (matrix.python-version == '3.8') }}
+      run: |
+        pip install coveralls
+        make coverage
+        coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.COVERALLS }}
+
 
   deploy:
     name: Deploy on Pypi
