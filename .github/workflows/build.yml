@@ -43,7 +43,6 @@ jobs:
         make allpytest
     - name: Code coverage (run tests)
       if: ${{ (matrix.os == 'ubuntu-latest') && (matrix.python-version == '3.8') }}
-      uses: coverallsapp/github-action@master
       run: |
         pip install coveralls
         make coverage
