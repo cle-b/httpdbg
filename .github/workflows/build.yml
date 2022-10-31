@@ -47,8 +47,8 @@ jobs:
         pip install coveralls
         make coverage
         coveralls
-      with:
-        github-token: ${{ secrets.COVERALLS }
+      env:
+        GITHUB_TOKEN: ${{ secrets.COVERALLS }
 
 
   deploy:
