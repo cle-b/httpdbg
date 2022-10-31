@@ -164,8 +164,7 @@
                                  <ul>
                                    {{#attributes}}
                                    <li>
-                                    <span class="header-cookie-key">{{name}}</span>: 
-                                    <span class="header-cookie-value">{{value}}</span> 
+                                    <span class="header-cookie-key">{{name}}</span>{{#attr}}: <span class="header-cookie-value">{{attr}}</span>{{/attr}}
                                    </li>
                                    {{/attributes}}
                                  </ul>
@@ -175,15 +174,9 @@
                            <h4>request cookies</h4>
                            {{#request.cookies}}
                            <span class="header-cookie-key">{{name}}</span>: 
-                           <span class="header-cookie-value">{{value}}</span> 
-                             <ul>
-                               {{#attributes}}
-                               <li>
-                                <span class="header-cookie-key">{{name}}</span>: 
-                                <span class="header-cookie-value">{{value}}</span> 
-                               </li>
-                               {{/attributes}}
-                             </ul>
+                           <span class="header-cookie-value">{{value}}</span>
+                           <br> 
+                           <br>
                            {{/request.cookies}}
                         </script>
                 </div>
