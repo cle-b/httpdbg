@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from http.cookies import SimpleCookie
 import uuid
 from urllib.parse import urlparse
 
@@ -82,32 +84,32 @@ class HTTPRecord:
         return ""
 
     @staticmethod
-    def list_cookies(cookies):
+    def list_cookies(headers):
+        # important - do not use request._cookies or response.cookies as they contain
+        # all the cookies of the session or redirection
         lst = []
-        for cookie in cookies:
-            madeleine = {"name": cookie.name, "value": cookie.value}
-            attributes = []
-            # https://docs.python.org/3/library/http.cookiejar.html#cookie-objects
-            for attr in [
-                "version",
-                "port",
-                "domain",
-                "path",
-                "secure",
-                "expires",
-                "discard",
-                "comment",
-                "comment_url",
-                "rfc2109",
-            ]:
-                if getattr(cookie, attr):
-                    attributes.append({"name": attr, "value": getattr(cookie, attr)})
-            for name, value in cookie._rest.items():  # "HttpOnly", "SameSite"
-                if value and (value.lower() != "none"):
-                    attributes.append({"name": name, "value": value})
-            if attributes:
-                madeleine["attributes"] = attributes
-            lst.append(madeleine)
+        for key, header in headers.items():
+            if key.lower() in ["set-cookie", "cookie"]:
+                sc = SimpleCookie()
+                sc.load(header)
+                for name, cookie in sc.items():
+                    madeleine = {"name": name, "value": cookie.value}
+                    attributes = []
+                    for attr_name, attr_value in cookie.items():
+                        if attr_name == "secure":
+                            attr_name = "Secure"
+                        if attr_name == "httponly":
+                            attr_name = "HttpOnly"
+                        if attr_name == "samesite":
+                            attr_name = "SameSite"
+                        if isinstance(attr_value, bool):
+                            if attr_value:
+                                attributes.append({"name": attr_name})
+                        elif attr_value != "":
+                            attributes.append({"name": attr_name, "attr": attr_value})
+                    if attributes:
+                        madeleine["attributes"] = attributes
+                    lst.append(madeleine)
         return lst
 
     @property

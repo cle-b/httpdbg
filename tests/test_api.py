@@ -229,7 +229,7 @@ def test_api_get_request_content_up_text(httpbin, httpdbg_port):
 def test_cookies_request(httpbin, httpdbg_port):
     with httpdbg_hook():
         session = requests.session()
-        session.cookies.set("COOKIE_NAME", "the cookie works", domain="example.com")
+        session.cookies.set("COOKIE_NAME", "the-cookie-works")
         session.get(httpbin.url + "/get")
 
     with httpdbg_srv(httpdbg_port):
@@ -238,8 +238,7 @@ def test_cookies_request(httpbin, httpdbg_port):
     cookies = ret.json()["request"]["cookies"]
     assert len(cookies) == 1
     assert cookies[0]["name"] == "COOKIE_NAME"
-    assert cookies[0]["value"] == "the cookie works"
-    assert {"name": "domain", "value": "example.com"} in cookies[0]["attributes"]
+    assert cookies[0]["value"] == "the-cookie-works"
 
 
 @pytest.mark.api
@@ -260,4 +259,4 @@ def test_cookies_response(httpbin, httpdbg_port):
     assert len(cookies) == 1
     assert cookies[0]["name"] == "THE_COOKIE_NAME"
     assert cookies[0]["value"] == "THE_COOKIE_VALUE"
-    assert {"name": "domain", "value": httpbin.host} in cookies[0]["attributes"]
+    assert {"name": "path", "attr": "/"} in cookies[0]["attributes"]

@@ -44,6 +44,10 @@ def pyhttpdbg(params, subparams, test_mode=False):
                 input("Press enter to quit")
             else:
                 # we keep the server up until all the requests have been loaded in the web interface
+                print(
+                    "Waiting until all the requests have been loaded in the web interface."
+                )
+                print("Press Ctrl+C to quit.")
                 while httpdebugk7.unread:
                     time.sleep(0.5)
 
