@@ -48,7 +48,7 @@ jobs:
         make coverage
         coveralls
       env:
-        GITHUB_TOKEN: ${{ secrets.COVERALLS }
+        GITHUB_TOKEN: ${{ secrets.COVERALLS }}
 
 
   deploy:
