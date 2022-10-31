@@ -10,6 +10,7 @@ from httpdbg.server import httpdbg_hook
 from httpdbg.server import httpdbg_srv
 
 
+@pytest.mark.script
 def test_run_script(httpbin):
     with httpdbg_hook():
         script_to_run = os.path.join(
@@ -18,6 +19,7 @@ def test_run_script(httpbin):
         run_script([script_to_run, httpbin.url])
 
 
+@pytest.mark.script
 def test_run_script_from_pyhttpdbg_entry_point(httpbin, httpdbg_port, monkeypatch):
     script_to_run = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
@@ -38,6 +40,7 @@ def test_run_script_from_pyhttpdbg_entry_point(httpbin, httpdbg_port, monkeypatc
     assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/post"
 
 
+@pytest.mark.script
 def test_run_script_with_exception(httpbin, httpdbg_port, capsys):
     with httpdbg_hook():
         script_to_run = os.path.join(
@@ -56,11 +59,46 @@ def test_run_script_with_exception(httpbin, httpdbg_port, capsys):
     assert "--raise_exception--" in capsys.readouterr().err
 
 
+@pytest.mark.script
 def test_run_script_no_args(httpbin, capsys):
     with pytest.raises(SystemExit):
         run_script([])
 
 
+@pytest.mark.script
 def test_run_script_not_a_python_script(httpbin, capsys):
     with pytest.raises(SystemExit):
         run_script(["not_a_path_to_a_python_script"])
+
+
+@pytest.mark.api
+@pytest.mark.request
+@pytest.mark.script
+def test_run_script_initiator(httpbin, httpdbg_port):
+
+    PYTEST_CURRENT_TEST = os.environ["PYTEST_CURRENT_TEST"]
+    os.environ.pop("PYTEST_CURRENT_TEST")
+
+    with httpdbg_hook():
+        script_to_run = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
+        )
+        run_script([script_to_run, httpbin.url])
+
+    os.environ["PYTEST_CURRENT_TEST"] = PYTEST_CURRENT_TEST
+
+    with httpdbg_srv(httpdbg_port):
+        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
+
+    reqs = ret.json()["requests"]
+
+    assert (
+        reqs[list(reqs.keys())[0]]["initiator"].get("short_label")
+        == '    _ = requests.get(f"{base_url}/get")'
+    )
+    assert 'demo_run_script.py", line 8,' in reqs[list(reqs.keys())[0]][
+        "initiator"
+    ].get("long_label")
+    assert '_ = requests.get(f"{base_url}/get")' in reqs[list(reqs.keys())[0]][
+        "initiator"
+    ].get("long_label")

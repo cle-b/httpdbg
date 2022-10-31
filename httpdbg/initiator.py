@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import platform
 import traceback
 
 
@@ -21,6 +22,13 @@ class Initiator(object):
         return json
 
 
+def compatible_path(path):
+    p = path
+    if platform.system().lower() == "windows":
+        p = path.replace("/", "\\")
+    return p
+
+
 def get_initiator():
     short_label = ""
     long_label = ""
@@ -32,7 +40,7 @@ def get_initiator():
         short_label = long_label.split("::")[-1]
         in_stack = False
         for line in fullstack[6:]:
-            if "/site-packages/requests" in line:
+            if compatible_path("/site-packages/requests") in line:
                 break
             if in_stack:
                 stack.append(line)
@@ -40,11 +48,11 @@ def get_initiator():
                 in_stack = True
 
     else:
-        if "httpdbg/mode_script.py" in "".join(
+        if compatible_path("httpdbg/mode_script.py") in "".join(
             fullstack
         ):  # TODO: find another way the detect the mode
             for line in fullstack[6:]:
-                if "/site-packages/requests" in line:
+                if compatible_path("/site-packages/requests") in line:
                     break
                 stack.append(line)
             long_label = stack[-1]
