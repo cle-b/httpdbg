@@ -41,17 +41,15 @@ jobs:
       if: ${{ (matrix.os == 'ubuntu-latest') && (matrix.python-version == '3.8') }}
       run: |
         make allpytest
-    - name: Code coverage (run tests)
+    - name: Code coverage (coveralls)
       if: ${{ (matrix.os == 'ubuntu-latest') && (matrix.python-version == '3.8') }}
       run: |
         pip install coveralls
         make coverage
         coveralls
-    - name: Code coverage (coveralls)
-      if: ${{ (matrix.os == 'ubuntu-latest') && (matrix.python-version == '3.8') }}
-      uses: coverallsapp/github-action@master
       with:
-        github-token: ${{ secrets.COVERALLS }}
+        github-token: ${{ secrets.COVERALLS }
+
 
   deploy:
     name: Deploy on Pypi
