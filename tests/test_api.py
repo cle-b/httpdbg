@@ -221,3 +221,43 @@ def test_api_get_request_content_up_text(httpbin, httpdbg_port):
 
     assert ret1.status_code == 200
     assert ret1.content == b"hello"
+
+
+@pytest.mark.api
+@pytest.mark.request
+@pytest.mark.cookies
+def test_cookies_request(httpbin, httpdbg_port):
+    with httpdbg_hook():
+        session = requests.session()
+        session.cookies.set("COOKIE_NAME", "the cookie works", domain="example.com")
+        session.get(httpbin.url + "/get")
+
+    with httpdbg_srv(httpdbg_port):
+        ret = get_request_details(httpdbg_port, 0)
+
+    cookies = ret.json()["request"]["cookies"]
+    assert len(cookies) == 1
+    assert cookies[0]["name"] == "COOKIE_NAME"
+    assert cookies[0]["value"] == "the cookie works"
+    assert {"name": "domain", "value": "example.com"} in cookies[0]["attributes"]
+
+
+@pytest.mark.api
+@pytest.mark.request
+@pytest.mark.cookies
+def test_cookies_response(httpbin, httpdbg_port):
+    with httpdbg_hook():
+        session = requests.session()
+        session.get(
+            httpbin.url + "/cookies/set/THE_COOKIE_NAME/THE_COOKIE_VALUE",
+            allow_redirects=False,
+        )
+
+    with httpdbg_srv(httpdbg_port):
+        ret = get_request_details(httpdbg_port, 0)
+
+    cookies = ret.json()["response"]["cookies"]
+    assert len(cookies) == 1
+    assert cookies[0]["name"] == "THE_COOKIE_NAME"
+    assert cookies[0]["value"] == "THE_COOKIE_VALUE"
+    assert {"name": "domain", "value": httpbin.host} in cookies[0]["attributes"]
