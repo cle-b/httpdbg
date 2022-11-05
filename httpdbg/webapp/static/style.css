@@ -16,6 +16,7 @@
   --details-text: #000000;
   --details-section-text: #000000;
   --link-server-disconnected: #444444;
+  --preview-code-border: #777777;
 }
 
 body {
@@ -44,4 +45,20 @@ a:link {
 
 #configuration {
   display: none;
+}
+
+.previewcode {
+  display: block;
+  overflow-x: scroll;
+  white-space: pre;
+  border: 1px solid var(--preview-code-border);
+  font-family: monospace;
+}
+
+.prewrap {
+  white-space: pre-wrap !important;
+}
+
+.previewimage {
+  border: 1px solid var(--preview-code-border);
 }

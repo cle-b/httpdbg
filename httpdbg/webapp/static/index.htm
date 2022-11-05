@@ -190,22 +190,25 @@
                             (because stream mode on)
                             {{/stream}}
                             {{/body}}
+
                             {{#body}}
                                 {{#body.path}}
-                                <a href="{{body.path}}" download="{{body.filename}}" class="need-server">
-                                    download
-                                </a>
+                                <a href="{{body.path}}" download="{{body.filename}}" class="need-server"><button>download</button></a>
                                 <span class="need-server-info" title="Use the '-k' option to keep the server up and being able to download the content.">&#x1F6C8;</span>
-                                <br>
                                 {{/body.path}}
 
+                                {{#body.copy_to_clipboard}}
+                                <button onclick="navigator.clipboard.writeText({{body.copy_to_clipboard}});">copy to clipboard</button>
+                                {{/body.copy_to_clipboard}}
+
                                 {{#body.text}}
-                                <pre>{{body.text}}</pre>
-                                <br>
+                                <label><input type="checkbox" onclick='this.parentNode.parentNode.querySelector(".previewcode").classList.toggle("prewrap");'>Wrap lines</label>
+                                <pre class="previewcode">{{body.text}}</pre>
                                 {{/body.text}}
 
                                 {{#body.image}}
-                                <img src="{{body.path}}">
+                                <br><br>
+                                <img class="previewimage" src="{{body.path}}">
                                 {{/body.image}}
                             {{/body}}
                         </script>
