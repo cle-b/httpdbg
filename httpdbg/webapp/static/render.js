@@ -59,11 +59,21 @@ function show_request(request_id) {
     var request = data.request ? data.request : {
         "body": null
     };
+
+    if (request.body && request.body.text) {
+        request.body.copy_to_clipboard = "global.requests['" + request_id + "'].data.request.body.text";
+    };
+
     update_with_template("template_body", "body_sent", request);
 
     var response = data.response ? data.response : {
         "body": null
     };
+
+    if (response.body && response.body.text) {
+        response.body.copy_to_clipboard = "global.requests['" + request_id + "'].data.response.body.text";
+    };
+
     update_with_template("template_body", "body_received", response);
 
     update_with_template("template_exception", "exception", data);
