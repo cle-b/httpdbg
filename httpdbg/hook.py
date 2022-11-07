@@ -23,7 +23,6 @@ class HTTPRecords:
 
 
 class HTTPRecordContent:
-
     def __init__(self, headers, content):
         self.headers = self.list_headers(headers)
         self.cookies = self.list_cookies(headers)
@@ -112,7 +111,9 @@ def set_hook(mixtape):
 
         mixtape.reset()
 
-        requests.adapters.HTTPAdapter._original_send = requests.adapters.HTTPAdapter.send
+        requests.adapters.HTTPAdapter._original_send = (
+            requests.adapters.HTTPAdapter.send
+        )
 
         def _hook_send(self, request, **kwargs):
 
@@ -128,15 +129,18 @@ def set_hook(mixtape):
             mixtape.requests[record.id] = record
 
             try:
-                response = requests.adapters.HTTPAdapter._original_send(self, request, **kwargs)
+                response = requests.adapters.HTTPAdapter._original_send(
+                    self, request, **kwargs
+                )
             except Exception as ex:
                 record.exception = ex
                 record.status_code = -1
                 raise
 
-            record.status_code = response.status_code
-            record._reason = response.reason
             record.response = HTTPRecordContent(response.headers, response.content)
+            record._reason = response.reason
+            # change the status_code at the end to be sure the ui reload a fresh description of the request
+            record.status_code = response.status_code
 
             return response
 
@@ -147,5 +151,7 @@ def unset_hook():
     import requests
 
     if hasattr(requests.adapters.HTTPAdapter, "_original_send"):
-        requests.adapters.HTTPAdapter.send = requests.adapters.HTTPAdapter._original_send
+        requests.adapters.HTTPAdapter.send = (
+            requests.adapters.HTTPAdapter._original_send
+        )
         delattr(requests.adapters.HTTPAdapter, "_original_send")
