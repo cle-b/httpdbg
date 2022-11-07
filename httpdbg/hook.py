@@ -22,52 +22,11 @@ class HTTPRecords:
         return self.requests_already_loaded < len(self.requests)
 
 
-class HTTPRecord:
-    def __init__(self):
-        self.id = str(uuid.uuid4())
-        self.unread = True
-        self._request = None
-        self._response = None
-        self.initiator = None
-        self.exception = None
-
-    @property
-    def request(self):
-        self.unread = False
-        return self._request
-
-    @request.setter
-    def request(self, r):
-        self.unread = True
-        self._request = r
-
-    @property
-    def response(self):
-        self.unread = False
-        return self._response
-
-    @response.setter
-    def response(self, r):
-        self.unread = True
-        self._response = r
-
-    @property
-    def status_code(self):
-        code = 0
-        if self.exception is not None:
-            code = -1
-        elif self.response is not None:
-            code = self.response.status_code
-        return code
-
-    @property
-    def reason(self):
-        desc = "in progress"
-        if self.exception is not None:
-            desc = getattr(type(self.exception), "__name__", str(type(self.exception)))
-        elif self.response is not None:
-            desc = self.response.reason
-        return desc
+class HTTPRecordContent:
+    def __init__(self, headers, content):
+        self.headers = self.list_headers(headers)
+        self.cookies = self.list_cookies(headers)
+        self.content = content
 
     @staticmethod
     def list_headers(headers):
@@ -76,11 +35,10 @@ class HTTPRecord:
             lst.append({"name": name, "value": value})
         return lst
 
-    @staticmethod
-    def get_header(headers, name):
-        for _name, value in headers.items():
-            if _name.lower() == name.lower():
-                return value
+    def get_header(self, name):
+        for header in self.headers:
+            if header["name"].lower() == name.lower():
+                return header["value"]
         return ""
 
     @staticmethod
@@ -112,9 +70,28 @@ class HTTPRecord:
                     lst.append(madeleine)
         return lst
 
+
+class HTTPRecord:
+    def __init__(self):
+        self.id = str(uuid.uuid4())
+        self.initiator = None
+        self.exception = None
+        self.url = None
+        self.method = None
+        self.stream = None
+        self.status_code = 0
+        self._reason = None
+        self.request = None
+        self.response = None
+
     @property
-    def url(self):
-        return self.request.url
+    def reason(self):
+        desc = "in progress"
+        if self.exception is not None:
+            desc = getattr(type(self.exception), "__name__", str(type(self.exception)))
+        elif self.response is not None:
+            desc = self._reason
+        return desc
 
     @property
     def netloc(self):
@@ -130,37 +107,51 @@ def set_hook(mixtape):
     """Intercepts the HTTP requests"""
     import requests
 
-    if not hasattr(requests.Session, "_original_send"):
+    if not hasattr(requests.adapters.HTTPAdapter, "_original_send"):
 
         mixtape.reset()
 
-        requests.Session._original_send = requests.Session.send
+        requests.adapters.HTTPAdapter._original_send = (
+            requests.adapters.HTTPAdapter.send
+        )
 
-        def _hook_send(session, request, **kwargs):
+        def _hook_send(self, request, **kwargs):
 
             record = HTTPRecord()
+
             record.initiator = get_initiator()
-            record.request = request
+
+            record.url = request.url
+            record.method = request.method
+            record.stream = kwargs.get("stream", False)
+            record.request = HTTPRecordContent(request.headers, request.body)
 
             mixtape.requests[record.id] = record
-            record.stream = kwargs.get("stream", False)
 
             try:
-                response = requests.Session._original_send(session, request, **kwargs)
+                response = requests.adapters.HTTPAdapter._original_send(
+                    self, request, **kwargs
+                )
             except Exception as ex:
                 record.exception = ex
+                record.status_code = -1
                 raise
 
-            record.response = response
+            record.response = HTTPRecordContent(response.headers, response.content)
+            record._reason = response.reason
+            # change the status_code at the end to be sure the ui reload a fresh description of the request
+            record.status_code = response.status_code
 
             return response
 
-        requests.Session.send = _hook_send
+        requests.adapters.HTTPAdapter.send = _hook_send
 
 
 def unset_hook():
     import requests
 
-    if hasattr(requests.Session, "_original_send"):
-        requests.Session.send = requests.Session._original_send
-        delattr(requests.Session, "_original_send")
+    if hasattr(requests.adapters.HTTPAdapter, "_original_send"):
+        requests.adapters.HTTPAdapter.send = (
+            requests.adapters.HTTPAdapter._original_send
+        )
+        delattr(requests.adapters.HTTPAdapter, "_original_send")

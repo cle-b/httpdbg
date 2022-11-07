@@ -28,32 +28,32 @@ class Request(Resource):
         req = get_request(req_id)
 
         details = {
-            "url": req.request.url,
-            "method": req.request.method,
+            "url": req.url,
+            "method": req.method,
             "status_code": req.status_code,
             "reason": req.reason,
             "request": {
-                "headers": req.list_headers(req.request.headers),
-                "cookies": req.list_cookies(req.request.headers),
+                "headers": req.request.headers,
+                "cookies": req.request.cookies,
             },
             "response": None,
             "exception": None,
             "initiator": req.initiator.to_json(),
         }
 
-        if req.request.body:
+        if req.request.content:
             details["request"]["body"] = generate_preview(
                 f"/request/{req_id}/up",
                 "upload",
-                req.get_header(req.request.headers, "Content-Type"),
-                req.request.body,
+                req.request.get_header("Content-Type"),
+                req.request.content,
             )
 
         if req.response is not None:
 
             details["response"] = {
-                "headers": req.list_headers(req.response.headers),
-                "cookies": req.list_cookies(req.response.headers),
+                "headers": req.response.headers,
+                "cookies": req.response.cookies,
                 "stream": req.stream,
             }
 
@@ -62,7 +62,7 @@ class Request(Resource):
                 details["response"]["body"] = generate_preview(
                     f"/request/{req_id}/down",
                     "download",
-                    req.get_header(req.response.headers, "Content-Type"),
+                    req.response.get_header("Content-Type"),
                     req.response.content,
                 )
 
@@ -80,12 +80,12 @@ class RequestContentDown(Resource):
     def get(self, req_id):
         req = get_request(req_id)
 
-        filename = os.path.basename(urlparse(req.request.url).path)
+        filename = os.path.basename(urlparse(req.url).path)
 
         return send_file(
             io.BytesIO(req.response.content),
             download_name=filename,
-            mimetype=req.get_header(req.response.headers, "Content-Type"),
+            mimetype=req.response.get_header("Content-Type"),
         )
 
 
@@ -93,13 +93,13 @@ class RequestContentUp(Resource):
     def get(self, req_id):
         req = get_request(req_id)
 
-        filename = os.path.basename(urlparse(req.request.url).path)
+        filename = os.path.basename(urlparse(req.url).path)
 
         return send_file(
             io.BytesIO(
-                req.request.body
-                if isinstance(req.request.body, bytes)
-                else bytes(req.request.body.encode("utf-8"))
+                req.request.content
+                if isinstance(req.request.content, bytes)
+                else bytes(req.request.content.encode("utf-8"))
             ),
             download_name=f"upload-{filename}",
             mimetype="application/octet-stream",
@@ -122,13 +122,12 @@ class RequestList(Resource):
 
             k7["requests"][id] = {
                 "id": req.id,
-                "unread": req.unread,
                 "url": req.url,
                 "netloc": req.netloc,
                 "urlext": req.urlext,
                 "status_code": req.status_code,
                 "reason": req.reason,
-                "verb": req.request.method,
+                "verb": req.method,
                 "initiator": req.initiator.to_json(full=False),
             }
 
