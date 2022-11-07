@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from http.cookies import SimpleCookie
+import http
 import uuid
 from urllib.parse import urlparse
 
@@ -23,9 +23,9 @@ class HTTPRecords:
 
 
 class HTTPRecordContent:
-    def __init__(self, headers, content):
+    def __init__(self, headers, cookies, content):
         self.headers = self.list_headers(headers)
-        self.cookies = self.list_cookies(headers)
+        self.cookies = self.list_cookies(headers, cookies)
         self.content = content
 
     @staticmethod
@@ -41,33 +41,74 @@ class HTTPRecordContent:
                 return header["value"]
         return ""
 
+
+class HTTPRecordContentUp(HTTPRecordContent):
     @staticmethod
-    def list_cookies(headers):
-        # important - do not use request._cookies or response.cookies as they contain
-        # all the cookies of the session or redirection
+    def list_cookies(headers, cookies):
+        # important - do not use request._cookies as is because it contains all the cookies
+        # of the session or redirection ; list only the cookies present in the raw header.
         lst = []
         for key, header in headers.items():
-            if key.lower() in ["set-cookie", "cookie"]:
-                sc = SimpleCookie()
-                sc.load(header)
-                for name, cookie in sc.items():
-                    madeleine = {"name": name, "value": cookie.value}
-                    attributes = []
-                    for attr_name, attr_value in cookie.items():
-                        if attr_name == "secure":
-                            attr_name = "Secure"
-                        if attr_name == "httponly":
-                            attr_name = "HttpOnly"
-                        if attr_name == "samesite":
-                            attr_name = "SameSite"
-                        if isinstance(attr_value, bool):
-                            if attr_value:
-                                attributes.append({"name": attr_name})
-                        elif attr_value != "":
-                            attributes.append({"name": attr_name, "attr": attr_value})
-                    if attributes:
-                        madeleine["attributes"] = attributes
-                    lst.append(madeleine)
+            if key.lower() == "cookie":
+                for name, value in cookies.items():
+                    if f"{name}={value}" in header:
+                        madeleine = {"name": name, "value": value}
+                        lst.append(madeleine)
+        return lst
+
+
+class HTTPRecordContentDown(HTTPRecordContent):
+    @staticmethod
+    def list_cookies(headers, cookies):
+        # important - do not use response.cookies as is because it contains all the cookies
+        # of the session or redirection ; list only the cookies present in the raw header.
+        lst = []
+        for key, header in headers.items():
+            if key.lower() == "set-cookie":
+                for cookie in cookies:
+                    if f"{cookie.name}={cookie.value}" in header:
+                        madeleine = {"name": cookie.name, "value": cookie.value}
+                        attributes = []
+                        # https://docs.python.org/3/library/http.cookiejar.html#cookie-objects
+                        if cookie.port_specified:
+                            attributes.append({"name": "port", "attr": cookie.port})
+                        if cookie.domain_specified:
+                            attributes.append({"name": "domain", "attr": cookie.domain})
+                        if cookie.path:
+                            attributes.append({"name": "path", "attr": cookie.path})
+                        if cookie.comment:
+                            attributes.append(
+                                {"name": "comment", "attr": cookie.comment}
+                            )
+                        if cookie.comment_url:
+                            attributes.append(
+                                {"name": "comment_url", "attr": cookie.comment_url}
+                            )
+                        if cookie.expires:
+                            attributes.append(
+                                {
+                                    "name": "expires",
+                                    "attr": http.cookiejar.time2netscape(
+                                        cookie.expires
+                                    ),
+                                }
+                            )
+                        if cookie.discard:
+                            attributes.append({"name": "Discard"})
+                        if cookie.secure:
+                            attributes.append({"name": "Secure"})
+                        if "httponly" in [k.lower() for k in cookie._rest.keys()]:
+                            attributes.append({"name": "HttpOnly"})
+                        if cookie._rest.get("SameSite"):
+                            attributes.append(
+                                {
+                                    "name": "SameSite",
+                                    "attr": cookie._rest.get("SameSite"),
+                                }
+                            )
+                        if attributes:
+                            madeleine["attributes"] = attributes
+                        lst.append(madeleine)
         return lst
 
 
@@ -124,7 +165,9 @@ def set_hook(mixtape):
             record.url = request.url
             record.method = request.method
             record.stream = kwargs.get("stream", False)
-            record.request = HTTPRecordContent(request.headers, request.body)
+            record.request = HTTPRecordContentUp(
+                request.headers, request._cookies, request.body
+            )
 
             mixtape.requests[record.id] = record
 
@@ -137,8 +180,10 @@ def set_hook(mixtape):
                 record.status_code = -1
                 raise
 
-            record.response = HTTPRecordContent(
-                response.headers, response.content if not record.stream else None
+            record.response = HTTPRecordContentDown(
+                response.headers,
+                response.cookies,
+                response.content if not record.stream else None,
             )
             record._reason = response.reason
             # change the status_code at the end to be sure the ui reload a fresh description of the request
