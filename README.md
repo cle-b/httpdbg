@@ -1,8 +1,9 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black) [![Build Status](https://github.com/cle-b/httpdbg/workflows/Build/badge.svg?branch=main)](https://github.com/cle-b/httpdbg/actions?query=workflow%3ABuild) [![PyPI version](https://badge.fury.io/py/httpdbg.svg)](https://badge.fury.io/py/httpdbg) [![Coverage Status](https://coveralls.io/repos/github/cle-b/httpdbg/badge.svg?branch=main)](https://coveralls.io/github/cle-b/httpdbg?branch=main)
 # httpdbg
 
-A very simple tool to debug HTTP(S) client requests
+A very simple tool to debug HTTP(S) client requests.
 
+![ui](ui.png)
 ## installation 
 
 ```
@@ -48,11 +49,11 @@ You can trace all the HTTP requests performed during your tests
 pyhttpdbg --pytest [arg1 --arg2 ...]
 ```
 
-*note: `httpdbg` can't record the HTTP(S) requests if tests are executed in parallel using plugin like `xdist`*.
+*note: the HTTP(S) requests are not recorded if the tests are executed in parallel using plugin like `xdist`*.
 
 ## configuration
 
-`httpdbg` doesn't need any configuration to work but some few settings are available for particular use.
+No configuration is necessary to start but some few settings are available for particular use.
 
 ### command line
 
@@ -101,6 +102,4 @@ All the requests recorded are available on the web interface.
 
 The requests:
  * are still available in the web page even if the python process stopped (except if you force quit before the requests have been loaded by the web page).
- * are automatically clean if a new execution of `httpdbg` is detected.
-
- ![ui](ui.png)
+ * are automatically cleaned if a new execution is detected.
