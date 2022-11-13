@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import requests
+
 import pytest
 
 from httpdbg.server import httpdbg_hook
@@ -101,7 +102,7 @@ def test_api_get_request_get(httpbin, httpdbg_port):
 
         path_to_content = ret.json()["response"]["body"]["path"]
         req_response_content = requests.get(
-            f"http://127.0.0.1:{httpdbg_port}/{path_to_content}"
+            f"http://127.0.0.1:{httpdbg_port}{path_to_content}"
         )
 
     # headers
@@ -139,12 +140,12 @@ def test_api_get_request_post(httpbin, httpdbg_port):
 
         path_to_content = ret.json()["request"]["body"]["path"]
         req_request_content = requests.get(
-            f"http://127.0.0.1:{httpdbg_port}/{path_to_content}"
+            f"http://127.0.0.1:{httpdbg_port}{path_to_content}"
         )
 
         path_to_content = ret.json()["response"]["body"]["path"]
         req_response_content = requests.get(
-            f"http://127.0.0.1:{httpdbg_port}/{path_to_content}"
+            f"http://127.0.0.1:{httpdbg_port}{path_to_content}"
         )
 
     # headers
