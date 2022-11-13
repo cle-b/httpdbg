@@ -39,7 +39,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         fullpath = os.path.realpath(
             os.path.join(
-                os.path.dirname(os.path.realpath(__file__)), "webapp", self.path[1:]
+                os.path.dirname(os.path.realpath(__file__)), self.path[1:]
             )
         )
 
