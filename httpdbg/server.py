@@ -1,27 +1,10 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
+from http.server import HTTPServer
 import threading
 
-from werkzeug.serving import make_server
-
 from httpdbg.hook import set_hook, unset_hook
-
-from httpdbg.webapp import app, httpdebugk7
-
-
-class ServerThread(threading.Thread):
-    def __init__(self, port, app):
-        threading.Thread.__init__(self)
-        self.port = port
-        self.srv = make_server("localhost", port, app, threaded=True)
-        self.ctx = app.app_context()
-        self.ctx.push()
-
-    def run(self):
-        self.srv.serve_forever()
-
-    def shutdown(self):
-        self.srv.shutdown()
+from httpdbg.webapp import HttpbgHTTPRequestHandler, httpdebugk7
 
 
 @contextmanager
@@ -48,7 +31,7 @@ def httpdbg_hook():
 def httpdbg_srv(port):
     server = None
     try:
-        server = ServerThread(port, app)
+        server = ServerThread(port)
         server.start()
 
         yield
@@ -58,3 +41,16 @@ def httpdbg_srv(port):
         if server:
             server.shutdown()
         raise ex
+
+
+class ServerThread(threading.Thread):
+    def __init__(self, port):
+        threading.Thread.__init__(self)
+        self.port = port
+        self.srv = HTTPServer(("localhost", port), HttpbgHTTPRequestHandler)
+
+    def run(self):
+        self.srv.serve_forever()
+
+    def shutdown(self):
+        self.srv.shutdown()

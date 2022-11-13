@@ -22,10 +22,6 @@ setuptools.setup(
     package_data={"httpdbg": ["webapp/static/*"]},
     python_requires=">=3.6",
     install_requires=[
-        "Jinja2<3.1",
-        "Werkzeug<2.1",
-        "flask>2",
-        "flask-restful",
         "beautifulsoup4",
         "requests",
     ],

@@ -1,48 +1,167 @@
 # -*- coding: utf-8 -*-
-import logging
+import json
+from http.server import BaseHTTPRequestHandler
+import mimetypes
 import os
+import re
+from urllib.parse import urlparse, parse_qs
 
-from flask import Flask
-from flask_restful import Api
-
-from httpdbg.webapp.api import (
-    Request,
-    RequestContentDown,
-    RequestContentUp,
-    RequestList,
-)
-
-app = Flask("httpdbgwebapp")
-app.static_folder = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static")
-
-api = Api(app)
-
-# remove flask message
-logging.getLogger("werkzeug").disabled = True
-os.environ["WERKZEUG_RUN_MAIN"] = "true"
+from httpdbg.webapp import httpdebugk7
+from httpdbg.webapp.api import RequestListPayload, RequestPayload
 
 
-@app.route("/")
-def root():
-    return app.send_static_file("index.htm")
+class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
 
+        url = urlparse(self.path)
 
-@app.route("/config")
-def config():
-    return app.send_static_file("config.htm")
+        # we try different method to serve the URL until the good one is done
+        for serve in [
+            self.serve_static,
+            self.serve_requests,
+            self.serve_request,
+            self.serve_request_content_up,
+            self.serve_request_content_down,
+            self.serve_not_found,
+        ]:
+            if serve(url):
+                break
 
+    def serve_static(self, url):
+        if not (
+            (url.path.lower() in ["/", "index.htm", "index.html"])
+            or url.path.startswith("/static/")
+        ):
+            return False
 
-@app.after_request
-def add_header(response):
-    response.cache_control.max_age = 0
-    response.cache_control.no_cache = True
-    response.cache_control.no_store = True
-    response.cache_control.private = True
-    response.cache_control.public = False
-    return response
+        if url.path.lower() in ["/", "index.htm", "index.html"]:
+            self.path = "/static/index.htm"
 
+        fullpath = os.path.realpath(
+            os.path.join(
+                os.path.dirname(os.path.realpath(__file__)), "webapp", self.path[1:]
+            )
+        )
 
-api.add_resource(RequestList, "/requests")
-api.add_resource(Request, "/request/<req_id>")
-api.add_resource(RequestContentDown, "/request/<req_id>/down")
-api.add_resource(RequestContentUp, "/request/<req_id>/up")
+        if not fullpath.startswith(os.path.dirname(os.path.realpath(__file__))):
+            # if the file is not in the static directory, we don't serve it
+            return self.serve_not_found()
+
+        if not os.path.exists(fullpath):
+            return self.serve_not_found()
+        else:
+            self.send_response(200)
+            self.send_header(
+                "content-type", mimetypes.types_map[os.path.splitext(fullpath)[1]]
+            )
+            self.send_header_no_cache()
+            self.end_headers()
+            with open(fullpath, "rb") as f:
+                self.wfile.write(f.read())
+
+        return True
+
+    def serve_requests(self, url):
+
+        if not (url.path.lower() == "/requests"):
+            return False
+
+        query = parse_qs(url.query)
+
+        if query.get("id", [""])[0] == httpdebugk7.id:
+            httpdebugk7.requests_already_loaded = int(
+                query.get("requests_already_loaded", [0])[0]
+            )
+        else:
+            httpdebugk7.requests_already_loaded = 0
+
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.send_header_no_cache()
+        self.end_headers()
+        self.wfile.write(
+            json.dumps(httpdebugk7, cls=RequestListPayload).encode("utf-8")
+        )
+
+        return True
+
+    def serve_request(self, url):
+        regexp = r"/request/([\w\-]+)"
+
+        if re.fullmatch(regexp, url.path) is None:
+            return False
+
+        req_id = re.findall(regexp, url.path)[0]
+
+        if req_id not in httpdebugk7.requests:
+            return self.serve_not_found()
+
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.send_header_no_cache()
+        self.end_headers()
+        self.wfile.write(
+            json.dumps(httpdebugk7.requests[req_id], cls=RequestPayload).encode("utf-8")
+        )
+
+        return True
+
+    def serve_request_content_up(self, url):
+        regexp = r"/request/([\w\-]+)/up"
+
+        if re.fullmatch(regexp, url.path) is None:
+            return False
+
+        req_id = re.findall(regexp, url.path)[0]
+
+        if req_id not in httpdebugk7.requests:
+            return self.serve_not_found()
+
+        req = httpdebugk7.requests[req_id]
+
+        self.send_response(200)
+        self.send_header("Content-type", "application/octet-stream")
+        self.send_header_no_cache()
+        self.end_headers()
+        self.wfile.write(
+            req.request.content.encode("utf-8")
+            if isinstance(req.request.content, str)
+            else req.request.content
+        )
+
+        return True
+
+    def serve_request_content_down(self, url):
+        regexp = r"/request/([\w\-]+)/down"
+
+        if re.fullmatch(regexp, url.path) is None:
+            return False
+
+        req_id = re.findall(regexp, url.path)[0]
+
+        if req_id not in httpdebugk7.requests:
+            return self.serve_not_found()
+
+        req = httpdebugk7.requests[req_id]
+
+        self.send_response(200)
+        self.send_header("Content-type", req.response.get_header("Content-Type"))
+        self.send_header_no_cache()
+        self.end_headers()
+        self.wfile.write(req.response.content)
+
+        return True
+
+    def serve_not_found(self, *kwargs):
+        self.send_response(404)
+        self.send_header_no_cache()
+        self.end_headers()
+        self.wfile.write(b"404 Not found")
+
+        return True
+
+    def log_message(self, format, *args):
+        pass
+
+    def send_header_no_cache(self):
+        self.send_header("Cache-Control", "max-age=0, no-cache, no-store, private")

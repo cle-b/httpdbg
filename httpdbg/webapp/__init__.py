@@ -1,4 +1,4 @@
-from httpdbg.webapp.app import app
+from httpdbg.webapp.api import HttpbgHTTPRequestHandler
 from httpdbg.webapp.api import httpdebugk7
 
-__all__ = ["app", "httpdebugk7"]
+__all__ = ["HttpbgHTTPRequestHandler", "httpdebugk7"]
