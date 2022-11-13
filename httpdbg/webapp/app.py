@@ -38,9 +38,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
             self.path = "/static/index.htm"
 
         fullpath = os.path.realpath(
-            os.path.join(
-                os.path.dirname(os.path.realpath(__file__)), self.path[1:]
-            )
+            os.path.join(os.path.dirname(os.path.realpath(__file__)), self.path[1:])
         )
 
         if not fullpath.startswith(os.path.dirname(os.path.realpath(__file__))):
