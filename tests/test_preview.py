@@ -17,68 +17,81 @@ def test_preview_unknown_type_bytes():
 
 
 @pytest.mark.preview
-def test_preview_text_html():
+@pytest.mark.parametrize(
+    "content_type",
+    ["text/html", "application/xhtml+xml", "application/xml", "text", ""],
+)
+def test_preview_xml(content_type):
+    raw_data = "<html><head><title>:-)</title></head><body>empty</body></html>"
     body = generate_preview(
         "path_to_htm",
         "filename.htm",
-        "text/html",
-        "<html><head><title>:-)</title></head><body>empty</body></html>",
+        content_type,
+        raw_data,
     )
-    preview = "<html>\n <head>\n  <title>\n   :-)\n  </title>\n </head>\n <body>\n  empty\n </body>\n</html>"
+    parsed = '<?xml version="1.0" ?>\n<html>\n   <head>\n      <title>:-)</title>\n   </head>\n   <body>empty</body>\n</html>'
 
     assert body == {
         "filename": "filename.htm",
         "path": "path_to_htm",
-        "text": preview,
+        "text": raw_data,
+        "parsed": parsed,
     }
 
 
 @pytest.mark.preview
-def test_preview_text_html_wrong():
-    body = generate_preview(
-        "path_to_htm",
-        "filename.htm",
-        "text/html",
-        None,
-    )
-
-    assert body == {
-        "filename": "filename.htm",
-        "path": "path_to_htm",
-        "text": "error during html parsing",
-    }
-
-
-@pytest.mark.preview
-def test_preview_application_json():
+@pytest.mark.parametrize("content_type", ["text/json", "application/json", "text", ""])
+def test_preview_json(content_type):
+    raw_data = '{"a": "1", "b": {"c": 2} }'
     body = generate_preview(
         "path_to_json",
         "filename.json",
         "application/json",
-        '{"a": "1", "b": {"c": 2} }',
+        raw_data,
     )
-    preview = '{\n    "a": "1",\n    "b": {\n        "c": 2\n    }\n}'
+    parsed = '{\n    "a": "1",\n    "b": {\n        "c": 2\n    }\n}'
 
     assert body == {
         "filename": "filename.json",
         "path": "path_to_json",
-        "text": preview,
+        "text": raw_data,
+        "parsed": parsed,
     }
 
 
 @pytest.mark.preview
-def test_preview_application_json_wrong():
+def test_preview_query_string():
+    raw_data = "a=1&b=2&c=%7B%27er%27%3A+43434%7D"
     body = generate_preview(
         "path_to_json",
         "filename.json",
-        "application/json",
-        "<html>:-D</html>",
+        "application/x-www-form-urlencoded",
+        raw_data,
+    )
+    parsed = "a=1\nb=2\nc={'er': 43434}"
+
+    assert body == {
+        "filename": "filename.json",
+        "path": "path_to_json",
+        "text": raw_data,
+        "parsed": parsed,
+    }
+
+
+@pytest.mark.preview
+def test_preview_query_string_not_urlencoded_mimetype():
+    raw_data = "a=1&b=2&c=%7B%27er%27%3A+43434%7D"
+    body = generate_preview(
+        "path_to_json",
+        "filename.json",
+        "test/plain",
+        raw_data,
     )
 
     assert body == {
         "filename": "filename.json",
         "path": "path_to_json",
-        "text": "<html>:-D</html>",
+        "text": raw_data,
     }
 
 

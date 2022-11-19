@@ -61,7 +61,10 @@ function show_request(request_id) {
     };
 
     if (request.body && request.body.text) {
-        request.body.copy_to_clipboard = "global.requests['" + request_id + "'].data.request.body.text";
+        request.body.raw_text = "global.requests['" + request_id + "'].data.request.body.text";
+        if (request.body.parsed) {
+            request.body.parsed_text = "global.requests['" + request_id + "'].data.request.body.parsed";
+        }
     };
 
     update_with_template("template_body", "body_sent", request);
@@ -71,7 +74,10 @@ function show_request(request_id) {
     };
 
     if (response.body && response.body.text) {
-        response.body.copy_to_clipboard = "global.requests['" + request_id + "'].data.response.body.text";
+        response.body.raw_text = "global.requests['" + request_id + "'].data.response.body.text";
+        if (response.body.parsed) {
+            response.body.parsed_text = "global.requests['" + request_id + "'].data.response.body.parsed";
+        }
     };
 
     update_with_template("template_body", "body_received", response);
@@ -134,4 +140,20 @@ async function enable_refresh() {
             wait_for(500),
         ]);
     }
+}
+
+function show_wrap_lines(elt) {
+    elt.classList.toggle("prewrap");
+}
+
+function show_raw_data(elt, show_raw_text, raw_text, parsed_text) {
+    var preview;
+
+    if (show_raw_text) {
+        preview = raw_text;
+    } else {
+        preview = parsed_text;
+    }
+
+    elt.textContent = preview;
 }
