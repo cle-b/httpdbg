@@ -7,4 +7,3 @@ Javascript:
 
 Python:
 * [Requests - A simple, yet elegant, HTTP library](https://github.com/psf/requests)
-* [Beautiful Soup 4 - A library that makes it easy to scrape information from web pages](https://www.crummy.com/software/BeautifulSoup/)

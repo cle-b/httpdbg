@@ -197,13 +197,21 @@
                                 <span class="need-server-info" title="Use the '-k' option to keep the server up and being able to download the content.">&#x1F6C8;</span>
                                 {{/body.path}}
 
-                                {{#body.copy_to_clipboard}}
-                                <button onclick="navigator.clipboard.writeText({{body.copy_to_clipboard}});">copy to clipboard</button>
-                                {{/body.copy_to_clipboard}}
-
                                 {{#body.text}}
-                                <label><input type="checkbox" onclick='this.parentNode.parentNode.querySelector(".previewcode").classList.toggle("prewrap");'>Wrap lines</label>
-                                <pre class="previewcode">{{body.text}}</pre>
+                                
+                                {{#body.raw_text}}
+                                <button onclick="navigator.clipboard.writeText({{body.raw_text}});">copy to clipboard</button>
+                                {{/body.raw_text}}
+
+                                <label><input type="checkbox" onclick='show_wrap_lines(this.parentNode.parentNode.querySelector(".previewcode"));'>Wrap lines</label>
+                                {{#body.parsed}}
+                                    <label><input type="checkbox" onclick='show_raw_data(this.parentNode.parentNode.querySelector(".previewcode"), this.checked, {{body.raw_text}}, {{body.parsed_text}});'>Raw data</label>
+                                    <pre class="previewcode">{{body.parsed}}</pre>
+                                {{/body.parsed}}                                    
+                                {{^body.parsed}}
+                                    <pre class="previewcode">{{body.text}}</pre>
+                                {{/body.parsed}}
+                                
                                 {{/body.text}}
 
                                 {{#body.image}}
