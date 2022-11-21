@@ -7,3 +7,4 @@ flask>2
 pytest-httpbin
 tox
 coverage
+requests

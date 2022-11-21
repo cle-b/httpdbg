@@ -11,7 +11,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="httpdbg",
-    version="0.0.51",
+    version="0.0.52",
     author="cle-b",
     author_email="cle@tictac.pm",
     description="A very simple tool to debug HTTP(S) client requests",
@@ -21,9 +21,6 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     package_data={"httpdbg": ["webapp/static/*"]},
     python_requires=">=3.6",
-    install_requires=[
-        "requests",
-    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
