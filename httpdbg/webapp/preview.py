@@ -62,7 +62,7 @@ def generate_preview(path, filename, content_type, raw_data):
                                 if value:
                                     qs.append(f"{key}={value}")
                             if qs:
-                                body["parsed"] = "\n".join(qs)
+                                body["parsed"] = "\n\n".join(qs)
                     except Exception:
                         pass
 
