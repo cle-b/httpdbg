@@ -146,59 +146,65 @@ class HTTPRecord:
 
 def set_hook(mixtape):
     """Intercepts the HTTP requests"""
-    import requests
+    try:
+        import requests
 
-    if not hasattr(requests.adapters.HTTPAdapter, "_original_send"):
+        if not hasattr(requests.adapters.HTTPAdapter, "_original_send"):
 
-        mixtape.reset()
+            mixtape.reset()
 
-        requests.adapters.HTTPAdapter._original_send = (
-            requests.adapters.HTTPAdapter.send
-        )
-
-        def _hook_send(self, request, **kwargs):
-
-            record = HTTPRecord()
-
-            record.initiator = get_initiator()
-
-            record.url = request.url
-            record.method = request.method
-            record.stream = kwargs.get("stream", False)
-            record.request = HTTPRecordContentUp(
-                request.headers, request._cookies, request.body
+            requests.adapters.HTTPAdapter._original_send = (
+                requests.adapters.HTTPAdapter.send
             )
 
-            mixtape.requests[record.id] = record
+            def _hook_send(self, request, **kwargs):
 
-            try:
-                response = requests.adapters.HTTPAdapter._original_send(
-                    self, request, **kwargs
+                record = HTTPRecord()
+
+                record.initiator = get_initiator()
+
+                record.url = request.url
+                record.method = request.method
+                record.stream = kwargs.get("stream", False)
+                record.request = HTTPRecordContentUp(
+                    request.headers, request._cookies, request.body
                 )
-            except Exception as ex:
-                record.exception = ex
-                record.status_code = -1
-                raise
 
-            record.response = HTTPRecordContentDown(
-                response.headers,
-                response.cookies,
-                response.content if not record.stream else None,
-            )
-            record._reason = response.reason
-            # change the status_code at the end to be sure the ui reload a fresh description of the request
-            record.status_code = response.status_code
+                mixtape.requests[record.id] = record
 
-            return response
+                try:
+                    response = requests.adapters.HTTPAdapter._original_send(
+                        self, request, **kwargs
+                    )
+                except Exception as ex:
+                    record.exception = ex
+                    record.status_code = -1
+                    raise
 
-        requests.adapters.HTTPAdapter.send = _hook_send
+                record.response = HTTPRecordContentDown(
+                    response.headers,
+                    response.cookies,
+                    response.content if not record.stream else None,
+                )
+                record._reason = response.reason
+                # change the status_code at the end to be sure the ui reload a fresh description of the request
+                record.status_code = response.status_code
+
+                return response
+
+            requests.adapters.HTTPAdapter.send = _hook_send
+    except ImportError:
+        pass
 
 
 def unset_hook():
-    import requests
+    try:
+        import requests
 
-    if hasattr(requests.adapters.HTTPAdapter, "_original_send"):
-        requests.adapters.HTTPAdapter.send = (
-            requests.adapters.HTTPAdapter._original_send
-        )
-        delattr(requests.adapters.HTTPAdapter, "_original_send")
+        if hasattr(requests.adapters.HTTPAdapter, "_original_send"):
+            requests.adapters.HTTPAdapter.send = (
+                requests.adapters.HTTPAdapter._original_send
+            )
+            delattr(requests.adapters.HTTPAdapter, "_original_send")
+    except ImportError:
+        pass

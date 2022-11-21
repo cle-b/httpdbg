@@ -68,7 +68,7 @@ def test_preview_query_string():
         "application/x-www-form-urlencoded",
         raw_data,
     )
-    parsed = "a=1\nb=2\nc={'er': 43434}"
+    parsed = "a=1\n\nb=2\n\nc={'er': 43434}"
 
     assert body == {
         "filename": "filename.json",
