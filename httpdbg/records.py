@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 import http
-import uuid
+import secrets
+import string
 from urllib.parse import urlparse
 
-from httpdbg.initiator import get_initiator
+
+def get_new_uuid():
+    # important - the uuid must be compatible with method naming rules
+    return "".join(secrets.choice(string.ascii_letters) for i in range(10))
 
 
 class HTTPRecords:
     def __init__(self):
-        self.id = str(uuid.uuid4())
-        self.requests = {}
-        self.requests_already_loaded = 0
-
-    def reset(self):
-        self.id = str(uuid.uuid4())
+        self.id = get_new_uuid()
         self.requests = {}
         self.requests_already_loaded = 0
 
@@ -114,7 +113,7 @@ class HTTPRecordContentDown(HTTPRecordContent):
 
 class HTTPRecord:
     def __init__(self):
-        self.id = str(uuid.uuid4())
+        self.id = get_new_uuid()
         self.initiator = None
         self.exception = None
         self.url = None
@@ -142,69 +141,3 @@ class HTTPRecord:
     @property
     def urlext(self):
         return self.url[len(self.netloc) :]
-
-
-def set_hook(mixtape):
-    """Intercepts the HTTP requests"""
-    try:
-        import requests
-
-        if not hasattr(requests.adapters.HTTPAdapter, "_original_send"):
-
-            mixtape.reset()
-
-            requests.adapters.HTTPAdapter._original_send = (
-                requests.adapters.HTTPAdapter.send
-            )
-
-            def _hook_send(self, request, **kwargs):
-
-                record = HTTPRecord()
-
-                record.initiator = get_initiator()
-
-                record.url = request.url
-                record.method = request.method
-                record.stream = kwargs.get("stream", False)
-                record.request = HTTPRecordContentUp(
-                    request.headers, request._cookies, request.body
-                )
-
-                mixtape.requests[record.id] = record
-
-                try:
-                    response = requests.adapters.HTTPAdapter._original_send(
-                        self, request, **kwargs
-                    )
-                except Exception as ex:
-                    record.exception = ex
-                    record.status_code = -1
-                    raise
-
-                record.response = HTTPRecordContentDown(
-                    response.headers,
-                    response.cookies,
-                    response.content if not record.stream else None,
-                )
-                record._reason = response.reason
-                # change the status_code at the end to be sure the ui reload a fresh description of the request
-                record.status_code = response.status_code
-
-                return response
-
-            requests.adapters.HTTPAdapter.send = _hook_send
-    except ImportError:
-        pass
-
-
-def unset_hook():
-    try:
-        import requests
-
-        if hasattr(requests.adapters.HTTPAdapter, "_original_send"):
-            requests.adapters.HTTPAdapter.send = (
-                requests.adapters.HTTPAdapter._original_send
-            )
-            delattr(requests.adapters.HTTPAdapter, "_original_send")
-    except ImportError:
-        pass

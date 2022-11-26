@@ -3,7 +3,7 @@ import requests
 
 import pytest
 
-from httpdbg.server import httpdbg_hook
+from httpdbg.server import httpdbg
 from httpdbg.server import httpdbg_srv
 
 from utils import get_request_content_up
@@ -13,10 +13,12 @@ from utils import get_request_details
 @pytest.mark.api
 @pytest.mark.requests
 def test_api_requests_one_request(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        requests.get(httpbin.url + "/get")
 
-    with httpdbg_srv(httpdbg_port):
+    with httpdbg_srv(httpdbg_port) as records:
+
+        with httpdbg(records):
+            requests.get(httpbin.url + "/get")
+
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
@@ -28,11 +30,11 @@ def test_api_requests_one_request(httpbin, httpdbg_port):
 @pytest.mark.api
 @pytest.mark.requests
 def test_api_requests_two_requests(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        requests.get(httpbin.url + "/get/abc")
-        requests.get(httpbin.url + "/get/def")
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            requests.get(httpbin.url + "/get/abc")
+            requests.get(httpbin.url + "/get/def")
 
-    with httpdbg_srv(httpdbg_port):
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
@@ -45,10 +47,9 @@ def test_api_requests_two_requests(httpbin, httpdbg_port):
 @pytest.mark.api
 @pytest.mark.requests
 def test_api_requests_netloc(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        requests.get(httpbin.url + "/get/abc")
-
-    with httpdbg_srv(httpdbg_port):
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            requests.get(httpbin.url + "/get/abc")
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
@@ -62,11 +63,11 @@ def test_api_requests_netloc(httpbin, httpdbg_port):
 @pytest.mark.api
 @pytest.mark.request
 def test_api_request_by_id(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        requests.get(httpbin.url + "/get/abc")
-        requests.get(httpbin.url + "/get/def")
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            requests.get(httpbin.url + "/get/abc")
+            requests.get(httpbin.url + "/get/def")
 
-    with httpdbg_srv(httpdbg_port):
         ret0 = get_request_details(httpdbg_port, 0)
         ret1 = get_request_details(httpdbg_port, 1)
 
@@ -80,11 +81,11 @@ def test_api_request_by_id(httpbin, httpdbg_port):
 @pytest.mark.api
 @pytest.mark.request
 def test_api_request_by_id_not_exists(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        requests.get(httpbin.url + "/get/abc")
-        requests.get(httpbin.url + "/get/def")
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            requests.get(httpbin.url + "/get/abc")
+            requests.get(httpbin.url + "/get/def")
 
-    with httpdbg_srv(httpdbg_port):
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/request/999")
 
     assert ret.status_code == 404
@@ -93,11 +94,11 @@ def test_api_request_by_id_not_exists(httpbin, httpdbg_port):
 @pytest.mark.api
 @pytest.mark.request
 def test_api_get_request_get(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        requests.get(httpbin.url + "/")
-        requests.get(httpbin.url + "/get")
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            requests.get(httpbin.url + "/")
+            requests.get(httpbin.url + "/get")
 
-    with httpdbg_srv(httpdbg_port):
         ret = get_request_details(httpdbg_port, 1)
 
         path_to_content = ret.json()["response"]["body"]["path"]
@@ -131,11 +132,11 @@ def test_api_get_request_get(httpbin, httpdbg_port):
 @pytest.mark.api
 @pytest.mark.request
 def test_api_get_request_post(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        requests.get(httpbin.url + "/")
-        requests.post(httpbin.url + "/post", data=b"data to post")
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            requests.get(httpbin.url + "/")
+            requests.post(httpbin.url + "/post", data=b"data to post")
 
-    with httpdbg_srv(httpdbg_port):
         ret = get_request_details(httpdbg_port, 1)
 
         path_to_content = ret.json()["request"]["body"]["path"]
@@ -177,11 +178,11 @@ def test_api_get_request_post(httpbin, httpdbg_port):
 @pytest.mark.api
 @pytest.mark.request
 def test_api_get_request_get_status_404(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        ret = requests.get(httpbin.url + "/get/abc")
-    assert ret.status_code == 404
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            ret = requests.get(httpbin.url + "/get/abc")
+        assert ret.status_code == 404
 
-    with httpdbg_srv(httpdbg_port):
         ret = get_request_details(httpdbg_port, 0)
 
     assert ret.json()["url"] == httpbin.url + "/get/abc"
@@ -192,13 +193,13 @@ def test_api_get_request_get_status_404(httpbin, httpdbg_port):
 @pytest.mark.api
 @pytest.mark.request
 def test_api_get_request_connection_error(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        try:
-            requests.get("http://u.r.l.ooooooo/get/abc")
-        except requests.exceptions.ConnectionError:
-            pass
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            try:
+                requests.get("http://u.r.l.ooooooo/get/abc")
+            except requests.exceptions.ConnectionError:
+                pass
 
-    with httpdbg_srv(httpdbg_port):
         ret = get_request_details(httpdbg_port, 0)
 
     assert ret.json()["url"] == "http://u.r.l.ooooooo/get/abc"
@@ -209,11 +210,11 @@ def test_api_get_request_connection_error(httpbin, httpdbg_port):
 @pytest.mark.api
 @pytest.mark.request_content
 def test_api_get_request_content_up_text(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        requests.post(httpbin.url + "/post", data={"a": 1, "b": 2})
-        requests.post(httpbin.url + "/post", data="hello")
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            requests.post(httpbin.url + "/post", data={"a": 1, "b": 2})
+            requests.post(httpbin.url + "/post", data="hello")
 
-    with httpdbg_srv(httpdbg_port):
         ret0 = get_request_content_up(httpdbg_port, 0)
         ret1 = get_request_content_up(httpdbg_port, 1)
 
@@ -228,12 +229,12 @@ def test_api_get_request_content_up_text(httpbin, httpdbg_port):
 @pytest.mark.request
 @pytest.mark.cookies
 def test_cookies_request(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        session = requests.session()
-        session.cookies.set("COOKIE_NAME", "the-cookie-works")
-        session.get(httpbin.url + "/get")
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            session = requests.session()
+            session.cookies.set("COOKIE_NAME", "the-cookie-works")
+            session.get(httpbin.url + "/get")
 
-    with httpdbg_srv(httpdbg_port):
         ret = get_request_details(httpdbg_port, 0)
 
     cookies = ret.json()["request"]["cookies"]
@@ -246,14 +247,14 @@ def test_cookies_request(httpbin, httpdbg_port):
 @pytest.mark.request
 @pytest.mark.cookies
 def test_cookies_response(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        session = requests.session()
-        session.get(
-            httpbin.url + "/cookies/set/THE_COOKIE_NAME/THE_COOKIE_VALUE",
-            allow_redirects=False,
-        )
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            session = requests.session()
+            session.get(
+                httpbin.url + "/cookies/set/THE_COOKIE_NAME/THE_COOKIE_VALUE",
+                allow_redirects=False,
+            )
 
-    with httpdbg_srv(httpdbg_port):
         ret = get_request_details(httpdbg_port, 0)
 
     cookies = ret.json()["response"]["cookies"]

@@ -3,38 +3,35 @@ from contextlib import contextmanager
 from http.server import HTTPServer
 import threading
 
-from httpdbg.hook import set_hook, unset_hook
-from httpdbg.webapp import HttpbgHTTPRequestHandler, httpdebugk7
+from httpdbg.hooks import unset_hook_for_requests, set_hook_for_requests
+from httpdbg.records import HTTPRecords
+from httpdbg.webapp import HttpbgHTTPRequestHandler
 
 
 @contextmanager
-def httpdbg(port):
-    with httpdbg_srv(port):
-        with httpdbg_hook():
-            yield
-
-
-@contextmanager
-def httpdbg_hook():
+def httpdbg(records=None):
+    if not records:
+        records = HTTPRecords()
     try:
-        set_hook(httpdebugk7)
+        set_hook_for_requests(records)
 
-        yield
+        yield records
 
-        unset_hook()
+        unset_hook_for_requests(records)
     except Exception as ex:
-        unset_hook()
+        unset_hook_for_requests(records)
         raise ex
 
 
 @contextmanager
 def httpdbg_srv(port):
     server = None
+    records = HTTPRecords()
     try:
-        server = ServerThread(port)
+        server = ServerThread(port, records)
         server.start()
 
-        yield
+        yield records
 
         server.shutdown()
     except Exception as ex:
@@ -44,10 +41,14 @@ def httpdbg_srv(port):
 
 
 class ServerThread(threading.Thread):
-    def __init__(self, port):
+    def __init__(self, port, records):
         threading.Thread.__init__(self)
         self.port = port
-        self.srv = HTTPServer(("localhost", port), HttpbgHTTPRequestHandler)
+
+        def http_request_handler(*args, **kwargs):
+            HttpbgHTTPRequestHandler(records, *args, **kwargs)
+
+        self.srv = HTTPServer(("localhost", port), http_request_handler)
 
     def run(self):
         self.srv.serve_forever()

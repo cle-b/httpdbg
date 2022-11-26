@@ -6,11 +6,14 @@ import os
 import re
 from urllib.parse import urlparse, parse_qs
 
-from httpdbg.webapp import httpdebugk7
 from httpdbg.webapp.api import RequestListPayload, RequestPayload
 
 
 class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
+    def __init__(self, record, *args, **kwargs):
+        self.records = record
+        super().__init__(*args, **kwargs)
+
     def do_GET(self):
 
         url = urlparse(self.path)
@@ -66,19 +69,19 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         query = parse_qs(url.query)
 
-        if query.get("id", [""])[0] == httpdebugk7.id:
-            httpdebugk7.requests_already_loaded = int(
+        if query.get("id", [""])[0] == self.records.id:
+            self.records.requests_already_loaded = int(
                 query.get("requests_already_loaded", [0])[0]
             )
         else:
-            httpdebugk7.requests_already_loaded = 0
+            self.records.requests_already_loaded = 0
 
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.send_header_no_cache()
         self.end_headers()
         self.wfile.write(
-            json.dumps(httpdebugk7, cls=RequestListPayload).encode("utf-8")
+            json.dumps(self.records, cls=RequestListPayload).encode("utf-8")
         )
 
         return True
@@ -91,7 +94,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         req_id = re.findall(regexp, url.path)[0]
 
-        if req_id not in httpdebugk7.requests:
+        if req_id not in self.records.requests:
             return self.serve_not_found()
 
         self.send_response(200)
@@ -99,7 +102,9 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header_no_cache()
         self.end_headers()
         self.wfile.write(
-            json.dumps(httpdebugk7.requests[req_id], cls=RequestPayload).encode("utf-8")
+            json.dumps(self.records.requests[req_id], cls=RequestPayload).encode(
+                "utf-8"
+            )
         )
 
         return True
@@ -112,10 +117,10 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         req_id = re.findall(regexp, url.path)[0]
 
-        if req_id not in httpdebugk7.requests:
+        if req_id not in self.records.requests:
             return self.serve_not_found()
 
-        req = httpdebugk7.requests[req_id]
+        req = self.records.requests[req_id]
 
         self.send_response(200)
         self.send_header("Content-type", "application/octet-stream")
@@ -137,10 +142,10 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         req_id = re.findall(regexp, url.path)[0]
 
-        if req_id not in httpdebugk7.requests:
+        if req_id not in self.records.requests:
             return self.serve_not_found()
 
-        req = httpdebugk7.requests[req_id]
+        req = self.records.requests[req_id]
 
         self.send_response(200)
         self.send_header("Content-type", req.response.get_header("Content-Type"))
