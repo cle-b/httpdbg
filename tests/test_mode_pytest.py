@@ -6,18 +6,8 @@ import requests
 
 from httpdbg.mode_pytest import run_pytest
 from httpdbg.__main__ import pyhttpdbg_entry_point
-from httpdbg.server import httpdbg_hook
+from httpdbg.server import httpdbg
 from httpdbg.server import httpdbg_srv
-
-
-@pytest.mark.pytest
-def test_run_pytest(httpbin):
-    with httpdbg_hook():
-        os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
-        script_to_run = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
-        )
-        run_pytest([f"{script_to_run}::test_demo_pytest"])
 
 
 @pytest.mark.pytest
@@ -33,7 +23,20 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, httpdbg_port, monkeypatc
 
     pyhttpdbg_entry_point(test_mode=True)
 
-    with httpdbg_srv(httpdbg_port):
+    # this is not easy to verify here if the HTTP requests have been recorded,
+    # but we verify that in the test below
+
+
+@pytest.mark.pytest
+def test_run_pytest(httpbin, httpdbg_port):
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
+            script_to_run = os.path.join(
+                os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
+            )
+            run_pytest([f"{script_to_run}::test_demo_pytest"])
+
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
@@ -46,13 +49,13 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, httpdbg_port, monkeypatc
 
 @pytest.mark.pytest
 def test_run_pytest_with_exception(httpdbg_port, capsys):
-    with httpdbg_hook():
-        script_to_run = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
-        )
-        run_pytest([f"{script_to_run}::test_demo_raise_exception"])
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            script_to_run = os.path.join(
+                os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
+            )
+            run_pytest([f"{script_to_run}::test_demo_raise_exception"])
 
-    with httpdbg_srv(httpdbg_port):
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
@@ -66,14 +69,14 @@ def test_run_pytest_with_exception(httpdbg_port, capsys):
 @pytest.mark.request
 @pytest.mark.pytest
 def test_run_pytest_initiator(httpbin, httpdbg_port):
-    with httpdbg_hook():
-        os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
-        script_to_run = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
-        )
-        run_pytest([f"{script_to_run}::test_demo_pytest"])
+    with httpdbg_srv(httpdbg_port) as records:
+        with httpdbg(records):
+            os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
+            script_to_run = os.path.join(
+                os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
+            )
+            run_pytest([f"{script_to_run}::test_demo_pytest"])
 
-    with httpdbg_srv(httpdbg_port):
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
@@ -85,8 +88,3 @@ def test_run_pytest_initiator(httpbin, httpdbg_port):
         reqs[list(reqs.keys())[0]]["initiator"].get("long_label")
         == "tests/demo_run_pytest.py::test_demo_pytest"
     )
-
-    assert len(reqs) == 3
-    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/post"
-    assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/get"
-    assert reqs[list(reqs.keys())[2]]["url"] == httpbin.url + "/put"

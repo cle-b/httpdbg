@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 from json import JSONEncoder
 
-from httpdbg.hook import HTTPRecords
-from httpdbg.hook import HTTPRecord
+from httpdbg.records import HTTPRecords
+from httpdbg.records import HTTPRecord
 from httpdbg.webapp.preview import generate_preview
-
-
-httpdebugk7 = HTTPRecords()
 
 
 class RequestPayload(JSONEncoder):

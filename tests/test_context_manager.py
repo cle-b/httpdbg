@@ -1,50 +1,51 @@
 # -*- coding: utf-8 -*-
-import requests
+from httpdbg import httpdbg
 
 import pytest
-
-from httpdbg import httpdbg
-from httpdbg.webapp import httpdebugk7
+import requests
 
 
 @pytest.mark.cm
-def test_context_manager(httpbin, httpdbg_port):
+@pytest.mark.api
+def test_context_manager(httpbin):
 
     requests.get(httpbin.url + "/get")
 
-    with httpdbg(httpdbg_port):
+    with httpdbg() as records:
         requests.get(httpbin.url + "/get")
 
-    assert len(httpdebugk7.requests) == 1
+    assert len(records.requests) == 1
 
 
 @pytest.mark.cm
-def test_context_manager_reentrant(httpbin, httpdbg_port):
+@pytest.mark.api
+def test_context_manager_two_calls(httpbin):
 
     requests.get(httpbin.url + "/get")
 
-    with httpdbg(httpdbg_port):
-        with httpdbg(httpdbg_port + 1000):
-            requests.get(httpbin.url + "/get")
-
-    assert len(httpdebugk7.requests) == 1
-
-
-@pytest.mark.cm
-def test_context_manager_two_calls(httpbin, httpdbg_port):
-
-    requests.get(httpbin.url + "/get")
-
-    with httpdbg(httpdbg_port):
+    with httpdbg() as records:
         requests.get(httpbin.url + "/get")
 
-    assert len(httpdebugk7.requests) == 1
-    for _, req in httpdebugk7.requests.items():
+    assert len(records.requests) == 1
+    for _, req in records.requests.items():
         assert req.method.lower() == "get"
 
-    with httpdbg(httpdbg_port + 1000):
+    with httpdbg() as records2:
         requests.post(httpbin.url + "/post")
 
-    assert len(httpdebugk7.requests) == 1
-    for _, req in httpdebugk7.requests.items():
+    assert len(records2.requests) == 1
+    for _, req in records2.requests.items():
         assert req.method.lower() == "post"
+
+
+@pytest.mark.cm
+def test_context_manager_reentrant(httpbin):
+
+    requests.get(httpbin.url + "/get")
+
+    with httpdbg() as records:
+        with httpdbg() as records2:
+            requests.get(httpbin.url + "/get")
+
+    assert len(records.requests) == 1
+    assert len(records2.requests) == 1
