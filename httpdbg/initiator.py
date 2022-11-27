@@ -29,6 +29,15 @@ def compatible_path(path):
     return p
 
 
+def in_lib(line):
+    return any(
+        [
+            (compatible_path(f"/site-packages/{package}/") in line)
+            for package in ["requests", "httpx"]
+        ]
+    )
+
+
 def get_initiator():
     short_label = ""
     long_label = ""
@@ -40,7 +49,7 @@ def get_initiator():
         short_label = long_label.split("::")[-1]
         in_stack = False
         for line in fullstack[6:]:
-            if compatible_path("/site-packages/requests") in line:
+            if in_lib(line):
                 break
             if in_stack:
                 stack.append(line)
@@ -52,7 +61,7 @@ def get_initiator():
             fullstack
         ):  # TODO: find another way the detect the mode
             for line in fullstack[6:]:
-                if compatible_path("/site-packages/requests") in line:
+                if in_lib(line):
                     break
                 stack.append(line)
             long_label = stack[-1]
