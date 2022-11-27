@@ -17,22 +17,25 @@ class RequestPayload(JSONEncoder):
             "method": req.method,
             "status_code": req.status_code,
             "reason": req.reason,
-            "request": {
-                "headers": req.request.headers,
-                "cookies": req.request.cookies,
-            },
+            "request": None,
             "response": None,
             "exception": None,
             "initiator": req.initiator.to_json(),
         }
 
-        if req.request.content:
-            payload["request"]["body"] = generate_preview(
-                f"/request/{req.id}/up",
-                "upload",
-                req.request.get_header("Content-Type"),
-                req.request.content,
-            )
+        if req.request is not None:
+            payload["request"] = {
+                "headers": req.request.headers,
+                "cookies": req.request.cookies,
+            }
+
+            if req.request.content:
+                payload["request"]["body"] = generate_preview(
+                    f"/request/{req.id}/up",
+                    "upload",
+                    req.request.get_header("Content-Type"),
+                    req.request.content,
+                )
 
         if req.response is not None:
 

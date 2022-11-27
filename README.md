@@ -31,8 +31,6 @@ Perform HTTP requests.
 
 You can inspect the HTTP requests directly in your web browser at http://localhost:4909.
 
-*note: we only intercept the requests done using `requests`*.
-
 ### script
 
 You can trace all the HTTP requests performed by a script
@@ -50,6 +48,14 @@ pyhttpdbg --pytest [arg1 --arg2 ...]
 ```
 
 *note: the HTTP(S) requests are not recorded if the tests are executed in parallel using plugin like `xdist`*.
+
+## Supported libraries
+
+
+| library    | status        | known limitations                           |
+|------------|---------------|---------------------------------------------|
+| requests   | supported     | content not recorded if stream mode enabled |
+| httpx      | experimental  | content not recorded if stream mode enabled |
 
 ## configuration
 

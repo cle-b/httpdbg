@@ -3,7 +3,8 @@ from contextlib import contextmanager
 from http.server import HTTPServer
 import threading
 
-from httpdbg.hooks import unset_hook_for_requests, set_hook_for_requests
+from httpdbg.hooks import set_hook_for_all_libs
+from httpdbg.hooks import unset_hook_for_all_libs
 from httpdbg.records import HTTPRecords
 from httpdbg.webapp import HttpbgHTTPRequestHandler
 
@@ -13,13 +14,13 @@ def httpdbg(records=None):
     if not records:
         records = HTTPRecords()
     try:
-        set_hook_for_requests(records)
+        set_hook_for_all_libs(records)
 
         yield records
 
-        unset_hook_for_requests(records)
+        unset_hook_for_all_libs(records)
     except Exception as ex:
-        unset_hook_for_requests(records)
+        unset_hook_for_all_libs(records)
         raise ex
 
 
