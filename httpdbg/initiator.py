@@ -33,7 +33,7 @@ def in_lib(line):
     return any(
         [
             (compatible_path(f"/site-packages/{package}/") in line)
-            for package in ["requests", "httpx", "httpdbg"]
+            for package in ["requests", "httpx"]
         ]
     )
 
