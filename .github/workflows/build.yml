@@ -37,10 +37,6 @@ jobs:
     - name: Run tests
       run: |
         make ci
-    - name: Test compatiblity with all pytest version
-      if: ${{ (matrix.os == 'ubuntu-20.04') && (matrix.python-version == '3.8') }}
-      run: |
-        make allpytest
     - name: Code coverage (coveralls)
       if: ${{ (matrix.os == 'ubuntu-20.04') && (matrix.python-version == '3.8') }}
       run: |
