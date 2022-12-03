@@ -11,7 +11,7 @@ from httpdbg.webapp import HttpbgHTTPRequestHandler
 
 @contextmanager
 def httpdbg(records=None):
-    if not records:
+    if records is None:
         records = HTTPRecords()
     try:
         set_hook_for_all_libs(records)
