@@ -8,3 +8,5 @@ pytest-httpbin
 tox
 coverage
 requests
+httpx
+pytest-asyncio

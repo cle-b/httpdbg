@@ -72,7 +72,6 @@ def test_run_script_not_a_python_script(httpbin, capsys):
 
 
 @pytest.mark.api
-@pytest.mark.request
 @pytest.mark.script
 def test_run_script_initiator(httpbin, httpdbg_port):
 
