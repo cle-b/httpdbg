@@ -38,11 +38,11 @@ jobs:
       run: |
         make ci
     - name: Test compatiblity with all pytest version
-      if: ${{ (matrix.os == 'ubuntu-latest') && (matrix.python-version == '3.8') }}
+      if: ${{ (matrix.os == 'ubuntu-20.04') && (matrix.python-version == '3.8') }}
       run: |
         make allpytest
     - name: Code coverage (coveralls)
-      if: ${{ (matrix.os == 'ubuntu-latest') && (matrix.python-version == '3.8') }}
+      if: ${{ (matrix.os == 'ubuntu-20.04') && (matrix.python-version == '3.8') }}
       run: |
         pip install coveralls
         make coverage
