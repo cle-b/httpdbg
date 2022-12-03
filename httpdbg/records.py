@@ -19,6 +19,12 @@ class HTTPRecords:
     def unread(self):
         return self.requests_already_loaded < len(self.requests)
 
+    def __getitem__(self, item):
+        return list(self.requests.values())[item]
+
+    def __len__(self):
+        return len(self.requests)
+
 
 class HTTPRecordContent:
     def __init__(self, headers, cookies, content):

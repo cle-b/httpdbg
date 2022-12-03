@@ -66,7 +66,6 @@ def test_run_pytest_with_exception(httpdbg_port, capsys):
 
 
 @pytest.mark.api
-@pytest.mark.request
 @pytest.mark.pytest
 def test_run_pytest_initiator(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:

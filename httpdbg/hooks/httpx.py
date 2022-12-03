@@ -35,7 +35,7 @@ def set_hook_for_httpx_send(records):
                         request.headers, request._httpdbg_cookies.jar
                     )
                     if request._httpdbg_cookies
-                    else None,
+                    else [],
                     request.content if not record.stream else None,
                 )
 
@@ -73,7 +73,7 @@ def unset_hook_for_httpx_send(records):
         import httpx
 
         if hasattr(httpx._client.Client, f"_original_send_{records.id}"):
-            httpx._client.Client._send_single_request = getattr(
+            httpx._client.Client.send = getattr(
                 httpx._client.Client, f"_original_send_{records.id}"
             )
             delattr(httpx._client.Client, f"_original_send_{records.id}")
@@ -110,7 +110,7 @@ def set_hook_for_httpx_send_async(records):
                         request.headers, request._httpdbg_cookies.jar
                     )
                     if request._httpdbg_cookies
-                    else None,
+                    else [],
                     request.content if not record.stream else None,
                 )
 
@@ -148,7 +148,7 @@ def unset_hook_for_httpx_send_async(records):
         import httpx
 
         if hasattr(httpx._client.AsyncClient, f"_original_send_{records.id}"):
-            httpx._client.AsyncClient._send_single_request = getattr(
+            httpx._client.AsyncClient.send = getattr(
                 httpx._client.AsyncClient, f"_original_send_{records.id}"
             )
             delattr(httpx._client.AsyncClient, f"_original_send_{records.id}")
