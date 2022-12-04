@@ -9,7 +9,7 @@ from httpdbg.utils import get_new_uuid
 class Initiator(object):
     def __init__(self, id, short_label, long_label, stack):
         self.id = id
-        self.short_label = short_label
+        self.short_label = f'{short_label[:77]}{"..." if len(short_label)>76 else ""}'
         self.long_label = long_label
         self.stack = stack
 
