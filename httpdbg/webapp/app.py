@@ -10,8 +10,8 @@ from httpdbg.webapp.api import RequestListPayload, RequestPayload
 
 
 class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
-    def __init__(self, record, *args, **kwargs):
-        self.records = record
+    def __init__(self, records, *args, **kwargs):
+        self.records = records
         super().__init__(*args, **kwargs)
 
     def do_GET(self):

@@ -20,25 +20,28 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    width: auto;
 }
 
-.initiator {
-    text-align: left;
+.initiator-label {
+    column-span: all; 
     white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    width: 20%;
+    background-color: var(--table-initiator);
 }
 
 .status {
     text-align: center;
     width: 36px;
+    padding: 6px !important;
 }
-
 
 .method {
     text-align: left;
-    width: 78px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 48px;
+    padding: 6px !important;
 }
 
 .request {
@@ -50,17 +53,12 @@
 }
 
 .requests-table td {
-    padding: 6px 10px;
+    padding: 6px;
 }
 
 .requests-table tbody tr {
     border-bottom: 1px solid #dddddd;
 }
-
-.requests-table tbody tr:last-of-type {
-    border-bottom: 2px solid #009879;
-}
-
 
 .requests-table tbody tr.active-row {
     font-weight: bold;

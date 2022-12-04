@@ -23,7 +23,7 @@ def set_hook_for_httpx_send(records):
 
                 record = HTTPRecord()
 
-                record.initiator = get_initiator()
+                record.initiator = get_initiator(records._initiators)
 
                 record.url = str(request.url)
                 record.method = request.method
@@ -98,7 +98,7 @@ def set_hook_for_httpx_send_async(records):
 
                 record = HTTPRecord()
 
-                record.initiator = get_initiator()
+                record.initiator = get_initiator(records._initiators)
 
                 record.url = str(request.url)
                 record.method = request.method

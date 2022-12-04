@@ -24,7 +24,7 @@ def set_hook_for_requests(records):
 
                 record = HTTPRecord()
 
-                record.initiator = get_initiator()
+                record.initiator = get_initiator(records._initiators)
 
                 record.url = request.url
                 record.method = request.method

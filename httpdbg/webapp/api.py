@@ -65,14 +65,14 @@ class RequestPayload(JSONEncoder):
 
 
 class RequestListPayload(JSONEncoder):
-    def default(self, reqs):
+    def default(self, records):
         assert isinstance(
-            reqs, HTTPRecords
+            records, HTTPRecords
         ), "This encoder works only for HTTPRecords object."
 
-        payload = {"id": reqs.id, "requests": {}}
+        payload = {"id": records.id, "requests": {}}
 
-        for id, req in reqs.requests.items():
+        for id, req in records.requests.items():
 
             payload["requests"][id] = {
                 "id": req.id,
