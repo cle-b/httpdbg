@@ -5,9 +5,13 @@ var k7_id = null;
 async function refresh_resquests() {
     var table = document.getElementById("requests-list");
     var template_request = document.getElementById("template_request").innerHTML;
+    var template_initiator = document.getElementById("template_initiator").innerHTML;
 
     if (global.k7 != k7_id) {
-        table.getElementsByTagName("tbody")[0].innerHTML = '';
+        var initiators = document.getElementsByName("initiator");
+        [].forEach.call(initiators, function (el) {
+            table.removeChild(el);
+        });
         document.getElementById("headers").innerHTML = 'select a request to view details';
         document.getElementById("cookies").innerHTML = 'select a request to view details';
         document.getElementById("body_sent").innerHTML = 'select a request to view details';
@@ -17,14 +21,18 @@ async function refresh_resquests() {
     };
     k7_id = global.k7;
 
-    var tbody = table.getElementsByTagName("tbody")[0];
-
     for (const [request_id, request] of Object.entries(global.requests)) {
         if (request.to_refresh) {
             var elt = document.getElementById("request-" + request.id);
             var rendered = Mustache.render(template_request, request);
             if (!elt) {
-                tbody.insertAdjacentHTML("beforeend", rendered);
+                var elt_initiator = document.getElementById("initiator-" + request.initiator.id);
+                if (!elt_initiator){
+                    var rendered_initiator = Mustache.render(template_initiator, request);
+                    table.insertAdjacentHTML("beforeend", rendered_initiator);
+                    elt_initiator = document.getElementById("initiator-" + request.initiator.id);
+                };
+                elt_initiator.insertAdjacentHTML("beforeend", rendered);                
             } else {
                 elt.innerHTML = rendered;
             };

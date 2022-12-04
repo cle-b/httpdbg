@@ -55,7 +55,7 @@ pyhttpdbg --pytest [arg1 --arg2 ...]
 | library    | status        | known limitations                           |
 |------------|---------------|---------------------------------------------|
 | requests   | supported     | content not recorded if stream mode enabled |
-| httpx      | experimental  | content not recorded if stream mode enabled |
+| httpx      | experimental  | request not recorded if stream mode enabled |
 
 ## configuration
 
@@ -93,7 +93,7 @@ Many options are available:
   * Hide the status column
   * Hide the method column
   * Hide the netloc in the url
-  * Hide the initiator column
+  * Hide the initiator rows
 
 To keep your configuration, bookmark the page with the full search query.
 

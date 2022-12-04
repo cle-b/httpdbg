@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-import secrets
-import string
 from urllib.parse import urlparse
 
-
-def get_new_uuid():
-    # important - the uuid must be compatible with method naming rules
-    return "".join(secrets.choice(string.ascii_letters) for i in range(10))
+from httpdbg.utils import get_new_uuid
 
 
 class HTTPRecords:
@@ -14,6 +9,7 @@ class HTTPRecords:
         self.id = get_new_uuid()
         self.requests = {}
         self.requests_already_loaded = 0
+        self._initiators = {}
 
     @property
     def unread(self):
