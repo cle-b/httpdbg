@@ -25,6 +25,7 @@
 
 .initiator-label {
     column-span: all !important; 
+    white-space: nowrap;
     background-color: var(--table-initiator);
 }
 
