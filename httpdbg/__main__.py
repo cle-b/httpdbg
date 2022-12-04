@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-try:
-    import readline  # noqa: F401 enable the 'up arrow' history in the console
-except ImportError:
-    pass  # readline is not available on Windows
 import pkg_resources
 import sys
 import time
@@ -27,6 +23,8 @@ def pyhttpdbg(params, subparams, test_mode=False):
 
     print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
 
+    sys.path.insert(0, "")  # to mimic the default python command behavior
+
     with httpdbg_srv(params.port) as records:
 
         with httpdbg(records):
@@ -50,8 +48,11 @@ def pyhttpdbg(params, subparams, test_mode=False):
                         "Waiting until all the requests have been loaded in the web interface."
                     )
                     print("Press Ctrl+C to quit.")
-                    while records.unread:
-                        time.sleep(0.5)
+                    try:
+                        while records.unread:
+                            time.sleep(0.5)
+                    except KeyboardInterrupt:  # pragma: no cover
+                        pass
 
 
 def pyhttpdbg_entry_point(test_mode=False):
