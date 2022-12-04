@@ -8,7 +8,23 @@ def console_exit():
 
 def run_console(test_mode=False):
     try:
-        new_console = code.InteractiveConsole(locals={"exit": console_exit})
+        vars = globals()
+        vars.update(locals())
+
+        try:
+            # adds history and autocompletion capabilities
+            import readline
+            import rlcompleter
+
+            readline.set_completer(rlcompleter.Completer(vars).complete)
+            readline.parse_and_bind("tab: complete")
+        except ImportError:  # pragma: no cover
+            # readline is not available on Windows
+            pass
+
+        vars.update({"exit": console_exit})
+
+        new_console = code.InteractiveConsole(vars)
         if not test_mode:
             new_console.interact()  # pragma: no cover
         else:
