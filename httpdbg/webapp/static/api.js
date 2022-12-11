@@ -53,7 +53,7 @@ async function get_all_requests() {
                     // this is a new request
                     save_request(request_id, request);
                 } else {
-                    if (global.requests[request_id].status_code != request.status_code) {
+                    if (global.requests[request_id].last_update < request.last_update) {
                         // this request has been updated (probably a "big" file) 
                         save_request(request_id, request);
                     }

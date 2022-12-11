@@ -10,3 +10,4 @@ coverage
 requests
 httpx
 pytest-asyncio
+aiohttp
