@@ -195,3 +195,21 @@ async def test_aiohttp_not_found(httpbin):
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 404
     assert http_record.reason.upper() == "NOT FOUND"
+
+
+@pytest.mark.aiohttp
+@pytest.mark.asyncio
+async def test_aiohttp_exception_asyncclient():
+    with httpdbg() as records:
+        with pytest.raises(aiohttp.client_exceptions.ClientConnectorError):
+            async with aiohttp.ClientSession() as session:
+                await session.get("http://f.q.d.1234.n.t.n.e/")
+
+    assert len(records) == 1
+    http_record = records[0]
+
+    assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
+    assert http_record.method.upper() == "GET"
+    assert isinstance(
+        http_record.exception, aiohttp.client_exceptions.ClientConnectorError
+    )
