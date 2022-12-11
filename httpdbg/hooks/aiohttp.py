@@ -113,7 +113,6 @@ def set_hook_for_aiohttp_start_async(records):
                     None,
                 )
                 record._reason = response.reason
-                # change the status_code at the end to be sure the ui reload a fresh description of the request
                 record.status_code = response.status
                 return response
 

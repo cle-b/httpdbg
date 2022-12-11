@@ -52,7 +52,6 @@ def set_hook_for_requests(records):
                     response.content if not record.stream else None,
                 )
                 record._reason = response.reason
-                # change the status_code at the end to be sure the ui reload a fresh description of the request
                 record.status_code = response.status_code
 
                 return response
