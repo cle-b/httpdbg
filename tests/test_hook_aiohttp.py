@@ -119,7 +119,8 @@ async def test_aiohttp_request_post_form(httpbin):
 
     assert {"name": "Content-Length", "value": "9"} in http_record.request.headers
     assert http_record.request.cookies == []
-    assert bytes(http_record.request.content) == b'a=bc&d=ef'
+    assert bytes(http_record.request.content) == b"a=bc&d=ef"
+
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
