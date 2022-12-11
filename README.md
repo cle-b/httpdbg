@@ -55,8 +55,7 @@ pyhttpdbg --pytest [arg1 --arg2 ...]
 | library    | status        | known limitations                           |
 |------------|---------------|---------------------------------------------|
 | requests   | supported     | content not recorded if stream mode enabled |
-| httpx      | experimental  | request not recorded if stream mode enabled |
-|     -      |      -        | redirection history not traced              |
+| httpx      | experimental  | request not recorded if stream mode enabled<br>redirection history not traced |
 | aiohttp    | experimental  | -                                           |
 
 ## configuration
