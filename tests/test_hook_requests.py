@@ -159,3 +159,17 @@ def test_requests_session(httpbin):
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
     assert http_record.stream is False
+
+
+@pytest.mark.requests
+def test_requests_exception():
+    with httpdbg() as records:
+        with pytest.raises(requests.exceptions.ConnectionError):
+            requests.get("http://f.q.d.1234.n.t.n.e/")
+
+    assert len(records) == 1
+    http_record = records[0]
+
+    assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
+    assert http_record.method.upper() == "GET"
+    assert isinstance(http_record.exception, requests.exceptions.ConnectionError)

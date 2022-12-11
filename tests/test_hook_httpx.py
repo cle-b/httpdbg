@@ -176,6 +176,20 @@ def test_httpx_client(httpbin):
 
 
 @pytest.mark.httpx
+def test_httpx_exception():
+    with httpdbg() as records:
+        with pytest.raises(httpx.ConnectError):
+            httpx.get("http://f.q.d.1234.n.t.n.e/")
+
+    assert len(records) == 1
+    http_record = records[0]
+
+    assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
+    assert http_record.method.upper() == "GET"
+    assert isinstance(http_record.exception, httpx.ConnectError)
+
+
+@pytest.mark.httpx
 @pytest.mark.asyncio
 async def test_httpx_asyncclient(httpbin):
     with httpdbg() as records:
@@ -286,3 +300,19 @@ async def test_httpx_cookies_asyncclient(httpbin):
         "name": "confiture",
         "value": "oignon",
     } in http_record.response.cookies
+
+
+@pytest.mark.httpx
+@pytest.mark.asyncio
+async def test_httpx_exception_asyncclient():
+    with httpdbg() as records:
+        with pytest.raises(httpx.ConnectError):
+            async with httpx.AsyncClient() as client:
+                await client.get("http://f.q.d.1234.n.t.n.e/")
+
+    assert len(records) == 1
+    http_record = records[0]
+
+    assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
+    assert http_record.method.upper() == "GET"
+    assert isinstance(http_record.exception, httpx.ConnectError)

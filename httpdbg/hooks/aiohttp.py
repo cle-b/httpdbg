@@ -7,6 +7,62 @@ from httpdbg.records import HTTPRecordContentDown
 from httpdbg.records import HTTPRecordContentUp
 
 
+def set_hook_for_aiohttp_request_async(records):
+    """Intercepts the connection errors"""
+    try:
+        import aiohttp
+
+        if not hasattr(aiohttp.client.ClientSession, f"_original_request_{records.id}"):
+
+            setattr(
+                aiohttp.client.ClientSession,
+                f"_original_request_{records.id}",
+                aiohttp.client.ClientSession._request,
+            )
+
+            async def _hook_request(self, method, str_or_url, *args, **kwargs):
+
+                try:
+                    response = await getattr(
+                        aiohttp.client.ClientSession,
+                        f"_original_request_{records.id}",
+                    )(self, method, str_or_url, *args, **kwargs)
+                except Exception as ex:
+                    # the request is recorded here only in case of exception
+                    record = HTTPRecord()
+
+                    record.initiator = get_initiator(records._initiators)
+
+                    record.url = str(str_or_url)
+                    record.method = method
+                    record.stream = False
+
+                    record.exception = ex
+                    record.status_code = -1
+
+                    records.requests[record.id] = record
+                    raise
+
+                return response
+
+            aiohttp.client.ClientSession._request = _hook_request
+    except ImportError:
+        pass
+
+
+def unset_hook_for_aiohttp_request_async(records):
+    try:
+        import aiohttp
+
+        if hasattr(aiohttp.client.ClientSession, f"_original_request_{records.id}"):
+            aiohttp.client.ClientSession._request = getattr(
+                aiohttp.client.ClientSession, f"_original_request_{records.id}"
+            )
+            delattr(aiohttp.client.ClientSession, f"_original_request_{records.id}")
+    except ImportError:
+        pass
+
+
 def set_hook_for_aiohttp_send_async(records):
     """Intercepts the HTTP requests"""
     try:
@@ -196,12 +252,14 @@ def unset_hook_for_aiohttp_read_async(records):
 
 
 def set_hook_for_aiohttp(records):
+    set_hook_for_aiohttp_request_async(records)
     set_hook_for_aiohttp_send_async(records)
     set_hook_for_aiohttp_start_async(records)
     set_hook_for_aiohttp_read_async(records)
 
 
 def unset_hook_for_aiohttp(records):
+    unset_hook_for_aiohttp_request_async(records)
     unset_hook_for_aiohttp_send_async(records)
     unset_hook_for_aiohttp_start_async(records)
     unset_hook_for_aiohttp_read_async(records)
