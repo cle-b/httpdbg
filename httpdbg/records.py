@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import time
 from urllib.parse import urlparse
 
 from httpdbg.utils import get_new_uuid
@@ -62,6 +63,7 @@ class HTTPRecord:
         self._reason = None
         self.request = None
         self.response = None
+        self.last_update = 0
 
     @property
     def reason(self):
@@ -80,3 +82,7 @@ class HTTPRecord:
     @property
     def urlext(self):
         return self.url[len(self.netloc) :]
+
+    def __setattr__(self, name, value):
+        self.__dict__[name] = value
+        self.__dict__["last_update"] = int(time.time() * 1000)

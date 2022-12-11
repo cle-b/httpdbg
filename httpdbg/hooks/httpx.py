@@ -58,7 +58,6 @@ def set_hook_for_httpx_send(records):
                     response.content,
                 )
                 record._reason = response.reason_phrase
-                # change the status_code at the end to be sure the ui reload a fresh description of the request
                 record.status_code = response.status_code
 
                 return response
@@ -133,7 +132,6 @@ def set_hook_for_httpx_send_async(records):
                     response.content if not record.stream else None,
                 )
                 record._reason = response.reason_phrase
-                # change the status_code at the end to be sure the ui reload a fresh description of the request
                 record.status_code = response.status_code
 
                 return response
