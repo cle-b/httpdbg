@@ -83,6 +83,7 @@ class RequestListPayload(JSONEncoder):
                 "reason": req.reason,
                 "verb": req.method,
                 "initiator": req.initiator.to_json(full=False),
+                "last_update": req.last_update,
             }
 
         return payload
