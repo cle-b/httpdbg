@@ -2,6 +2,8 @@
 from httpdbg.initiator import get_initiator
 from httpdbg.hooks.cookies import list_cookies_headers_request_simple_cookies
 from httpdbg.hooks.cookies import list_cookies_headers_response_simple_cookies
+from httpdbg.hooks.utils import can_set_hook
+from httpdbg.hooks.utils import unset_hook
 from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecordContentDown
 from httpdbg.records import HTTPRecordContentUp
@@ -12,13 +14,9 @@ def set_hook_for_aiohttp_request_async(records):
     try:
         import aiohttp
 
-        if not hasattr(aiohttp.client.ClientSession, f"_original_request_{records.id}"):
-
-            setattr(
-                aiohttp.client.ClientSession,
-                f"_original_request_{records.id}",
-                aiohttp.client.ClientSession._request,
-            )
+        if can_set_hook(
+            aiohttp.client.ClientSession, "_request", f"_original_request_{records.id}"
+        ):
 
             async def _hook_request(self, method, str_or_url, *args, **kwargs):
 
@@ -54,11 +52,11 @@ def unset_hook_for_aiohttp_request_async(records):
     try:
         import aiohttp
 
-        if hasattr(aiohttp.client.ClientSession, f"_original_request_{records.id}"):
-            aiohttp.client.ClientSession._request = getattr(
-                aiohttp.client.ClientSession, f"_original_request_{records.id}"
-            )
-            delattr(aiohttp.client.ClientSession, f"_original_request_{records.id}")
+        unset_hook(
+            aiohttp.client.ClientSession,
+            "_request",
+            f"_original_request_{records.id}",
+        )
     except ImportError:
         pass
 
@@ -68,15 +66,9 @@ def set_hook_for_aiohttp_send_async(records):
     try:
         import aiohttp
 
-        if not hasattr(
-            aiohttp.client_reqrep.ClientRequest, f"_original_send_{records.id}"
+        if can_set_hook(
+            aiohttp.client_reqrep.ClientRequest, "send", f"_original_send_{records.id}"
         ):
-
-            setattr(
-                aiohttp.client_reqrep.ClientRequest,
-                f"_original_send_{records.id}",
-                aiohttp.client_reqrep.ClientRequest.send,
-            )
 
             async def _hook_send(self, *args, **kwargs):
 
@@ -123,11 +115,11 @@ def unset_hook_for_aiohttp_send_async(records):
     try:
         import aiohttp
 
-        if hasattr(aiohttp.client_reqrep.ClientRequest, f"_original_send_{records.id}"):
-            aiohttp.client_reqrep.ClientRequest.send = getattr(
-                aiohttp.client_reqrep.ClientRequest, f"_original_send_{records.id}"
-            )
-            delattr(aiohttp.client_reqrep.ClientRequest, f"_original_send_{records.id}")
+        unset_hook(
+            aiohttp.client_reqrep.ClientRequest,
+            "send",
+            f"_original_send_{records.id}",
+        )
     except ImportError:
         pass
 
@@ -137,15 +129,11 @@ def set_hook_for_aiohttp_start_async(records):
     try:
         import aiohttp
 
-        if not hasattr(
-            aiohttp.client_reqrep.ClientResponse, f"_original_start_{records.id}"
+        if can_set_hook(
+            aiohttp.client_reqrep.ClientResponse,
+            "start",
+            f"_original_start_{records.id}",
         ):
-
-            setattr(
-                aiohttp.client_reqrep.ClientResponse,
-                f"_original_start_{records.id}",
-                aiohttp.client_reqrep.ClientResponse.start,
-            )
 
             async def _hook_start(self, *args, **kwargs):
 
@@ -181,15 +169,11 @@ def unset_hook_for_aiohttp_start_async(records):
     try:
         import aiohttp
 
-        if hasattr(
-            aiohttp.client_reqrep.ClientResponse, f"_original_start_{records.id}"
-        ):
-            aiohttp.client_reqrep.ClientResponse.start = getattr(
-                aiohttp.client_reqrep.ClientResponse, f"_original_start_{records.id}"
-            )
-            delattr(
-                aiohttp.client_reqrep.ClientResponse, f"_original_start_{records.id}"
-            )
+        unset_hook(
+            aiohttp.client_reqrep.ClientResponse,
+            "start",
+            f"_original_start_{records.id}",
+        )
     except ImportError:
         pass
 
@@ -199,15 +183,9 @@ def set_hook_for_aiohttp_read_async(records):
     try:
         import aiohttp
 
-        if not hasattr(
-            aiohttp.client_reqrep.ClientResponse, f"_original_read_{records.id}"
+        if can_set_hook(
+            aiohttp.client_reqrep.ClientResponse, "read", f"_original_read_{records.id}"
         ):
-
-            setattr(
-                aiohttp.client_reqrep.ClientResponse,
-                f"_original_read_{records.id}",
-                aiohttp.client_reqrep.ClientResponse.read,
-            )
 
             async def _hook_read(self, *args, **kwargs):
 
@@ -238,15 +216,11 @@ def unset_hook_for_aiohttp_read_async(records):
     try:
         import aiohttp
 
-        if hasattr(
-            aiohttp.client_reqrep.ClientResponse, f"_original_read_{records.id}"
-        ):
-            aiohttp.client_reqrep.ClientResponse.read = getattr(
-                aiohttp.client_reqrep.ClientResponse, f"_original_read_{records.id}"
-            )
-            delattr(
-                aiohttp.client_reqrep.ClientResponse, f"_original_read_{records.id}"
-            )
+        unset_hook(
+            aiohttp.client_reqrep.ClientResponse,
+            "read",
+            f"_original_read_{records.id}",
+        )
     except ImportError:
         pass
 
