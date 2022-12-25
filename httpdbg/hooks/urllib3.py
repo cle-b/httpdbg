@@ -109,7 +109,9 @@ def set_hook_for_urllib3_make_request(records):
                 record = None
 
                 if record_request():
-                    record = records.requests[self._httpdbg_record_id]
+
+                    if hasattr(self, "_httpdbg_record_id"):
+                        record = records.requests[self._httpdbg_record_id]
 
                     record.request = HTTPRecordContentUp(
                         kwargs.get("headers"),
@@ -163,19 +165,20 @@ def set_hook_for_urllib3_response_read(records):
             f"_httpdbg_original_read_{records.id}",
         ):
 
-            def _hook_read(response, *args, **kwargs):
+            def _hook_read(self, *args, **kwargs):
 
                 record = None
 
                 if record_request():
 
-                    record = records.requests[response._httpdbg_record_id]
+                    if hasattr(self, "_httpdbg_record_id"):
+                        record = records.requests[self._httpdbg_record_id]
 
                 try:
                     content = getattr(
                         urllib3.response.HTTPResponse,
                         f"_httpdbg_original_read_{records.id}",
-                    )(response, *args, **kwargs)
+                    )(self, *args, **kwargs)
                 except Exception as ex:
                     if record:
                         record.exception = ex
@@ -224,7 +227,8 @@ def set_hook_for_urllib3_response_read_chunked(records):
                 record = None
 
                 if record_request():
-                    record = records.requests[self._httpdbg_record_id]
+                    if hasattr(self, "_httpdbg_record_id"):
+                        record = records.requests[self._httpdbg_record_id]
 
                 try:
                     contents = getattr(

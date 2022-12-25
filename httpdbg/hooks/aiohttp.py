@@ -137,9 +137,10 @@ def set_hook_for_aiohttp_start_async(records):
 
             async def _hook_start(self, *args, **kwargs):
 
-                reponse = self
+                record = None
 
-                record = records.requests[reponse._httpdbg_record_id]
+                if hasattr(self, "_httpdbg_record_id"):
+                    record = records.requests[self._httpdbg_record_id]
 
                 try:
                     response = await getattr(
@@ -147,17 +148,19 @@ def set_hook_for_aiohttp_start_async(records):
                         f"_original_start_{records.id}",
                     )(self, *args, **kwargs)
                 except Exception as ex:
-                    record.exception = ex
-                    record.status_code = -1
+                    if record:
+                        record.exception = ex
+                        record.status_code = -1
                     raise
 
-                record.response = HTTPRecordContentDown(
-                    response.headers,
-                    list_cookies_headers_response_simple_cookies(response.headers),
-                    None,
-                )
-                record._reason = response.reason
-                record.status_code = response.status
+                if record:
+                    record.response = HTTPRecordContentDown(
+                        response.headers,
+                        list_cookies_headers_response_simple_cookies(response.headers),
+                        None,
+                    )
+                    record._reason = response.reason
+                    record.status_code = response.status
                 return response
 
             aiohttp.client_reqrep.ClientResponse.start = _hook_start
@@ -189,9 +192,10 @@ def set_hook_for_aiohttp_read_async(records):
 
             async def _hook_read(self, *args, **kwargs):
 
-                reponse = self
+                record = None
 
-                record = records.requests[reponse._httpdbg_record_id]
+                if hasattr(self, "_httpdbg_record_id"):
+                    record = records.requests[self._httpdbg_record_id]
 
                 try:
                     content = await getattr(
@@ -199,11 +203,13 @@ def set_hook_for_aiohttp_read_async(records):
                         f"_original_read_{records.id}",
                     )(self, *args, **kwargs)
                 except Exception as ex:
-                    record.exception = ex
-                    record.status_code = -1
+                    if record:
+                        record.exception = ex
+                        record.status_code = -1
                     raise
 
-                record.response.content = content
+                if record:
+                    record.response.content = content
 
                 return content
 
