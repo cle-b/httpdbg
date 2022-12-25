@@ -37,11 +37,13 @@ def compatible_path(path):
     return p
 
 
-def in_lib(line):
+def in_lib(line, packages=[]):
+    if not packages:
+        packages = ["requests", "httpx", "aiohttp", "urllib3"]
     return any(
         [
             (compatible_path(f"/site-packages/{package}/") in line)
-            for package in ["requests", "httpx", "aiohttp"]
+            for package in packages
         ]
     )
 

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from httpdbg.initiator import get_initiator
 from httpdbg.hooks.cookies import list_cookies_headers_response
+from httpdbg.hooks.utils import can_set_hook
+from httpdbg.hooks.utils import unset_hook
 from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecordContentDown
 from httpdbg.records import HTTPRecordContentUp
@@ -11,13 +13,7 @@ def set_hook_for_httpx_send(records):
     try:
         import httpx
 
-        if not hasattr(httpx._client.Client, f"_original_send_{records.id}"):
-
-            setattr(
-                httpx._client.Client,
-                f"_original_send_{records.id}",
-                httpx._client.Client.send,
-            )
+        if can_set_hook(httpx._client.Client, "send", f"_original_send_{records.id}"):
 
             def _hook_send(self, request, *args, **kwargs):
 
@@ -71,11 +67,11 @@ def unset_hook_for_httpx_send(records):
     try:
         import httpx
 
-        if hasattr(httpx._client.Client, f"_original_send_{records.id}"):
-            httpx._client.Client.send = getattr(
-                httpx._client.Client, f"_original_send_{records.id}"
-            )
-            delattr(httpx._client.Client, f"_original_send_{records.id}")
+        unset_hook(
+            httpx._client.Client,
+            "send",
+            f"_original_send_{records.id}",
+        )
     except ImportError:
         pass
 
@@ -85,13 +81,9 @@ def set_hook_for_httpx_send_async(records):
     try:
         import httpx
 
-        if not hasattr(httpx._client.AsyncClient, f"_original_send_{records.id}"):
-
-            setattr(
-                httpx._client.AsyncClient,
-                f"_original_send_{records.id}",
-                httpx._client.AsyncClient.send,
-            )
+        if can_set_hook(
+            httpx._client.AsyncClient, "send", f"_original_send_{records.id}"
+        ):
 
             async def _hook_send(self, request, *args, **kwargs):
 
@@ -145,11 +137,11 @@ def unset_hook_for_httpx_send_async(records):
     try:
         import httpx
 
-        if hasattr(httpx._client.AsyncClient, f"_original_send_{records.id}"):
-            httpx._client.AsyncClient.send = getattr(
-                httpx._client.AsyncClient, f"_original_send_{records.id}"
-            )
-            delattr(httpx._client.AsyncClient, f"_original_send_{records.id}")
+        unset_hook(
+            httpx._client.AsyncClient,
+            "send",
+            f"_original_send_{records.id}",
+        )
     except ImportError:
         pass
 
@@ -158,13 +150,9 @@ def set_hook_for_httpx_request(records):
     try:
         import httpx
 
-        if not hasattr(httpx._models.Request, f"_original_init_{records.id}"):
-
-            setattr(
-                httpx._models.Request,
-                f"_original_init_{records.id}",
-                httpx._models.Request.__init__,
-            )
+        if can_set_hook(
+            httpx._models.Request, "__init__", f"_original_init_{records.id}"
+        ):
 
             def _hook_init(self, *args, **kwargs):
 
@@ -183,11 +171,11 @@ def unset_hook_for_httpx_request(records):
     try:
         import httpx
 
-        if hasattr(httpx._models.Request, f"_original_init_{records.id}"):
-            httpx._models.Request.__init__ = getattr(
-                httpx._models.Request, f"_original_init_{records.id}"
-            )
-            delattr(httpx._models.Request, f"_original_init_{records.id}")
+        unset_hook(
+            httpx._models.Request,
+            "__init__",
+            f"_original_init_{records.id}",
+        )
     except ImportError:
         pass
 

@@ -2,6 +2,8 @@
 from httpdbg.initiator import get_initiator
 from httpdbg.hooks.cookies import list_cookies_headers_request
 from httpdbg.hooks.cookies import list_cookies_headers_response
+from httpdbg.hooks.utils import can_set_hook
+from httpdbg.hooks.utils import unset_hook
 from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecordContentDown
 from httpdbg.records import HTTPRecordContentUp
@@ -12,13 +14,9 @@ def set_hook_for_requests(records):
     try:
         import requests
 
-        if not hasattr(requests.adapters.HTTPAdapter, f"_original_send_{records.id}"):
-
-            setattr(
-                requests.adapters.HTTPAdapter,
-                f"_original_send_{records.id}",
-                requests.adapters.HTTPAdapter.send,
-            )
+        if can_set_hook(
+            requests.adapters.HTTPAdapter, "send", f"_original_send_{records.id}"
+        ):
 
             def _hook_send(self, request, *args, **kwargs):
 
@@ -65,10 +63,10 @@ def unset_hook_for_requests(records):
     try:
         import requests
 
-        if hasattr(requests.adapters.HTTPAdapter, f"_original_send_{records.id}"):
-            requests.adapters.HTTPAdapter.send = getattr(
-                requests.adapters.HTTPAdapter, f"_original_send_{records.id}"
-            )
-            delattr(requests.adapters.HTTPAdapter, f"_original_send_{records.id}")
+        unset_hook(
+            requests.adapters.HTTPAdapter,
+            "send",
+            f"_original_send_{records.id}",
+        )
     except ImportError:
         pass

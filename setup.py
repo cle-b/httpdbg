@@ -11,7 +11,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="httpdbg",
-    version="0.3.1",
+    version="0.4.0",
     author="cle-b",
     author_email="cle@tictac.pm",
     description="A very simple tool to debug HTTP(S) client requests",
