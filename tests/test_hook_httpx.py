@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+from unittest.mock import patch
 
 import httpx
 import pytest
@@ -316,3 +317,12 @@ async def test_httpx_exception_asyncclient():
     assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
     assert http_record.method.upper() == "GET"
     assert isinstance(http_record.exception, httpx.ConnectError)
+
+
+@pytest.mark.httpx
+def test_httpx_importerror(httpbin):
+    with patch.dict(sys.modules, {"httpx": None}):
+        with httpdbg() as records:
+            httpx.get(f"{httpbin.url}/get")
+
+    assert len(records) == 0

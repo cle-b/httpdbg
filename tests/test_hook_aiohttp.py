@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+from unittest.mock import patch
 
 import aiohttp
 import pytest
@@ -213,3 +214,14 @@ async def test_aiohttp_exception_asyncclient():
     assert isinstance(
         http_record.exception, aiohttp.client_exceptions.ClientConnectorError
     )
+
+
+@pytest.mark.aiohttp
+@pytest.mark.asyncio
+async def test_aiohttp_importerror(httpbin):
+    with patch.dict(sys.modules, {"aiohttp": None}):
+        with httpdbg() as records:
+            async with aiohttp.ClientSession() as session:
+                await session.get(f"{httpbin.url}/get")
+
+    assert len(records) == 0
