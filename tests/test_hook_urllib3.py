@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+import sys
+from unittest.mock import patch
+
 import pytest
 import urllib3
 
 from httpdbg.server import httpdbg
 
 
-@pytest.mark.requests
+@pytest.mark.urllib3
 def test_urllib3(httpbin):
     with httpdbg() as records:
         http = urllib3.PoolManager()
@@ -21,7 +24,7 @@ def test_urllib3(httpbin):
     assert http_record.stream is False
 
 
-@pytest.mark.requests
+@pytest.mark.urllib3
 def test_urllib3_initiator(httpbin):
     with httpdbg() as records:
         http = urllib3.PoolManager()
@@ -40,7 +43,7 @@ def test_urllib3_initiator(httpbin):
     )
 
 
-@pytest.mark.requests
+@pytest.mark.urllib3
 def test_urllib3_request(httpbin):
     with httpdbg() as records:
         http = urllib3.PoolManager()
@@ -59,7 +62,7 @@ def test_urllib3_request(httpbin):
     assert http_record.request.content == "abc"
 
 
-@pytest.mark.requests
+@pytest.mark.urllib3
 def test_urllib3_response(httpbin):
     with httpdbg() as records:
         http = urllib3.PoolManager()
@@ -85,7 +88,7 @@ def test_urllib3_response(httpbin):
     assert b'"data":"def"' in http_record.response.content
 
 
-@pytest.mark.requests
+@pytest.mark.urllib3
 def test_urllib3_cookies(httpbin):
     with httpdbg() as records:
         http = urllib3.PoolManager()
@@ -111,7 +114,7 @@ def test_urllib3_cookies(httpbin):
     } in http_record.response.cookies
 
 
-@pytest.mark.requests
+@pytest.mark.urllib3
 def test_urllib3_redirect(httpbin):
     with httpdbg() as records:
         http = urllib3.PoolManager()
@@ -122,7 +125,7 @@ def test_urllib3_redirect(httpbin):
     assert records[1].url == f"{httpbin.url}/get"
 
 
-@pytest.mark.requests
+@pytest.mark.urllib3
 def test_urllib3_not_found(httpbin):
     with httpdbg() as records:
         http = urllib3.PoolManager()
@@ -137,7 +140,7 @@ def test_urllib3_not_found(httpbin):
     assert http_record.reason.upper() == "NOT FOUND"
 
 
-@pytest.mark.requests
+@pytest.mark.urllib3
 def test_urllib3_exception():
     with httpdbg() as records:
         with pytest.raises(urllib3.exceptions.MaxRetryError):
@@ -149,3 +152,13 @@ def test_urllib3_exception():
     assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
     assert http_record.method.upper() == "GET"
     assert isinstance(http_record.exception, urllib3.exceptions.MaxRetryError)
+
+
+@pytest.mark.urllib3
+def test_urllib3_importerror(httpbin):
+    with patch.dict(sys.modules, {"urllib3": None}):
+        with httpdbg() as records:
+            http = urllib3.PoolManager()
+            http.request("GET", f"{httpbin.url}/get")
+
+    assert len(records) == 0

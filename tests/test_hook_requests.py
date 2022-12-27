@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import sys
+from unittest.mock import patch
+
 import pytest
 import requests
 
@@ -173,3 +176,12 @@ def test_requests_exception():
     assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
     assert http_record.method.upper() == "GET"
     assert isinstance(http_record.exception, requests.exceptions.ConnectionError)
+
+
+@pytest.mark.requests
+def test_requests_importerror(httpbin):
+    with patch.dict(sys.modules, {"requests": None}):
+        with httpdbg() as records:
+            requests.get(f"{httpbin.url}/get")
+
+    assert len(records) == 0
