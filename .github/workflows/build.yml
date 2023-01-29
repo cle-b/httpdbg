@@ -42,7 +42,7 @@ jobs:
     name: Test OS/Python version
     needs: test
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 5
+    timeout-minutes: 15
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-20.04]
