@@ -45,4 +45,4 @@ ciall:
 	python -m pip install pip --upgrade
 	pip install .
 	pip install -r requirements-dev.txt
-	HTTPDBG_HOST=172.17.0.1 coverage run -m pytest -v --driver Remote --capability browserName chrome tests/
+	coverage run -m pytest -v --driver Remote --capability browserName chrome tests/

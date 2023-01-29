@@ -36,7 +36,7 @@ jobs:
     - name: Run all tests + code coverage
       run: |
         pip install coveralls
-        make ciall
+        HTTPDBG_HOST=172.17.0.1 make ciall
         coveralls
       env:
         GITHUB_TOKEN: ${{ secrets.COVERALLS }}
