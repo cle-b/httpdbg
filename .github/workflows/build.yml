@@ -23,12 +23,6 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    services:
-      selenium:
-        image: selenium/standalone-chrome:latest
-        ports:        
-          - 4444:4444
-        options: --shm-size="2g"
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
@@ -38,7 +32,8 @@ jobs:
     - name: Run all tests + code coverage
       run: |
         pip install coveralls
-        HTTPDBG_HOST=172.17.0.1 make ciall
+        make selenium
+        make ciall
         coveralls
       env:
         GITHUB_TOKEN: ${{ secrets.COVERALLS }}
