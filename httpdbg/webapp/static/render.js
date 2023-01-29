@@ -17,7 +17,7 @@ async function refresh_resquests() {
         document.getElementById("body_sent").innerHTML = 'select a request to view details';
         document.getElementById("body_received").innerHTML = 'select a request to view details';
         document.getElementById("exception").innerHTML = 'select a request to view details';
-        document.getElementById("initiator").innerHTML = 'select a request to view details';
+        document.getElementById("stack").innerHTML = 'select a request to view details';
     };
     k7_id = global.k7;
 
@@ -92,7 +92,7 @@ function show_request(request_id) {
 
     update_with_template("template_exception", "exception", data);
 
-    update_with_template("template_initiator", "initiator", data);
+    update_with_template("template_stack", "stack", data);
 }
 
 
