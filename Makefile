@@ -3,6 +3,7 @@
 setup:
 	pip install -e .
 	pip install -r requirements-dev.txt
+	pip install -r requirements-dev-ui.txt
 
 format:
 	black httpdbg tests setup.py
@@ -45,4 +46,5 @@ ciall:
 	python -m pip install pip --upgrade
 	pip install .
 	pip install -r requirements-dev.txt
+	pip install -r requirements-dev-ui.txt
 	coverage run -m pytest -v --driver Remote --capability browserName chrome tests/
