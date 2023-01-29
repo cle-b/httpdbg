@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-try:
-    import niobium  # noqa: F401 - niobium automatically patches selenium
-    from selenium.webdriver.common.by import By
-except ImportError:
-    pass
+import niobium  # noqa: F401 - niobium automatically patches selenium
+from selenium.webdriver.common.by import By
 
 
 class LPRequest(object):
