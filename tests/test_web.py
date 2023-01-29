@@ -20,9 +20,9 @@ def records(httpbin, httpdbg_port):
 
 
 @pytest.fixture()
-def httpdbgui(selenium, httpdbg_port, records):
+def httpdbgui(selenium, httpdbg_host, httpdbg_port, records):
     selenium.implicitly_wait(5)
-    yield HttpdbgWebUI(f"http://127.0.0.1:{httpdbg_port}", selenium)
+    yield HttpdbgWebUI(f"http://{httpdbg_host}:{httpdbg_port}", selenium)
 
 
 @pytest.mark.ui

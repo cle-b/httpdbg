@@ -26,7 +26,6 @@ jobs:
     services:
       selenium:
         image: selenium/standalone-chrome:latest
-        network_mode: host
         options: --shm-size="2g"
     steps:
     - uses: actions/checkout@v3

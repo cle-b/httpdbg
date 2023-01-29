@@ -33,7 +33,7 @@ coverage:
 	coverage run -m pytest -v tests/
 
 selenium:
-	docker run -d --rm --network="host" -v /dev/shm:/dev/shm selenium/standalone-chrome:latest 
+	docker run --rm --network="host" -v /dev/shm:/dev/shm selenium/standalone-chrome:latest 
 
 testui:
 	pytest -v -m ui --driver Remote --capability browserName chrome tests/
@@ -45,4 +45,4 @@ ciall:
 	python -m pip install pip --upgrade
 	pip install .
 	pip install -r requirements-dev.txt
-	coverage run -m pytest -v --driver Remote --capability browserName chrome tests/
+	HTTPDBG_HOST=172.17.0.1 coverage run -m pytest -v --driver Remote --capability browserName chrome tests/
