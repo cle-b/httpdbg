@@ -30,56 +30,56 @@ def test_api_requests_one_request(httpbin, httpdbg_port):
 def test_api_requests_two_requests(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
         with httpdbg(records):
-            requests.get(httpbin.url + "/get/abc")
-            requests.get(httpbin.url + "/get/def")
+            requests.get(httpbin.url + "/get?abc")
+            requests.get(httpbin.url + "/get?def")
 
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
 
     assert len(reqs) == 2
-    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get/abc"
-    assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/get/def"
+    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get?abc"
+    assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/get?def"
 
 
 @pytest.mark.api
 def test_api_requests_netloc(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
         with httpdbg(records):
-            requests.get(httpbin.url + "/get/abc")
+            requests.get(httpbin.url + "/get?abc")
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
 
     assert len(reqs) == 1
-    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get/abc"
+    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get?abc"
     assert reqs[list(reqs.keys())[0]]["netloc"] == httpbin.url
-    assert reqs[list(reqs.keys())[0]]["urlext"] == "/get/abc"
+    assert reqs[list(reqs.keys())[0]]["urlext"] == "/get?abc"
 
 
 @pytest.mark.api
 def test_api_request_by_id(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
         with httpdbg(records):
-            requests.get(httpbin.url + "/get/abc")
-            requests.get(httpbin.url + "/get/def")
+            requests.get(httpbin.url + "/get?abc")
+            requests.get(httpbin.url + "/get?def")
 
         ret0 = get_request_details(httpdbg_port, 0)
         ret1 = get_request_details(httpdbg_port, 1)
 
     assert ret0.status_code == 200
-    assert ret0.json()["url"] == httpbin.url + "/get/abc"
+    assert ret0.json()["url"] == httpbin.url + "/get?abc"
 
     assert ret1.status_code == 200
-    assert ret1.json()["url"] == httpbin.url + "/get/def"
+    assert ret1.json()["url"] == httpbin.url + "/get?def"
 
 
 @pytest.mark.api
 def test_api_request_by_id_not_exists(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
         with httpdbg(records):
-            requests.get(httpbin.url + "/get/abc")
-            requests.get(httpbin.url + "/get/def")
+            requests.get(httpbin.url + "/get?abc")
+            requests.get(httpbin.url + "/get?def")
 
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/request/999")
 
@@ -172,12 +172,12 @@ def test_api_get_request_post(httpbin, httpdbg_port):
 def test_api_get_request_get_status_404(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
         with httpdbg(records):
-            ret = requests.get(httpbin.url + "/get/abc")
+            ret = requests.get(httpbin.url + "/abc")
         assert ret.status_code == 404
 
         ret = get_request_details(httpdbg_port, 0)
 
-    assert ret.json()["url"] == httpbin.url + "/get/abc"
+    assert ret.json()["url"] == httpbin.url + "/abc"
     assert ret.json()["status_code"] == 404
     assert ret.json()["reason"] == "NOT FOUND"
 
@@ -187,13 +187,13 @@ def test_api_get_request_connection_error(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
         with httpdbg(records):
             try:
-                requests.get("http://u.r.l.ooooooo/get/abc")
+                requests.get("http://u.r.l.ooooooo/get?abc")
             except requests.exceptions.ConnectionError:
                 pass
 
         ret = get_request_details(httpdbg_port, 0)
 
-    assert ret.json()["url"] == "http://u.r.l.ooooooo/get/abc"
+    assert ret.json()["url"] == "http://u.r.l.ooooooo/get?abc"
     assert ret.json()["status_code"] == -1
     assert ret.json()["reason"] == "ConnectionError"
 

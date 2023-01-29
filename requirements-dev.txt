@@ -11,3 +11,6 @@ requests
 httpx
 pytest-asyncio
 aiohttp
+selenium
+niobium
+pytest-selenium

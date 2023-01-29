@@ -21,6 +21,29 @@ jobs:
   test:
     name: Test
     needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    services:
+      selenium:
+        image: selenium/standalone-chrome:latest
+        options: --shm-size="2g" --network="host"    
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10
+    - name: Run all tests + code coverage
+      run: |
+        pip install coveralls
+        make ciall
+        coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.COVERALLS }}
+
+  testospython:
+    name: Test OS/Python version
+    needs: test
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     strategy:
@@ -37,19 +60,10 @@ jobs:
     - name: Run tests
       run: |
         make ci
-    - name: Code coverage (coveralls)
-      if: ${{ (matrix.os == 'ubuntu-20.04') && (matrix.python-version == '3.8') }}
-      run: |
-        pip install coveralls
-        make coverage
-        coveralls
-      env:
-        GITHUB_TOKEN: ${{ secrets.COVERALLS }}
-
 
   deploy:
     name: Deploy on Pypi
-    needs: test
+    needs: testospython
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
