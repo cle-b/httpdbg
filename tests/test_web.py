@@ -6,7 +6,7 @@ import requests
 
 from httpdbg.server import httpdbg
 from httpdbg.server import httpdbg_srv
-from tests.web.ui import HttpdbgWebUI
+from web.ui import HttpdbgWebUI
 
 
 @pytest.fixture()
