@@ -2,7 +2,6 @@
 from itertools import count
 import os
 
-import niobium  # noqa: F401 - niobium automatically patches selenium
 import pytest
 
 
