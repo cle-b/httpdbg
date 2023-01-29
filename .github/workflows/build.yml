@@ -26,7 +26,8 @@ jobs:
     services:
       selenium:
         image: selenium/standalone-chrome:latest
-        options: --shm-size="2g" --network="host"    
+        network_mode: host
+        options: --shm-size="2g"
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
