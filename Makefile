@@ -33,7 +33,7 @@ coverage:
 	coverage run -m pytest -v tests/
 
 selenium:
-	docker run --rm --network="host" -v /dev/shm:/dev/shm selenium/standalone-chrome:latest 
+	docker run -d --rm --network="host" -v /dev/shm:/dev/shm selenium/standalone-chrome:latest 
 
 testui:
 	pytest -v -m ui --driver Remote --capability browserName chrome tests/
