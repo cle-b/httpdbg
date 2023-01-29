@@ -27,7 +27,7 @@ ci:
 	python -m pip install pip --upgrade
 	pip install .
 	pip install -r requirements-dev.txt
-	pytest -v tests/
+	pytest -v -m "not ui" tests/
 
 coverage:
 	coverage run -m pytest -v tests/
