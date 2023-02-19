@@ -160,7 +160,7 @@ def set_hook_for_aiohttp_start_async(records):
                 )
                 callargs = inspect.getcallargs(original_method, *args, **kwargs)
                 logger.debug(
-                    f"aiohttp.client_reqrep.ClientResponse.start"
+                    "aiohttp.client_reqrep.ClientResponse.start"
                 )  # for this hook, str(callargs) can't be called
 
                 self = callargs.get("self")
