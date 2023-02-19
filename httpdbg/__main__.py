@@ -18,7 +18,6 @@ def print_msg(msg):
 
 
 def pyhttpdbg(params, subparams, test_mode=False):
-
     url = f"http://localhost:{params.port}/{'?hi=on' if params.console else ''}"
 
     print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
@@ -26,9 +25,7 @@ def pyhttpdbg(params, subparams, test_mode=False):
     sys.path.insert(0, "")  # to mimic the default python command behavior
 
     with httpdbg_srv(params.port) as records:
-
         with httpdbg(records):
-
             if params.pytest:
                 run_pytest(subparams)
             elif params.script:
@@ -37,7 +34,6 @@ def pyhttpdbg(params, subparams, test_mode=False):
                 run_console(test_mode)
 
             if not (params.force_quit or test_mode):
-
                 print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
 
                 if params.keep_up:

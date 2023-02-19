@@ -16,7 +16,6 @@ def parse_content_type(content_type):
 
 
 def generate_preview(path, filename, content_type, raw_data):
-
     body = {
         "path": path,
         "filename": filename,

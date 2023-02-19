@@ -195,7 +195,6 @@ def test_httpx_exception():
 async def test_httpx_asyncclient(httpbin):
     with httpdbg() as records:
         async with httpx.AsyncClient() as client:
-
             await client.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
@@ -213,7 +212,6 @@ async def test_httpx_asyncclient(httpbin):
 async def test_httpx_initiator_asyncclient(httpbin):
     with httpdbg() as records:
         async with httpx.AsyncClient() as client:
-
             await client.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
@@ -234,7 +232,6 @@ async def test_httpx_initiator_asyncclient(httpbin):
 async def test_httpx_request_asyncclient(httpbin):
     with httpdbg() as records:
         async with httpx.AsyncClient() as client:
-
             await client.post(f"{httpbin.url}/post", content="abc")
 
     assert len(records) == 1

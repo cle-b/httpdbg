@@ -74,9 +74,7 @@ def test_run_script_not_a_python_script(httpbin, capsys):
 @pytest.mark.api
 @pytest.mark.script
 def test_run_script_initiator(httpbin, httpdbg_port):
-
     with httpdbg_srv(httpdbg_port) as records:
-
         PYTEST_CURRENT_TEST = os.environ["PYTEST_CURRENT_TEST"]
         os.environ.pop("PYTEST_CURRENT_TEST")
 

@@ -15,7 +15,6 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
-
         url = urlparse(self.path)
 
         # we try different method to serve the URL until the good one is done
@@ -63,7 +62,6 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         return True
 
     def serve_requests(self, url):
-
         if not (url.path.lower() == "/requests"):
             return False
 

@@ -19,7 +19,6 @@ def set_hook_for_requests(records):
         ):
 
             def _hook_send(self, request, *args, **kwargs):
-
                 record = HTTPRecord()
 
                 record.initiator = get_initiator(records._initiators)

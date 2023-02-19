@@ -22,7 +22,6 @@ def set_hook_for_aiohttp_request_async(records):
         ):
 
             async def _hook_request(*args, **kwargs):
-
                 original_method = getattr(
                     aiohttp.client.ClientSession,
                     f"_original_request_{records.id}",
@@ -81,7 +80,6 @@ def set_hook_for_aiohttp_send_async(records):
         ):
 
             async def _hook_send(*args, **kwargs):
-
                 original_method = getattr(
                     aiohttp.client_reqrep.ClientRequest,
                     f"_original_send_{records.id}",
@@ -153,7 +151,6 @@ def set_hook_for_aiohttp_start_async(records):
         ):
 
             async def _hook_start(*args, **kwargs):
-
                 original_method = getattr(
                     aiohttp.client_reqrep.ClientResponse,
                     f"_original_start_{records.id}",
@@ -220,7 +217,6 @@ def set_hook_for_aiohttp_read_async(records):
         ):
 
             async def _hook_read(*args, **kwargs):
-
                 original_method = getattr(
                     aiohttp.client_reqrep.ClientResponse,
                     f"_original_read_{records.id}",

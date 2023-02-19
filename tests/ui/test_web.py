@@ -27,7 +27,6 @@ def httpdbgui(selenium, httpdbg_host, httpdbg_port, records):
 
 @pytest.mark.ui
 def test_ui_list_records(httpdbgui, records):
-
     assert len(records) == len(httpdbgui.requests)
 
     for record in records:

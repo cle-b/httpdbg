@@ -16,7 +16,6 @@ def set_hook_for_httpx_send(records):
         if can_set_hook(httpx._client.Client, "send", f"_original_send_{records.id}"):
 
             def _hook_send(self, request, *args, **kwargs):
-
                 record = HTTPRecord()
 
                 record.initiator = get_initiator(records._initiators)
@@ -86,7 +85,6 @@ def set_hook_for_httpx_send_async(records):
         ):
 
             async def _hook_send(self, request, *args, **kwargs):
-
                 record = HTTPRecord()
 
                 record.initiator = get_initiator(records._initiators)
@@ -155,7 +153,6 @@ def set_hook_for_httpx_request(records):
         ):
 
             def _hook_init(self, *args, **kwargs):
-
                 self._httpdbg_cookies = kwargs.get("cookies")
 
                 getattr(httpx._models.Request, f"_original_init_{records.id}")(

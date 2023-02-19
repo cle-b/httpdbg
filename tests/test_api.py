@@ -12,9 +12,7 @@ from utils import get_request_details
 
 @pytest.mark.api
 def test_api_requests_one_request(httpbin, httpdbg_port):
-
     with httpdbg_srv(httpdbg_port) as records:
-
         with httpdbg(records):
             requests.get(httpbin.url + "/get")
 

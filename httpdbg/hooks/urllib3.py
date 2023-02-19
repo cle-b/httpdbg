@@ -25,11 +25,9 @@ def set_hook_for_urllib3_urlopen(records):
         ):
 
             def _hook_urlopen(self, method, url, *args, **kwargs):
-
                 record = None
 
                 if record_request():
-
                     record = HTTPRecord()
 
                     record.initiator = get_initiator(records._initiators)
@@ -105,11 +103,9 @@ def set_hook_for_urllib3_make_request(records):
         ):
 
             def _hook_make_request(self, conn, method, url, *args, **kwargs):
-
                 record = None
 
                 if record_request():
-
                     if hasattr(self, "_httpdbg_record_id"):
                         record = records.requests[self._httpdbg_record_id]
 
@@ -166,11 +162,9 @@ def set_hook_for_urllib3_response_read(records):
         ):
 
             def _hook_read(self, *args, **kwargs):
-
                 record = None
 
                 if record_request():
-
                     if hasattr(self, "_httpdbg_record_id"):
                         record = records.requests[self._httpdbg_record_id]
 
@@ -223,7 +217,6 @@ def set_hook_for_urllib3_response_read_chunked(records):
         ):
 
             def _hook_read_chunked(self, *args, **kwargs):
-
                 record = None
 
                 if record_request():
@@ -243,7 +236,6 @@ def set_hook_for_urllib3_response_read_chunked(records):
 
                 # contents is a generator
                 for content in contents:
-
                     if record:
                         if record.response.content:
                             record.response.content += content
