@@ -70,7 +70,6 @@ def unset_hook(hclass, hmethod, horiginal):
         )
 
 
-
 def getcallargs(original_method, log_args, *args, **kwargs):
     callargs = inspect.signature(original_method).bind(*args, **kwargs).arguments
     logger.debug(
