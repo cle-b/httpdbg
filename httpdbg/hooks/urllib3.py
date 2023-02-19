@@ -74,7 +74,7 @@ def set_hook_for_urllib3_urlopen(records):
                     )
 
                     record._reason = getattr(response, "reason", None)
-                    record.status_code = getattr(response, "status_code", None)
+                    record.status_code = getattr(response, "status", None)
 
                     response._httpdbg_record_id = record.id
 

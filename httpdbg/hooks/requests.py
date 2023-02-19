@@ -33,7 +33,7 @@ def set_hook_for_requests(records):
                 record.method = getattr(request, "method", None)
                 record.stream = callargs.get("stream", False)
 
-                headers = getattr(request, "headers", [])
+                headers = getattr(request, "headers", {})
                 record.request = HTTPRecordContentUp(
                     headers,
                     list_cookies_headers_request(
@@ -51,7 +51,7 @@ def set_hook_for_requests(records):
                     record.status_code = -1
                     raise
 
-                headers = getattr(response, "headers", None)
+                headers = getattr(response, "headers", {})
                 record.response = HTTPRecordContentDown(
                     headers,
                     list_cookies_headers_response(
