@@ -76,10 +76,10 @@ def set_hook_for_aiohttp_send_async(records):
             async def _hook_send(*args, **kwargs):
                 callargs = getcallargs(original_method, *args, **kwargs)
 
-                request = callargs.get("self")
-
                 record = HTTPRecord()
                 record.initiator = get_initiator(records._initiators)
+
+                request = callargs.get("self")
                 record.url = str(getattr(request, "url", ""))
                 record.method = getattr(request, "method", None)
                 record.stream = False
