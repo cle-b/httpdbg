@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import inspect
-
 from httpdbg.initiator import get_initiator
 from httpdbg.hooks.cookies import list_cookies_headers_request_simple_cookies
 from httpdbg.hooks.cookies import list_cookies_headers_response_simple_cookies
@@ -9,7 +7,7 @@ from httpdbg.hooks.utils import unset_hook
 from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecordContentDown
 from httpdbg.records import HTTPRecordContentUp
-from httpdbg.utils import logger
+from httpdbg.hooks.utils import getcallargs
 
 
 def set_hook_for_aiohttp_request_async(records):
@@ -17,17 +15,14 @@ def set_hook_for_aiohttp_request_async(records):
     try:
         import aiohttp
 
-        if can_set_hook(
+        set_hook, original_method = can_set_hook(
             aiohttp.client.ClientSession, "_request", f"_original_request_{records.id}"
-        ):
+        )
+
+        if set_hook:
 
             async def _hook_request(*args, **kwargs):
-                original_method = getattr(
-                    aiohttp.client.ClientSession,
-                    f"_original_request_{records.id}",
-                )
-                callargs = inspect.getcallargs(original_method, *args, **kwargs)
-                logger.debug(f"aiohttp.client.ClientSession._request - {callargs}")
+                callargs = getcallargs(original_method, True, *args, **kwargs)
 
                 method = callargs.get("method")
                 str_or_url = callargs.get("str_or_url")
@@ -75,17 +70,14 @@ def set_hook_for_aiohttp_send_async(records):
     try:
         import aiohttp
 
-        if can_set_hook(
+        set_hook, original_method = can_set_hook(
             aiohttp.client_reqrep.ClientRequest, "send", f"_original_send_{records.id}"
-        ):
+        )
+
+        if set_hook:
 
             async def _hook_send(*args, **kwargs):
-                original_method = getattr(
-                    aiohttp.client_reqrep.ClientRequest,
-                    f"_original_send_{records.id}",
-                )
-                callargs = inspect.getcallargs(original_method, *args, **kwargs)
-                logger.debug(f"aiohttp.client_reqrep.ClientRequest.send - {callargs}")
+                callargs = getcallargs(original_method, True, *args, **kwargs)
 
                 request = callargs.get("self")
                 url = getattr(request, "url", None)
@@ -144,21 +136,16 @@ def set_hook_for_aiohttp_start_async(records):
     try:
         import aiohttp
 
-        if can_set_hook(
+        set_hook, original_method = can_set_hook(
             aiohttp.client_reqrep.ClientResponse,
             "start",
             f"_original_start_{records.id}",
-        ):
+        )
+
+        if set_hook:
 
             async def _hook_start(*args, **kwargs):
-                original_method = getattr(
-                    aiohttp.client_reqrep.ClientResponse,
-                    f"_original_start_{records.id}",
-                )
-                callargs = inspect.getcallargs(original_method, *args, **kwargs)
-                logger.debug(
-                    "aiohttp.client_reqrep.ClientResponse.start"
-                )  # for this hook, str(callargs) can't be called
+                callargs = getcallargs(original_method, False, *args, **kwargs)
 
                 self = callargs.get("self")
 
@@ -212,17 +199,14 @@ def set_hook_for_aiohttp_read_async(records):
     try:
         import aiohttp
 
-        if can_set_hook(
+        set_hook, original_method = can_set_hook(
             aiohttp.client_reqrep.ClientResponse, "read", f"_original_read_{records.id}"
-        ):
+        )
+
+        if set_hook:
 
             async def _hook_read(*args, **kwargs):
-                original_method = getattr(
-                    aiohttp.client_reqrep.ClientResponse,
-                    f"_original_read_{records.id}",
-                )
-                callargs = inspect.getcallargs(original_method, *args, **kwargs)
-                logger.debug(f"aiohttp.client_reqrep.ClientResponse.read - {callargs}")
+                callargs = getcallargs(original_method, True, *args, **kwargs)
 
                 self = callargs.get("self")
 
