@@ -22,10 +22,7 @@ def set_hook_for_aiohttp_request_async(records):
         if set_hook:
 
             async def _hook_request(*args, **kwargs):
-                callargs = getcallargs(original_method, True, *args, **kwargs)
-
-                method = callargs.get("method")
-                str_or_url = callargs.get("str_or_url")
+                callargs = getcallargs(original_method, *args, **kwargs)
 
                 try:
                     response = await original_method(*args, **kwargs)
@@ -35,8 +32,8 @@ def set_hook_for_aiohttp_request_async(records):
 
                     record.initiator = get_initiator(records._initiators)
 
-                    record.url = str(str_or_url)
-                    record.method = method
+                    record.url = str(callargs.get("str_or_url", ""))
+                    record.method = callargs.get("method")
                     record.stream = False
 
                     record.exception = ex
@@ -77,23 +74,21 @@ def set_hook_for_aiohttp_send_async(records):
         if set_hook:
 
             async def _hook_send(*args, **kwargs):
-                callargs = getcallargs(original_method, True, *args, **kwargs)
+                callargs = getcallargs(original_method, *args, **kwargs)
 
                 request = callargs.get("self")
-                url = getattr(request, "url", None)
-                method = getattr(request, "method", None)
+
+                record = HTTPRecord()
+                record.initiator = get_initiator(records._initiators)
+                record.url = str(getattr(request, "url", ""))
+                record.method = getattr(request, "method", None)
+                record.stream = False
+
                 headers = getattr(request, "headers", {})
                 body = getattr(request, "body", None)
                 body = getattr(
                     body, "_value", body
                 )  # works even if request.body doesn't exist
-
-                record = HTTPRecord()
-                record.initiator = get_initiator(records._initiators)
-                record.url = str(url)
-                record.method = method
-                record.stream = False
-
                 record.request = HTTPRecordContentUp(
                     headers,
                     list_cookies_headers_request_simple_cookies(headers),
@@ -145,7 +140,7 @@ def set_hook_for_aiohttp_start_async(records):
         if set_hook:
 
             async def _hook_start(*args, **kwargs):
-                callargs = getcallargs(original_method, False, *args, **kwargs)
+                callargs = getcallargs(original_method, *args, **kwargs)
 
                 self = callargs.get("self")
 
@@ -164,16 +159,13 @@ def set_hook_for_aiohttp_start_async(records):
 
                 if record:
                     headers = getattr(response, "headers", {})
-                    reason = getattr(response, "reason", None)
-                    status = getattr(response, "status", None)
-
                     record.response = HTTPRecordContentDown(
                         headers,
                         list_cookies_headers_response_simple_cookies(headers),
                         None,
                     )
-                    record._reason = reason
-                    record.status_code = status
+                    record._reason = getattr(response, "reason", None)
+                    record.status_code = getattr(response, "status", None)
                 return response
 
             aiohttp.client_reqrep.ClientResponse.start = _hook_start
@@ -206,7 +198,7 @@ def set_hook_for_aiohttp_read_async(records):
         if set_hook:
 
             async def _hook_read(*args, **kwargs):
-                callargs = getcallargs(original_method, True, *args, **kwargs)
+                callargs = getcallargs(original_method, *args, **kwargs)
 
                 self = callargs.get("self")
 

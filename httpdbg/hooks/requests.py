@@ -7,6 +7,7 @@ from httpdbg.hooks.utils import unset_hook
 from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecordContentDown
 from httpdbg.records import HTTPRecordContentUp
+from httpdbg.hooks.utils import getcallargs
 
 
 def set_hook_for_requests(records):
@@ -14,42 +15,52 @@ def set_hook_for_requests(records):
     try:
         import requests
 
-        if can_set_hook(
+        set_hook, original_method = can_set_hook(
             requests.adapters.HTTPAdapter, "send", f"_original_send_{records.id}"
-        ):
+        )
 
-            def _hook_send(self, request, *args, **kwargs):
+        if set_hook:
+
+            def _hook_send(*args, **kwargs):
+                callargs = getcallargs(original_method, *args, **kwargs)
+
                 record = HTTPRecord()
-
                 record.initiator = get_initiator(records._initiators)
 
-                record.url = request.url
-                record.method = request.method
-                record.stream = kwargs.get("stream", False)
+                request = callargs.get("request")
+
+                record.url = getattr(request, "url", "")
+                record.method = getattr(request, "method", None)
+                record.stream = callargs.get("stream", False)
+
+                headers = getattr(request, "headers", [])
                 record.request = HTTPRecordContentUp(
-                    request.headers,
-                    list_cookies_headers_request(request.headers, request._cookies),
-                    request.body,
+                    headers,
+                    list_cookies_headers_request(
+                        headers, getattr(request, "_cookies", {})
+                    ),
+                    getattr(request, "body", None),
                 )
 
                 records.requests[record.id] = record
 
                 try:
-                    response = getattr(
-                        requests.adapters.HTTPAdapter, f"_original_send_{records.id}"
-                    )(self, request, *args, **kwargs)
+                    response = original_method(*args, **kwargs)
                 except Exception as ex:
                     record.exception = ex
                     record.status_code = -1
                     raise
 
+                headers = getattr(response, "headers", None)
                 record.response = HTTPRecordContentDown(
-                    response.headers,
-                    list_cookies_headers_response(response.headers, response.cookies),
-                    response.content if not record.stream else None,
+                    headers,
+                    list_cookies_headers_response(
+                        headers, cookies=getattr(response, "cookies", None)
+                    ),
+                    getattr(response, "content", None) if not record.stream else None,
                 )
-                record._reason = response.reason
-                record.status_code = response.status_code
+                record._reason = getattr(response, "reason", None)
+                record.status_code = getattr(response, "status_code", None)
 
                 return response
 
