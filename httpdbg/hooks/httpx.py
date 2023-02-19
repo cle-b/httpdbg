@@ -24,17 +24,15 @@ def set_hook_for_httpx_send(records):
                 callargs = getcallargs(original_method, *args, **kwargs)
 
                 record = HTTPRecord()
-
                 record.initiator = get_initiator(records._initiators)
 
                 request = callargs.get("request")
-
                 record.url = str(getattr(request, "url", ""))
                 record.method = getattr(request, "method", None)
                 record.stream = callargs.get("stream", False)
 
                 headers = getattr(request, "headers", {})
-                cookies = getattr(request, "_httpdbg_cookies", None)
+                cookies = getattr(request, "_httpdbg_cookies", [])
                 cookies_jar = getattr(cookies, "jar", [])
                 record.request = HTTPRecordContentUp(
                     headers,
@@ -52,7 +50,7 @@ def set_hook_for_httpx_send(records):
                     raise
 
                 headers = getattr(response, "headers", {})
-                cookies = getattr(response, "cookies", None)
+                cookies = getattr(response, "cookies", [])
                 cookies_jar = getattr(cookies, "jar", [])
                 record.response = HTTPRecordContentDown(
                     headers,
@@ -97,7 +95,6 @@ def set_hook_for_httpx_send_async(records):
                 callargs = getcallargs(original_method, *args, **kwargs)
 
                 record = HTTPRecord()
-
                 record.initiator = get_initiator(records._initiators)
 
                 request = callargs.get("request")
@@ -106,7 +103,7 @@ def set_hook_for_httpx_send_async(records):
                 record.stream = callargs.get("stream", False)
 
                 headers = getattr(request, "headers", {})
-                cookies = getattr(request, "_httpdbg_cookies", None)
+                cookies = getattr(request, "_httpdbg_cookies", [])
                 cookies_jar = getattr(cookies, "jar", [])
                 record.request = HTTPRecordContentUp(
                     headers,
@@ -124,7 +121,7 @@ def set_hook_for_httpx_send_async(records):
                     raise
 
                 headers = getattr(response, "headers", {})
-                cookies = getattr(response, "cookies", None)
+                cookies = getattr(response, "cookies", [])
                 cookies_jar = getattr(cookies, "jar", [])
                 record.response = HTTPRecordContentDown(
                     headers,

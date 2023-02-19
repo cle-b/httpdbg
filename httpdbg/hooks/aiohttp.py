@@ -142,10 +142,9 @@ def set_hook_for_aiohttp_start_async(records):
             async def _hook_start(*args, **kwargs):
                 callargs = getcallargs(original_method, *args, **kwargs)
 
-                self = callargs.get("self")
-
                 record = None
 
+                self = callargs.get("self")
                 if hasattr(self, "_httpdbg_record_id"):
                     record = records.requests[self._httpdbg_record_id]
 
@@ -200,10 +199,9 @@ def set_hook_for_aiohttp_read_async(records):
             async def _hook_read(*args, **kwargs):
                 callargs = getcallargs(original_method, *args, **kwargs)
 
-                self = callargs.get("self")
-
                 record = None
 
+                self = callargs.get("self")
                 if hasattr(self, "_httpdbg_record_id"):
                     record = records.requests[self._httpdbg_record_id]
 
