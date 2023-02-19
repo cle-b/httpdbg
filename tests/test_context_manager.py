@@ -8,7 +8,6 @@ import requests
 @pytest.mark.cm
 @pytest.mark.api
 def test_context_manager(httpbin):
-
     requests.get(httpbin.url + "/get")
 
     with httpdbg() as records:
@@ -20,7 +19,6 @@ def test_context_manager(httpbin):
 @pytest.mark.cm
 @pytest.mark.api
 def test_context_manager_two_calls(httpbin):
-
     requests.get(httpbin.url + "/get")
 
     with httpdbg() as records:
@@ -40,7 +38,6 @@ def test_context_manager_two_calls(httpbin):
 
 @pytest.mark.cm
 def test_context_manager_reentrant(httpbin):
-
     requests.get(httpbin.url + "/get")
 
     with httpdbg() as records:

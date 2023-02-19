@@ -11,6 +11,7 @@ from httpdbg.hooks.utils import unset_hook
 from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecordContentDown
 from httpdbg.records import HTTPRecordContentUp
+from httpdbg.hooks.utils import getcallargs
 
 
 def set_hook_for_urllib3_urlopen(records):
@@ -18,32 +19,38 @@ def set_hook_for_urllib3_urlopen(records):
     try:
         import urllib3
 
-        if can_set_hook(
+        set_hook, original_method = can_set_hook(
             urllib3.connectionpool.HTTPConnectionPool,
             "urlopen",
             f"_httpdbg_original_urlopen_{records.id}",
-        ):
+        )
 
-            def _hook_urlopen(self, method, url, *args, **kwargs):
+        if set_hook:
+
+            def _hook_urlopen(*args, **kwargs):
+                callargs = getcallargs(original_method, *args, **kwargs)
 
                 record = None
 
                 if record_request():
-
                     record = HTTPRecord()
-
                     record.initiator = get_initiator(records._initiators)
 
+                    self = callargs.get("self")
+                    port = getattr(self, "port", 0)
+                    scheme = getattr(self, "scheme", "")
                     port = (
-                        f":{self.port}"
+                        f":{port}"
                         if not (
-                            ((self.scheme.upper() == "HTTP") and self.port == 80)
-                            or ((self.scheme.upper() == "HTTPS") and self.port == 443)
+                            ((scheme.upper() == "HTTP") and port == 80)
+                            or ((scheme.upper() == "HTTPS") and port == 443)
                         )
                         else ""
                     )
-                    record.url = f"{self.scheme}://{self.host}{port}{url}"
-                    record.method = method
+                    host = getattr(self, "host", "")
+                    url = callargs.get("url")
+                    record.url = f"{scheme}://{host}{port}{url}"
+                    record.method = callargs.get("method")
                     record.stream = False
 
                     self._httpdbg_record_id = record.id
@@ -51,10 +58,7 @@ def set_hook_for_urllib3_urlopen(records):
                     records.requests[record.id] = record
 
                 try:
-                    response = getattr(
-                        urllib3.connectionpool.HTTPConnectionPool,
-                        f"_httpdbg_original_urlopen_{records.id}",
-                    )(self, method, url, *args, **kwargs)
+                    response = original_method(*args, **kwargs)
                 except Exception as ex:
                     if record:
                         record.exception = ex
@@ -62,14 +66,15 @@ def set_hook_for_urllib3_urlopen(records):
                     raise
 
                 if record:
+                    headers = getattr(response, "headers", {})
                     record.response = HTTPRecordContentDown(
-                        response.headers,
-                        list_cookies_headers_response_simple_cookies(response.headers),
-                        response._body,
+                        headers,
+                        list_cookies_headers_response_simple_cookies(headers),
+                        getattr(response, "_body", {}),
                     )
 
-                    record._reason = response.reason
-                    record.status_code = response.status
+                    record._reason = getattr(response, "reason", None)
+                    record.status_code = getattr(response, "status", None)
 
                     response._httpdbg_record_id = record.id
 
@@ -98,36 +103,35 @@ def set_hook_for_urllib3_make_request(records):
     try:
         import urllib3
 
-        if can_set_hook(
+        set_hook, original_method = can_set_hook(
             urllib3.connectionpool.HTTPConnectionPool,
             "_make_request",
             f"_httpdbg_original_make_request_{records.id}",
-        ):
+        )
 
-            def _hook_make_request(self, conn, method, url, *args, **kwargs):
+        if set_hook:
+
+            def _hook_make_request(*args, **kwargs):
+                callargs = getcallargs(original_method, *args, **kwargs)
 
                 record = None
 
                 if record_request():
-
+                    self = callargs.get("self")
                     if hasattr(self, "_httpdbg_record_id"):
                         record = records.requests[self._httpdbg_record_id]
 
+                    headers = callargs.get("headers", {})
                     record.request = HTTPRecordContentUp(
-                        kwargs.get("headers"),
-                        list_cookies_headers_request_simple_cookies(
-                            kwargs.get("headers")
-                        ),
-                        kwargs.get("body"),
+                        headers,
+                        list_cookies_headers_request_simple_cookies(headers),
+                        callargs.get("body"),
                     )
 
                     records.requests[record.id] = record
 
                 try:
-                    response = getattr(
-                        urllib3.connectionpool.HTTPConnectionPool,
-                        f"_httpdbg_original_make_request_{records.id}",
-                    )(self, conn, method, url, *args, **kwargs)
+                    response = original_method(*args, **kwargs)
                 except Exception as ex:
                     if record:
                         record.exception = ex
@@ -159,26 +163,27 @@ def set_hook_for_urllib3_response_read(records):
     try:
         import urllib3
 
-        if can_set_hook(
+        set_hook, original_method = can_set_hook(
             urllib3.response.HTTPResponse,
             "read",
             f"_httpdbg_original_read_{records.id}",
-        ):
+        )
 
-            def _hook_read(self, *args, **kwargs):
+        if set_hook:
+
+            def _hook_read(*args, **kwargs):
+                callargs = getcallargs(original_method, *args, **kwargs)
 
                 record = None
 
                 if record_request():
+                    self = callargs.get("self")
 
                     if hasattr(self, "_httpdbg_record_id"):
                         record = records.requests[self._httpdbg_record_id]
 
                 try:
-                    content = getattr(
-                        urllib3.response.HTTPResponse,
-                        f"_httpdbg_original_read_{records.id}",
-                    )(self, *args, **kwargs)
+                    content = original_method(*args, **kwargs)
                 except Exception as ex:
                     if record:
                         record.exception = ex
@@ -216,25 +221,26 @@ def set_hook_for_urllib3_response_read_chunked(records):
     try:
         import urllib3
 
-        if can_set_hook(
+        set_hook, original_method = can_set_hook(
             urllib3.response.HTTPResponse,
             "read_chunked",
             f"_httpdbg_original_read_chunked_{records.id}",
-        ):
+        )
 
-            def _hook_read_chunked(self, *args, **kwargs):
+        if set_hook:
+
+            def _hook_read_chunked(*args, **kwargs):
+                callargs = getcallargs(original_method, *args, **kwargs)
 
                 record = None
 
                 if record_request():
+                    self = callargs.get("self")
                     if hasattr(self, "_httpdbg_record_id"):
                         record = records.requests[self._httpdbg_record_id]
 
                 try:
-                    contents = getattr(
-                        urllib3.response.HTTPResponse,
-                        f"_httpdbg_original_read_chunked_{records.id}",
-                    )(self, *args, **kwargs)
+                    contents = original_method(*args, **kwargs)
                 except Exception as ex:
                     if record:
                         record.exception = ex
@@ -243,7 +249,6 @@ def set_hook_for_urllib3_response_read_chunked(records):
 
                 # contents is a generator
                 for content in contents:
-
                     if record:
                         if record.response.content:
                             record.response.content += content

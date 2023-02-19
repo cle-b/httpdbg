@@ -6,6 +6,7 @@ from httpdbg.hooks.utils import unset_hook
 from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecordContentDown
 from httpdbg.records import HTTPRecordContentUp
+from httpdbg.hooks.utils import getcallargs
 
 
 def set_hook_for_httpx_send(records):
@@ -13,48 +14,51 @@ def set_hook_for_httpx_send(records):
     try:
         import httpx
 
-        if can_set_hook(httpx._client.Client, "send", f"_original_send_{records.id}"):
+        set_hook, original_method = can_set_hook(
+            httpx._client.Client, "send", f"_original_send_{records.id}"
+        )
 
-            def _hook_send(self, request, *args, **kwargs):
+        if set_hook:
+
+            def _hook_send(*args, **kwargs):
+                callargs = getcallargs(original_method, *args, **kwargs)
 
                 record = HTTPRecord()
-
                 record.initiator = get_initiator(records._initiators)
 
-                record.url = str(request.url)
-                record.method = request.method
-                record.stream = kwargs.get("stream", False)
+                request = callargs.get("request")
+                record.url = str(getattr(request, "url", ""))
+                record.method = getattr(request, "method", None)
+                record.stream = callargs.get("stream", False)
 
+                headers = getattr(request, "headers", {})
+                cookies = getattr(request, "_httpdbg_cookies", [])
+                cookies_jar = getattr(cookies, "jar", [])
                 record.request = HTTPRecordContentUp(
-                    request.headers,
-                    list_cookies_headers_response(
-                        request.headers, request._httpdbg_cookies.jar
-                    )
-                    if request._httpdbg_cookies
-                    else [],
-                    request.content if not record.stream else None,
+                    headers,
+                    list_cookies_headers_response(headers, cookies_jar),
+                    getattr(request, "content", None) if not record.stream else None,
                 )
 
                 records.requests[record.id] = record
 
                 try:
-                    response = getattr(
-                        httpx._client.Client, f"_original_send_{records.id}"
-                    )(self, request, *args, **kwargs)
+                    response = original_method(*args, **kwargs)
                 except Exception as ex:
                     record.exception = ex
                     record.status_code = -1
                     raise
 
+                headers = getattr(response, "headers", {})
+                cookies = getattr(response, "cookies", [])
+                cookies_jar = getattr(cookies, "jar", [])
                 record.response = HTTPRecordContentDown(
-                    response.headers,
-                    list_cookies_headers_response(
-                        response.headers, response.cookies.jar
-                    ),
-                    response.content,
+                    headers,
+                    list_cookies_headers_response(headers, cookies_jar),
+                    getattr(response, "content", None),
                 )
-                record._reason = response.reason_phrase
-                record.status_code = response.status_code
+                record._reason = getattr(response, "reason_phrase", None)
+                record.status_code = getattr(response, "status_code", None)
 
                 return response
 
@@ -81,50 +85,51 @@ def set_hook_for_httpx_send_async(records):
     try:
         import httpx
 
-        if can_set_hook(
+        set_hook, original_method = can_set_hook(
             httpx._client.AsyncClient, "send", f"_original_send_{records.id}"
-        ):
+        )
 
-            async def _hook_send(self, request, *args, **kwargs):
+        if set_hook:
+
+            async def _hook_send(*args, **kwargs):
+                callargs = getcallargs(original_method, *args, **kwargs)
 
                 record = HTTPRecord()
-
                 record.initiator = get_initiator(records._initiators)
 
-                record.url = str(request.url)
-                record.method = request.method
-                record.stream = kwargs.get("stream", False)
+                request = callargs.get("request")
+                record.url = str(getattr(request, "url", ""))
+                record.method = getattr(request, "method", None)
+                record.stream = callargs.get("stream", False)
 
+                headers = getattr(request, "headers", {})
+                cookies = getattr(request, "_httpdbg_cookies", [])
+                cookies_jar = getattr(cookies, "jar", [])
                 record.request = HTTPRecordContentUp(
-                    request.headers,
-                    list_cookies_headers_response(
-                        request.headers, request._httpdbg_cookies.jar
-                    )
-                    if request._httpdbg_cookies
-                    else [],
-                    request.content if not record.stream else None,
+                    headers,
+                    list_cookies_headers_response(headers, cookies_jar),
+                    getattr(request, "content", None),
                 )
 
                 records.requests[record.id] = record
 
                 try:
-                    response = await getattr(
-                        httpx._client.AsyncClient, f"_original_send_{records.id}"
-                    )(self, request, *args, **kwargs)
+                    response = await original_method(*args, **kwargs)
                 except Exception as ex:
                     record.exception = ex
                     record.status_code = -1
                     raise
 
+                headers = getattr(response, "headers", {})
+                cookies = getattr(response, "cookies", [])
+                cookies_jar = getattr(cookies, "jar", [])
                 record.response = HTTPRecordContentDown(
-                    response.headers,
-                    list_cookies_headers_response(
-                        response.headers, response.cookies.jar
-                    ),
-                    response.content if not record.stream else None,
+                    headers,
+                    list_cookies_headers_response(headers, cookies_jar),
+                    getattr(response, "content", None) if not record.stream else None,
                 )
-                record._reason = response.reason_phrase
-                record.status_code = response.status_code
+                record._reason = getattr(response, "reason_phrase", None)
+                record.status_code = getattr(response, "status_code", None)
 
                 return response
 
@@ -150,17 +155,20 @@ def set_hook_for_httpx_request(records):
     try:
         import httpx
 
-        if can_set_hook(
+        set_hook, original_method = can_set_hook(
             httpx._models.Request, "__init__", f"_original_init_{records.id}"
-        ):
+        )
 
-            def _hook_init(self, *args, **kwargs):
+        if set_hook:
+
+            def _hook_init(*args, **kwargs):
+                callargs = getcallargs(original_method, *args, **kwargs)
+
+                self = callargs.get("self")
 
                 self._httpdbg_cookies = kwargs.get("cookies")
 
-                getattr(httpx._models.Request, f"_original_init_{records.id}")(
-                    self, *args, **kwargs
-                )
+                original_method(*args, **kwargs)
 
             httpx._models.Request.__init__ = _hook_init
     except ImportError:

@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+import inspect
+
+from httpdbg.utils import logger
+
+
 def can_set_hook(hclass, hmethod, horiginal):
     """Check if we can set a hook if it not already exists.
 
@@ -7,7 +13,7 @@ def can_set_hook(hclass, hmethod, horiginal):
         horiginal (str): The name of the backup of the method to hook
 
     Returns:
-        bool: True if we can set hook
+        bool, function: a tuple with two values: (True if we can set hook, the original method)
     """
     if not hasattr(
         hclass,
@@ -22,9 +28,13 @@ def can_set_hook(hclass, hmethod, horiginal):
         # backup the original method
         setattr(hclass, horiginal, original_method)
 
-        return True
+        logger.debug(
+            f"{original_method.__module__}.{original_method.__qualname__} - set hook"
+        )
+
+        return True, original_method
     else:
-        return False
+        return False, original_method
 
 
 def unset_hook(hclass, hmethod, horiginal):
@@ -54,3 +64,18 @@ def unset_hook(hclass, hmethod, horiginal):
             hclass,
             horiginal,
         )
+
+        logger.debug(
+            f"{original_method.__module__}.{original_method.__qualname__} - unset hook"
+        )
+
+
+def getcallargs(original_method, *args, **kwargs):
+    callargs = (
+        inspect.signature(original_method).bind_partial(*args, **kwargs).arguments
+    )
+    callargs.update(kwargs)
+    logger.debug(
+        f"{original_method.__module__}.{original_method.__qualname__} - {[arg for arg in callargs]}"
+    )
+    return callargs

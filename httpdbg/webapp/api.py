@@ -38,7 +38,6 @@ class RequestPayload(JSONEncoder):
                 )
 
         if req.response is not None:
-
             payload["response"] = {
                 "headers": req.response.headers,
                 "cookies": req.response.cookies,
@@ -55,7 +54,6 @@ class RequestPayload(JSONEncoder):
                 )
 
         if req.exception is not None:
-
             payload["exception"] = {
                 "type": str(type(req.exception)),
                 "message": str(req.exception),
@@ -73,7 +71,6 @@ class RequestListPayload(JSONEncoder):
         payload = {"id": records.id, "requests": {}}
 
         for id, req in records.requests.items():
-
             payload["requests"][id] = {
                 "id": req.id,
                 "url": req.url,
