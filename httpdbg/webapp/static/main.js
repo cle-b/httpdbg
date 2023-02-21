@@ -2,18 +2,6 @@
 
 let httpdbgApp = {
     "config": {
-        "hide_status": {
-            "checkbox": "cstatus",
-            "param": "hs",
-            "css": ".status {display: none;}",
-            "value": false
-        },
-        "hide_method": {
-            "checkbox": "cmethod",
-            "param": "hm",
-            "css": ".method {display: none;}",
-            "value": false
-        },
         "hide_initiator": {
             "checkbox": "cinitiator",
             "param": "hi",
