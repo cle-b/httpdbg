@@ -91,17 +91,15 @@ options:
 
 Clic on the **&#9881;** button on the top right of the page.
 
-Many options are available:
-  * Hide the status column
-  * Hide the method column
+Some options are available:
   * Hide the netloc in the url
   * Hide the initiator rows
 
 To keep your configuration, bookmark the page with the full search query.
 
-Fox example, if you want to keep only the `status` and `url` columns, the url will be:
+Fox example, if you want to hide the initiator rows by default, the url will be:
 ```
-http://localhost:4909/?hm=on&hi=on
+http://localhost:4909/?hi=on
 ```
 
 ## web interface

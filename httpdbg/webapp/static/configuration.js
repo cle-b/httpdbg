@@ -22,8 +22,6 @@ function apply_config() {
         sheet.deleteRule(0);
     }
 
-    apply_config_rule(httpdbgApp.config.hide_status, sheet);
-    apply_config_rule(httpdbgApp.config.hide_method, sheet);
     apply_config_rule(httpdbgApp.config.hide_netloc, sheet);
     apply_config_rule(httpdbgApp.config.hide_initiator, sheet);
 }
@@ -35,8 +33,6 @@ function load_config_rule_from_url(a_config, params) {
 function load_config_from_url(apply) {
     const params = new URLSearchParams(window.location.search);
 
-    load_config_rule_from_url(httpdbgApp.config.hide_status, params);
-    load_config_rule_from_url(httpdbgApp.config.hide_method, params);
     load_config_rule_from_url(httpdbgApp.config.hide_netloc, params);
     load_config_rule_from_url(httpdbgApp.config.hide_initiator, params);
 
@@ -52,8 +48,6 @@ function load_config_rule_from_form(a_config) {
 function load_config_from_form(apply) {
     const params = new URLSearchParams(window.location.search);
 
-    load_config_rule_from_form(httpdbgApp.config.hide_status);
-    load_config_rule_from_form(httpdbgApp.config.hide_method);
     load_config_rule_from_form(httpdbgApp.config.hide_netloc);
     load_config_rule_from_form(httpdbgApp.config.hide_initiator);
 

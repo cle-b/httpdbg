@@ -36,16 +36,6 @@
 
         <form id="configform" onsubmit="return false;">
 
-            <input type="checkbox" id="cstatus" name="hs" onchange="load_config_from_form(true)">
-            <label for="cstatus">Hide the status column</label>
-
-            <br>
-
-            <input type="checkbox" id="cmethod" name="hm" onchange="load_config_from_form(true)">
-            <label for="cmethod">Hide the method column</label>
-
-            <br>
-
             <input type="checkbox" id="curl" name="hn" onchange="load_config_from_form(true)">
             <label for="curl">Hide the netloc in the url</label>
 
@@ -84,8 +74,8 @@
                 <script id="template_initiator" type="x-tmpl-mustache">
                     <tbody id="initiator-{{initiator.id}}" name="initiator">
                         <tr class="initiator">
-                            <td>
-                                <span title="{{initiator.long_label}}" class="initiator-label">{{initiator.short_label}}</span>
+                            <td colspan="3" class="initiator-label" title="{{initiator.long_label}}">
+                                {{initiator.short_label}}
                             </td>
                         </tr>
                     </tbody>

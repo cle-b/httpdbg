@@ -24,8 +24,9 @@
 }
 
 .initiator-label {
-    column-span: all; 
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     background-color: var(--table-initiator);
 }
 
