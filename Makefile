@@ -6,10 +6,10 @@ setup:
 	pip install -r requirements-dev-ui.txt
 
 format:
-	black httpdbg tests setup.py
+	black httpdbg tests
 
 lint:
-	black --check httpdbg tests setup.py
+	black --check httpdbg tests
 	flake8 httpdbg tests
 
 test:
