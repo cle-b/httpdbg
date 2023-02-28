@@ -31,8 +31,5 @@ pyhttpdbg = "httpdbg.__main__:pyhttpdbg_entry_point"
 [tool.setuptools.package-data]
 httpdbg = ["webapp/static/*"]
 
-[tool.setuptools.packages.find]
-include = ["httpdbg"]
-
 [tool.setuptools.dynamic]
 version = {attr = "httpdbg.VERSION"}
