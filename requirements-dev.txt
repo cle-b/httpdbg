@@ -11,3 +11,4 @@ requests
 httpx
 pytest-asyncio
 aiohttp
+build
