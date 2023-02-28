@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import pkg_resources
 import sys
 import time
 
+from httpdbg import VERSION
 from httpdbg.args import read_args
 from httpdbg.server import httpdbg
 from httpdbg.server import httpdbg_srv
@@ -54,7 +54,7 @@ def pyhttpdbg(params, subparams, test_mode=False):
 def pyhttpdbg_entry_point(test_mode=False):
     params, subparams = read_args(sys.argv[1:])
     if params.version:
-        print(pkg_resources.get_distribution("httpdbg").version)
+        print(VERSION)
     else:
         pyhttpdbg(params, subparams, test_mode=test_mode)
 

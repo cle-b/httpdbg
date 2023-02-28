@@ -6,10 +6,10 @@ setup:
 	pip install -r requirements-dev-ui.txt
 
 format:
-	black httpdbg tests setup.py
+	black httpdbg tests
 
 lint:
-	black --check httpdbg tests setup.py
+	black --check httpdbg tests
 	flake8 httpdbg tests
 
 test:
@@ -26,9 +26,9 @@ clean:
 
 ci:
 	python -m pip install pip --upgrade
-	pip install .
 	pip install -r requirements-dev.txt
-	pytest -v -m "not ui" tests/ --ignore=tests/ui/
+	pip install .
+	python -m pytest -v -m "not ui" tests/ --ignore=tests/ui/
 coverage:
 	coverage run -m pytest -v tests/
 
@@ -43,7 +43,7 @@ testall:
 
 ciall:
 	python -m pip install pip --upgrade
-	pip install .
 	pip install -r requirements-dev.txt
 	pip install -r requirements-dev-ui.txt
+	pip install .
 	coverage run -m pytest -v --driver Remote --capability browserName chrome tests/
