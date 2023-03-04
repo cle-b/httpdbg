@@ -22,7 +22,6 @@ def set_hook_for_httpconnection_init(records):
         if set_hook:
 
             def _hook_init(hooked_method):
-
                 def hook(*args, **kwargs):
                     callargs = getcallargs(original_method, *args, **kwargs)
 
