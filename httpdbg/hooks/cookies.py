@@ -79,7 +79,7 @@ def list_cookies_headers_request_simple_cookies(headers):
 
 def list_cookies_headers_response_simple_cookies(headers):
     lst = []
-    for key, header in headers.items():
+    for key, header in headers if isinstance(headers, list) else headers.items():
         if key.lower() == "set-cookie":
             cookies = SimpleCookie()
             cookies.load(header)

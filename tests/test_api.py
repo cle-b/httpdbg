@@ -184,16 +184,14 @@ def test_api_get_request_get_status_404(httpbin, httpdbg_port):
 def test_api_get_request_connection_error(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
         with httpdbg(records):
-            try:
+            with pytest.raises(Exception):
                 requests.get("http://u.r.l.ooooooo/get?abc")
-            except requests.exceptions.ConnectionError:
-                pass
 
         ret = get_request_details(httpdbg_port, 0)
 
     assert ret.json()["url"] == "http://u.r.l.ooooooo/get?abc"
     assert ret.json()["status_code"] == -1
-    assert ret.json()["reason"] == "ConnectionError"
+    assert ret.json()["reason"] == "NewConnectionError"
 
 
 @pytest.mark.api

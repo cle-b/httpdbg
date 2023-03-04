@@ -70,7 +70,7 @@ def set_hook_for_urllib3_urlopen(records):
                     record.response = HTTPRecordContentDown(
                         headers,
                         list_cookies_headers_response_simple_cookies(headers),
-                        getattr(response, "_body", {}),
+                        getattr(response, "_body", None),
                     )
 
                     record._reason = getattr(response, "reason", None)

@@ -15,11 +15,16 @@ def can_set_hook(hclass, hmethod, horiginal):
     Returns:
         bool, function: a tuple with two values: (True if we can set hook, the original method)
     """
+    # the original method is backuped once to be reused to inspect call arguments (important for nested hooks)
+    _httpdbg_original_method = f"_httpdbg_original_{hmethod}"
+    if not hasattr(hclass, _httpdbg_original_method):
+        setattr(hclass, _httpdbg_original_method, getattr(hclass, hmethod))
+
     if not hasattr(
         hclass,
         horiginal,
     ):
-        # retrieve the original method
+        # retrieve the original method (can be itself an hook)
         original_method = getattr(
             hclass,
             hmethod,
@@ -32,9 +37,9 @@ def can_set_hook(hclass, hmethod, horiginal):
             f"{original_method.__module__}.{original_method.__qualname__} - set hook"
         )
 
-        return True, original_method
+        return True, getattr(hclass, _httpdbg_original_method)
     else:
-        return False, original_method
+        return False, getattr(hclass, _httpdbg_original_method)
 
 
 def unset_hook(hclass, hmethod, horiginal):

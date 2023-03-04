@@ -32,7 +32,7 @@ class HTTPRecordContent:
     @staticmethod
     def list_headers(headers):
         lst = []
-        for name, value in headers.items():
+        for name, value in headers if isinstance(headers, list) else headers.items():
             lst.append({"name": name, "value": value})
         return lst
 
@@ -64,6 +64,7 @@ class HTTPRecord:
         self.request = None
         self.response = None
         self.last_update = 0
+        self.version = None
 
     @property
     def reason(self):
