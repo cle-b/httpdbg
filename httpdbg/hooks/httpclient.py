@@ -199,8 +199,8 @@ def set_hook_for_httpconnection_getresponse(records):
                         )
 
                         def _hook_read(hooked_method):
-                            def hook(self, *args, **kwargs):
-                                data = hooked_method(self, *args, **kwargs)
+                            def hook(*args, **kwargs):
+                                data = hooked_method(*args, **kwargs)
 
                                 if record.response.content is None:
                                     record.response.content = data
