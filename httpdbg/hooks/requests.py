@@ -16,7 +16,7 @@ def set_hook_for_requests(records):
         import requests
 
         set_hook, original_method = can_set_hook(
-            requests.adapters.HTTPAdapter, "send", f"_original_send_{records.id}"
+            requests.adapters.HTTPAdapter, "send", records
         )
 
         if set_hook:
@@ -73,10 +73,6 @@ def unset_hook_for_requests(records):
     try:
         import requests
 
-        unset_hook(
-            requests.adapters.HTTPAdapter,
-            "send",
-            f"_original_send_{records.id}",
-        )
+        unset_hook(requests.adapters.HTTPAdapter, "send", records)
     except ImportError:
         pass

@@ -20,9 +20,7 @@ def set_hook_for_urllib3_urlopen(records):
         import urllib3
 
         set_hook, original_method = can_set_hook(
-            urllib3.connectionpool.HTTPConnectionPool,
-            "urlopen",
-            f"_httpdbg_original_urlopen_{records.id}",
+            urllib3.connectionpool.HTTPConnectionPool, "urlopen", records
         )
 
         if set_hook:
@@ -89,11 +87,7 @@ def unset_hook_for_urllib3_urlopen(records):
     try:
         import urllib3
 
-        unset_hook(
-            urllib3.connectionpool.HTTPConnectionPool,
-            "urlopen",
-            f"_httpdbg_original_urlopen_{records.id}",
-        )
+        unset_hook(urllib3.connectionpool.HTTPConnectionPool, "urlopen", records)
     except ImportError:
         pass
 
@@ -104,9 +98,7 @@ def set_hook_for_urllib3_make_request(records):
         import urllib3
 
         set_hook, original_method = can_set_hook(
-            urllib3.connectionpool.HTTPConnectionPool,
-            "_make_request",
-            f"_httpdbg_original_make_request_{records.id}",
+            urllib3.connectionpool.HTTPConnectionPool, "_make_request", records
         )
 
         if set_hook:
@@ -149,11 +141,7 @@ def unset_hook_for_urllib3_make_request(records):
     try:
         import urllib3
 
-        unset_hook(
-            urllib3.connectionpool.HTTPConnectionPool,
-            "_make_request",
-            f"_httpdbg_original_make_request_{records.id}",
-        )
+        unset_hook(urllib3.connectionpool.HTTPConnectionPool, "_make_request", records)
     except ImportError:
         pass
 
@@ -164,9 +152,7 @@ def set_hook_for_urllib3_response_read(records):
         import urllib3
 
         set_hook, original_method = can_set_hook(
-            urllib3.response.HTTPResponse,
-            "read",
-            f"_httpdbg_original_read_{records.id}",
+            urllib3.response.HTTPResponse, "read", records
         )
 
         if set_hook:
@@ -207,11 +193,7 @@ def unset_hook_for_urllib3_response_read(records):
     try:
         import urllib3
 
-        unset_hook(
-            urllib3.response.HTTPResponse,
-            "read",
-            f"_httpdbg_original_read_{records.id}",
-        )
+        unset_hook(urllib3.response.HTTPResponse, "read", records)
     except ImportError:
         pass
 
@@ -222,9 +204,7 @@ def set_hook_for_urllib3_response_read_chunked(records):
         import urllib3
 
         set_hook, original_method = can_set_hook(
-            urllib3.response.HTTPResponse,
-            "read_chunked",
-            f"_httpdbg_original_read_chunked_{records.id}",
+            urllib3.response.HTTPResponse, "read_chunked", records
         )
 
         if set_hook:
@@ -266,11 +246,7 @@ def unset_hook_for_urllib3_response_read_chunked(records):
     try:
         import urllib3
 
-        unset_hook(
-            urllib3.response.HTTPResponse,
-            "read_chunked",
-            f"_httpdbg_original_read_chunked_{records.id}",
-        )
+        unset_hook(urllib3.response.HTTPResponse, "read_chunked", records)
     except ImportError:
         pass
 

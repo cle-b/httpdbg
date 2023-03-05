@@ -14,9 +14,7 @@ def set_hook_for_httpx_send(records):
     try:
         import httpx
 
-        set_hook, original_method = can_set_hook(
-            httpx._client.Client, "send", f"_original_send_{records.id}"
-        )
+        set_hook, original_method = can_set_hook(httpx._client.Client, "send", records)
 
         if set_hook:
 
@@ -71,11 +69,7 @@ def unset_hook_for_httpx_send(records):
     try:
         import httpx
 
-        unset_hook(
-            httpx._client.Client,
-            "send",
-            f"_original_send_{records.id}",
-        )
+        unset_hook(httpx._client.Client, "send", records)
     except ImportError:
         pass
 
@@ -86,7 +80,7 @@ def set_hook_for_httpx_send_async(records):
         import httpx
 
         set_hook, original_method = can_set_hook(
-            httpx._client.AsyncClient, "send", f"_original_send_{records.id}"
+            httpx._client.AsyncClient, "send", records
         )
 
         if set_hook:
@@ -142,11 +136,7 @@ def unset_hook_for_httpx_send_async(records):
     try:
         import httpx
 
-        unset_hook(
-            httpx._client.AsyncClient,
-            "send",
-            f"_original_send_{records.id}",
-        )
+        unset_hook(httpx._client.AsyncClient, "send", records)
     except ImportError:
         pass
 
@@ -156,7 +146,7 @@ def set_hook_for_httpx_request(records):
         import httpx
 
         set_hook, original_method = can_set_hook(
-            httpx._models.Request, "__init__", f"_original_init_{records.id}"
+            httpx._models.Request, "__init__", records
         )
 
         if set_hook:
@@ -179,11 +169,7 @@ def unset_hook_for_httpx_request(records):
     try:
         import httpx
 
-        unset_hook(
-            httpx._models.Request,
-            "__init__",
-            f"_original_init_{records.id}",
-        )
+        unset_hook(httpx._models.Request, "__init__", records)
     except ImportError:
         pass
 

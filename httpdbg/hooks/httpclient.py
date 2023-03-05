@@ -4,19 +4,21 @@ from httpdbg.hooks.cookies import list_cookies_headers_request_simple_cookies
 from httpdbg.hooks.cookies import list_cookies_headers_response_simple_cookies
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import can_set_hook
+from httpdbg.hooks.utils import get_record
 from httpdbg.hooks.utils import unset_hook
+from httpdbg.hooks.utils import set_record
+
 from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecordContentDown
 from httpdbg.records import HTTPRecordContentUp
 
 
 def set_hook_for_httpconnection_init(records):
-    """Intercepts the HTTP requests"""
     try:
         import http
 
         set_hook, original_method = can_set_hook(
-            http.client.HTTPConnection, "__init__", f"_original_init_{records.id}"
+            http.client.HTTPConnection, "__init__", records
         )
 
         if set_hook:
@@ -27,6 +29,17 @@ def set_hook_for_httpconnection_init(records):
 
                     self = callargs["self"]
 
+                    is_https = isinstance(self, http.client.HTTPSConnection)
+                    try:
+                        import urllib3
+
+                        is_https = is_https or isinstance(
+                            self, urllib3.connectionpool.HTTPSConnection
+                        )
+                    except ImportError:
+                        pass
+
+                    scheme = "https" if is_https else "http"
                     host = callargs.get("host", "").split(":")[0]
                     port = callargs.get(
                         "port",
@@ -34,9 +47,15 @@ def set_hook_for_httpconnection_init(records):
                         if callargs.get("host", "").find(":") > 0
                         else 80,
                     )
-                    self._httpdbg_netloc = (
-                        f"http://{host}{f':{port}' if port != 80 else ''}"
+                    strport = (
+                        f":{port}"
+                        if not (
+                            ((scheme.upper() == "HTTP") and port == 80)
+                            or ((scheme.upper() == "HTTPS") and port == 443)
+                        )
+                        else ""
                     )
+                    self._httpdbg_netloc = f"{scheme}://{host}{strport}"
 
                     try:
                         response = hooked_method(*args, **kwargs)
@@ -67,22 +86,17 @@ def unset_hook_for_httpconnection_init(records):
     try:
         import http
 
-        unset_hook(
-            http.client.HTTPConnection,
-            "__init__",
-            f"_original_init_{records.id}",
-        )
+        unset_hook(http.client.HTTPConnection, "__init__", records)
     except ImportError:
         pass
 
 
 def set_hook_for_httpconnection_request(records):
-    """Intercepts the HTTP requests"""
     try:
         import http
 
         set_hook, original_method = can_set_hook(
-            http.client.HTTPConnection, "request", f"_original_request_{records.id}"
+            http.client.HTTPConnection, "request", records
         )
 
         if set_hook:
@@ -100,9 +114,6 @@ def set_hook_for_httpconnection_request(records):
                         record.initiator = get_initiator(records._initiators)
                         records.requests[record.id] = record
 
-                        print("#" * 40)
-                        print(callargs.get("url"))
-
                         record.url = f"{self._httpdbg_netloc}{callargs.get('url')}"
                         record.method = callargs.get("method")
 
@@ -113,7 +124,7 @@ def set_hook_for_httpconnection_request(records):
                             callargs.get("body"),
                         )
 
-                        setattr(self, f"_httpdbg_{records.id}_record_id", record.id)
+                        set_record(records, record, self)
 
                     try:
                         response = hooked_method(*args, **kwargs)
@@ -138,11 +149,7 @@ def unset_hook_for_httpconnection_request(records):
     try:
         import http
 
-        unset_hook(
-            http.client.HTTPConnection,
-            "request",
-            f"_original_request_{records.id}",
-        )
+        unset_hook(http.client.HTTPConnection, "request", records)
     except ImportError:
         pass
 
@@ -153,9 +160,7 @@ def set_hook_for_httpconnection_getresponse(records):
         import http
 
         set_hook, original_method = can_set_hook(
-            http.client.HTTPConnection,
-            "getresponse",
-            f"_original_getresponse_{records.id}",
+            http.client.HTTPConnection, "getresponse", records
         )
 
         if set_hook:
@@ -166,11 +171,7 @@ def set_hook_for_httpconnection_getresponse(records):
 
                     self = callargs["self"]
 
-                    record = None
-
-                    record_id = getattr(self, f"_httpdbg_{records.id}_record_id", None)
-                    if record_id:
-                        record = records.requests[record_id]
+                    record = get_record(records, self)
 
                     try:
                         response = hooked_method(*args, **kwargs)
@@ -181,7 +182,8 @@ def set_hook_for_httpconnection_getresponse(records):
                         raise
 
                     if record:
-                        setattr(response, f"_httpdbg_{records.id}_record_id", record.id)
+                        set_record(records, record, response)
+
                         record._reason = getattr(response, "reason", None)
                         record.status_code = getattr(response, "status", None)
 
@@ -195,6 +197,20 @@ def set_hook_for_httpconnection_getresponse(records):
                             list_cookies_headers_response_simple_cookies(headers),
                             None,
                         )
+
+                        def _hook_read(hooked_method):
+                            def hook(self, *args, **kwargs):
+                                data = hooked_method(self, *args, **kwargs)
+
+                                if record.response.content is None:
+                                    record.response.content = data
+                                else:
+                                    record.response.content += data
+                                return data
+
+                            return hook
+
+                        response.fp.read = _hook_read(response.fp.read)
 
                     return response
 
@@ -211,71 +227,7 @@ def unset_hook_for_httpconnection_getresponse(records):
     try:
         import http
 
-        unset_hook(
-            http.client.HTTPConnection,
-            "getresponse",
-            f"_original_getresponse_{records.id}",
-        )
-    except ImportError:
-        pass
-
-
-def set_hook_for_httpresponse_read(records):
-    """Intercepts the HTTP requests"""
-    try:
-        import http
-
-        set_hook, original_method = can_set_hook(
-            http.client.HTTPResponse, "read", f"_original_read_{records.id}"
-        )
-
-        if set_hook:
-
-            def _hook_read(hooked_method):
-                def hook(*args, **kwargs):
-                    callargs = getcallargs(original_method, *args, **kwargs)
-
-                    self = callargs["self"]
-
-                    record = None
-
-                    record_id = getattr(self, f"_httpdbg_{records.id}_record_id", None)
-
-                    if record_id:
-                        record = records.requests[record_id]
-
-                    try:
-                        data = hooked_method(*args, **kwargs)
-                    except Exception as ex:
-                        if record:
-                            record.exception = ex
-                            record.status_code = -1
-                        raise
-
-                    if record:
-                        if record.response.content is None:
-                            record.response.content = data
-                        else:
-                            record.response.content += data
-
-                    return data
-
-                return hook
-
-            http.client.HTTPResponse.read = _hook_read(http.client.HTTPResponse.read)
-    except ImportError:
-        pass
-
-
-def unset_hook_for_httpresponse_read(records):
-    try:
-        import http
-
-        unset_hook(
-            http.client.HTTPResponse,
-            "read",
-            f"_original_read_{records.id}",
-        )
+        unset_hook(http.client.HTTPConnection, "getresponse", records)
     except ImportError:
         pass
 
@@ -284,16 +236,9 @@ def set_hook_for_httpclient(records):
     set_hook_for_httpconnection_init(records)
     set_hook_for_httpconnection_request(records)
     set_hook_for_httpconnection_getresponse(records)
-    set_hook_for_httpresponse_read(records)
-    # TODO HTTPConnection.send(data)
-    # TODO HTTPConnection.endheaders
-    # TODO HTTPConnection.putheader
-    # TODO HTTPConnection.putrequest
-    # TODO HTTPResponse.readinto(b)
 
 
 def unset_hook_for_httpclient(records):
     unset_hook_for_httpconnection_init(records)
     unset_hook_for_httpconnection_request(records)
     unset_hook_for_httpconnection_getresponse(records)
-    unset_hook_for_httpresponse_read(records)

@@ -6,13 +6,13 @@ from httpdbg.webapp.preview import generate_preview
 
 @pytest.mark.preview
 def test_preview_unknown_type_text():
-    body = generate_preview("apath", "afilename", "unknown/type", "a text")
+    body = generate_preview("apath", "afilename", "a text", "unknown/type")
     assert body == {"filename": "afilename", "path": "apath", "text": "a text"}
 
 
 @pytest.mark.preview
 def test_preview_unknown_type_bytes():
-    body = generate_preview("apath", "afilename", "unknown/type", b"a text")
+    body = generate_preview("apath", "afilename", b"a text", "unknown/type")
     assert body == {"filename": "afilename", "path": "apath", "text": "a text"}
 
 
@@ -26,8 +26,8 @@ def test_preview_xml(content_type):
     body = generate_preview(
         "path_to_htm",
         "filename.htm",
-        content_type,
         raw_data,
+        content_type,
     )
     parsed = '<?xml version="1.0" ?>\n<html>\n   <head>\n      <title>:-)</title>\n   </head>\n   <body>empty</body>\n</html>'
 
@@ -46,8 +46,8 @@ def test_preview_json(content_type):
     body = generate_preview(
         "path_to_json",
         "filename.json",
-        "application/json",
         raw_data,
+        "application/json",
     )
     parsed = '{\n    "a": "1",\n    "b": {\n        "c": 2\n    }\n}'
 
@@ -65,8 +65,8 @@ def test_preview_query_string():
     body = generate_preview(
         "path_to_json",
         "filename.json",
-        "application/x-www-form-urlencoded",
         raw_data,
+        "application/x-www-form-urlencoded",
     )
     parsed = "a=1\n\nb=2\n\nc={'er': 43434}"
 
@@ -84,8 +84,8 @@ def test_preview_query_string_not_urlencoded_mimetype():
     body = generate_preview(
         "path_to_json",
         "filename.json",
-        "test/plain",
         raw_data,
+        "test/plain",
     )
 
     assert body == {
@@ -97,7 +97,7 @@ def test_preview_query_string_not_urlencoded_mimetype():
 
 @pytest.mark.preview
 def test_preview_image():
-    body = generate_preview("path_to_img", "filename.png", "image/png", None)
+    body = generate_preview("path_to_img", "filename.png", None, "image/png")
 
     assert body == {
         "filename": "filename.png",
@@ -110,8 +110,8 @@ def test_preview_application_no_content_type_text():
     body = generate_preview(
         "path_to_text",
         "txt",
-        "",
         "just text",
+        "",
     )
 
     assert body == {
@@ -125,8 +125,8 @@ def test_preview_application_no_content_type_bytes():
     body = generate_preview(
         "path_to_bytes",
         "bytes",
-        "",
         "just éà bytes".encode("utf-8"),
+        "",
     )
 
     assert body == {

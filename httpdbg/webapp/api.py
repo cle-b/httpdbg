@@ -10,7 +10,7 @@ class RequestPayload(JSONEncoder):
     def default(self, req):
         assert isinstance(
             req, HTTPRecord
-        ), "This encoder works only for HTTPRecord object."
+        ), f"This encoder works only for HTTPRecord object, not {type(req)}"
 
         payload = {
             "url": req.url,
@@ -33,8 +33,9 @@ class RequestPayload(JSONEncoder):
                 payload["request"]["body"] = generate_preview(
                     f"/request/{req.id}/up",
                     "upload",
-                    req.request.get_header("Content-Type"),
                     req.request.content,
+                    req.request.get_header("Content-Type"),
+                    req.request.get_header("Content-Encoding"),
                 )
 
         if req.response is not None:
@@ -49,8 +50,9 @@ class RequestPayload(JSONEncoder):
                 payload["response"]["body"] = generate_preview(
                     f"/request/{req.id}/down",
                     "download",
-                    req.response.get_header("Content-Type"),
                     req.response.content,
+                    req.response.get_header("Content-Type"),
+                    req.response.get_header("Content-Encoding"),
                 )
 
         if req.exception is not None:

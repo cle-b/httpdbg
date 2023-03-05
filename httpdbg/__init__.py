@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from httpdbg.server import httpdbg
-from httpdbg.utils import logger
 
-VERSION = "0.5.1"
+VERSION = "0.6.0"
 
-__all__ = ["httpdbg", "logger"]
+__all__ = ["httpdbg"]

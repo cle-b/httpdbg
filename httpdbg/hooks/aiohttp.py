@@ -16,7 +16,7 @@ def set_hook_for_aiohttp_request_async(records):
         import aiohttp
 
         set_hook, original_method = can_set_hook(
-            aiohttp.client.ClientSession, "_request", f"_original_request_{records.id}"
+            aiohttp.client.ClientSession, "_request", records
         )
 
         if set_hook:
@@ -53,11 +53,7 @@ def unset_hook_for_aiohttp_request_async(records):
     try:
         import aiohttp
 
-        unset_hook(
-            aiohttp.client.ClientSession,
-            "_request",
-            f"_original_request_{records.id}",
-        )
+        unset_hook(aiohttp.client.ClientSession, "_request", records)
     except ImportError:
         pass
 
@@ -68,7 +64,7 @@ def set_hook_for_aiohttp_send_async(records):
         import aiohttp
 
         set_hook, original_method = can_set_hook(
-            aiohttp.client_reqrep.ClientRequest, "send", f"_original_send_{records.id}"
+            aiohttp.client_reqrep.ClientRequest, "send", records
         )
 
         if set_hook:
@@ -117,11 +113,7 @@ def unset_hook_for_aiohttp_send_async(records):
     try:
         import aiohttp
 
-        unset_hook(
-            aiohttp.client_reqrep.ClientRequest,
-            "send",
-            f"_original_send_{records.id}",
-        )
+        unset_hook(aiohttp.client_reqrep.ClientRequest, "send", records)
     except ImportError:
         pass
 
@@ -132,9 +124,7 @@ def set_hook_for_aiohttp_start_async(records):
         import aiohttp
 
         set_hook, original_method = can_set_hook(
-            aiohttp.client_reqrep.ClientResponse,
-            "start",
-            f"_original_start_{records.id}",
+            aiohttp.client_reqrep.ClientResponse, "start", records
         )
 
         if set_hook:
@@ -176,11 +166,7 @@ def unset_hook_for_aiohttp_start_async(records):
     try:
         import aiohttp
 
-        unset_hook(
-            aiohttp.client_reqrep.ClientResponse,
-            "start",
-            f"_original_start_{records.id}",
-        )
+        unset_hook(aiohttp.client_reqrep.ClientResponse, "start", records)
     except ImportError:
         pass
 
@@ -191,7 +177,7 @@ def set_hook_for_aiohttp_read_async(records):
         import aiohttp
 
         set_hook, original_method = can_set_hook(
-            aiohttp.client_reqrep.ClientResponse, "read", f"_original_read_{records.id}"
+            aiohttp.client_reqrep.ClientResponse, "read", records
         )
 
         if set_hook:
@@ -227,11 +213,7 @@ def unset_hook_for_aiohttp_read_async(records):
     try:
         import aiohttp
 
-        unset_hook(
-            aiohttp.client_reqrep.ClientResponse,
-            "read",
-            f"_original_read_{records.id}",
-        )
+        unset_hook(aiohttp.client_reqrep.ClientResponse, "read", records)
     except ImportError:
         pass
 
