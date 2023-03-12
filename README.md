@@ -51,13 +51,12 @@ pyhttpdbg --pytest [arg1 --arg2 ...]
 
 ## Supported libraries
 
-
-| library    | status        | known limitations                           |
-|------------|---------------|---------------------------------------------|
-| requests   | supported     | content not recorded if stream mode enabled |
-| httpx      | experimental  | request not recorded if stream mode enabled<br>redirection history not traced |
-| aiohttp    | experimental  | -                                           |
-| urllib3    | experimental  | -                                           |
+| library    | status        | known limitations                                   |
+|------------|---------------|-----------------------------------------------------|
+| requests   | supported     | -                                                   |
+| urllib3    | supported     | -                                                   |
+| httpx      | supported     | async requests broken on Windows if Python >= 3.8   |
+| aiohttp    | supported     | broken on Windows if Python >= 3.8                  |
 
 ## configuration
 
