@@ -65,5 +65,6 @@ def hook_httpx(records):
     yield
 
     if hooks:
-        httpx._client.AsyncClient.send = undecorate(httpx._client.AsyncClient.send)
         httpx._client.Client.send = undecorate(httpx._client.Client.send)
+        httpx._client.AsyncClient.send = undecorate(httpx._client.AsyncClient.send)
+
