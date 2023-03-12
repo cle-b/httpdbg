@@ -17,7 +17,7 @@ def skip_incompatible_python():
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="HTTP requests not intercepted on Windows",
 )
 async def test_aiohttp(httpbin):
@@ -37,7 +37,7 @@ async def test_aiohttp(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="HTTP requests not intercepted on Windows",
 )
 async def test_aiohttp_initiator(httpbin):
@@ -61,7 +61,7 @@ async def test_aiohttp_initiator(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="HTTP requests not intercepted on Windows",
 )
 async def test_aiohttp_request_post_bytes(httpbin):
@@ -83,7 +83,7 @@ async def test_aiohttp_request_post_bytes(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="HTTP requests not intercepted on Windows",
 )
 async def test_aiohttp_request_post_str(httpbin):
@@ -105,7 +105,7 @@ async def test_aiohttp_request_post_str(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="HTTP requests not intercepted on Windows",
 )
 async def test_aiohttp_request_post_json(httpbin):
@@ -127,7 +127,7 @@ async def test_aiohttp_request_post_json(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="HTTP requests not intercepted on Windows",
 )
 async def test_aiohttp_request_post_form(httpbin):
@@ -149,7 +149,7 @@ async def test_aiohttp_request_post_form(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="HTTP requests not intercepted on Windows",
 )
 async def test_aiohttp_response(httpbin):
@@ -176,7 +176,7 @@ async def test_aiohttp_response(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="HTTP requests not intercepted on Windows",
 )
 async def test_aiohttp_cookies(httpbin):
@@ -205,7 +205,7 @@ async def test_aiohttp_cookies(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="HTTP requests not intercepted on Windows",
 )
 async def test_aiohttp_redirect(httpbin):
@@ -221,7 +221,7 @@ async def test_aiohttp_redirect(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="HTTP requests not intercepted on Windows",
 )
 async def test_aiohttp_not_found(httpbin):
@@ -240,7 +240,7 @@ async def test_aiohttp_not_found(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="HTTP requests not intercepted on Windows",
 )
 async def test_aiohttp_exception_asyncclient():

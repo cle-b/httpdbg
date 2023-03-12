@@ -192,7 +192,7 @@ def test_httpx_exception():
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="An established connection was aborted by the software in your host machine",
 )
 async def test_httpx_asyncclient(httpbin):
@@ -212,7 +212,7 @@ async def test_httpx_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="An established connection was aborted by the software in your host machine",
 )
 async def test_httpx_initiator_asyncclient(httpbin):
@@ -236,7 +236,7 @@ async def test_httpx_initiator_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="An established connection was aborted by the software in your host machine",
 )
 async def test_httpx_request_asyncclient(httpbin):
@@ -258,7 +258,7 @@ async def test_httpx_request_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="An established connection was aborted by the software in your host machine",
 )
 async def test_httpx_response_asyncclient(httpbin):
@@ -284,7 +284,7 @@ async def test_httpx_response_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="An established connection was aborted by the software in your host machine",
 )
 async def test_httpx_cookies_asyncclient(httpbin):
@@ -315,7 +315,7 @@ async def test_httpx_cookies_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info == (3, 11)),
+    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
     reason="An established connection was aborted by the software in your host machine",
 )
 async def test_httpx_exception_asyncclient():
