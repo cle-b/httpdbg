@@ -33,25 +33,24 @@ class RequestPayload(JSONEncoder):
                 payload["request"]["body"] = generate_preview(
                     f"/request/{req.id}/up",
                     "upload",
-                    req.request.get_header("Content-Type"),
                     req.request.content,
+                    req.request.get_header("Content-Type"),
+                    req.request.get_header("Content-Encoding"),
                 )
 
         if req.response is not None:
             payload["response"] = {
                 "headers": req.response.headers,
                 "cookies": req.response.cookies,
-                "stream": req.stream,
             }
 
-            if not req.stream:
-                # TODO: we can't retrieve the content of the response if the stream mode has been used
-                payload["response"]["body"] = generate_preview(
-                    f"/request/{req.id}/down",
-                    "download",
-                    req.response.get_header("Content-Type"),
-                    req.response.content,
-                )
+            payload["response"]["body"] = generate_preview(
+                f"/request/{req.id}/down",
+                "download",
+                req.response.content,
+                req.response.get_header("Content-Type"),
+                req.response.get_header("Content-Encoding"),
+            )
 
         if req.exception is not None:
             payload["exception"] = {

@@ -3,7 +3,7 @@ import requests
 
 import pytest
 
-from httpdbg.server import httpdbg
+from httpdbg.hooks.all import httpdbg
 from httpdbg.server import httpdbg_srv
 
 from utils import get_request_content_up
@@ -182,16 +182,16 @@ def test_api_get_request_get_status_404(httpbin, httpdbg_port):
 
 @pytest.mark.api
 def test_api_get_request_connection_error(httpbin, httpdbg_port):
+    url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
+
     with httpdbg_srv(httpdbg_port) as records:
         with httpdbg(records):
-            try:
-                requests.get("http://u.r.l.ooooooo/get?abc")
-            except requests.exceptions.ConnectionError:
-                pass
+            with pytest.raises(requests.exceptions.ConnectionError):
+                requests.get(url_with_unknown_host)
 
         ret = get_request_details(httpdbg_port, 0)
 
-    assert ret.json()["url"] == "http://u.r.l.ooooooo/get?abc"
+    assert ret.json()["url"] == url_with_unknown_host
     assert ret.json()["status_code"] == -1
     assert ret.json()["reason"] == "ConnectionError"
 

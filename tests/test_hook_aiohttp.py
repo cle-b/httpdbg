@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import sys
-from unittest.mock import patch
 
 import aiohttp
 import pytest
 
-from httpdbg.server import httpdbg
+from httpdbg.hooks.all import httpdbg
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -28,7 +27,6 @@ async def test_aiohttp(httpbin):
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
-    assert http_record.stream is False
 
 
 @pytest.mark.aiohttp
@@ -201,27 +199,17 @@ async def test_aiohttp_not_found(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 async def test_aiohttp_exception_asyncclient():
+    url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
+
     with httpdbg() as records:
         with pytest.raises(aiohttp.client_exceptions.ClientConnectorError):
             async with aiohttp.ClientSession() as session:
-                await session.get("http://f.q.d.1234.n.t.n.e/")
+                await session.get(url_with_unknown_host)
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
-    assert http_record.method.upper() == "GET"
+    assert http_record.url == url_with_unknown_host
     assert isinstance(
         http_record.exception, aiohttp.client_exceptions.ClientConnectorError
     )
-
-
-@pytest.mark.aiohttp
-@pytest.mark.asyncio
-async def test_aiohttp_importerror(httpbin):
-    with patch.dict(sys.modules, {"aiohttp": None}):
-        with httpdbg() as records:
-            async with aiohttp.ClientSession() as session:
-                await session.get(f"{httpbin.url}/get")
-
-    assert len(records) == 0

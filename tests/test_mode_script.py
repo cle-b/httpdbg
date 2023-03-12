@@ -6,7 +6,7 @@ import requests
 
 from httpdbg.mode_script import run_script
 from httpdbg.__main__ import pyhttpdbg_entry_point
-from httpdbg.server import httpdbg
+from httpdbg.hooks.all import httpdbg
 from httpdbg.server import httpdbg_srv
 
 

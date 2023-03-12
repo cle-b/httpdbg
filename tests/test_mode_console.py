@@ -4,7 +4,7 @@ import requests
 
 from httpdbg.mode_console import run_console, console_exit
 from httpdbg.__main__ import pyhttpdbg_entry_point
-from httpdbg.server import httpdbg
+from httpdbg.hooks.all import httpdbg
 from httpdbg.server import httpdbg_srv
 
 

@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys
-from unittest.mock import patch
-
 import pytest
 import urllib3
 
-from httpdbg.server import httpdbg
+from httpdbg.hooks.all import httpdbg
 
 
 @pytest.mark.urllib3
@@ -21,7 +18,6 @@ def test_urllib3(httpbin):
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
-    assert http_record.stream is False
 
 
 @pytest.mark.urllib3
@@ -59,7 +55,7 @@ def test_urllib3_request(httpbin):
 
     assert {"name": "Content-Length", "value": "3"} in http_record.request.headers
     assert http_record.request.cookies == []
-    assert http_record.request.content == "abc"
+    assert http_record.request.content == b"abc"
 
 
 @pytest.mark.urllib3
@@ -142,23 +138,15 @@ def test_urllib3_not_found(httpbin):
 
 @pytest.mark.urllib3
 def test_urllib3_exception():
+    url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
+
     with httpdbg() as records:
         with pytest.raises(urllib3.exceptions.MaxRetryError):
             http = urllib3.PoolManager()
-            http.request("GET", "http://f.q.d.1234.n.t.n.e/")
+            http.request("GET", url_with_unknown_host)
 
-    http_record = records[-1]
+    assert len(records) == 1
+    http_record = records[0]
 
-    assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
-    assert http_record.method.upper() == "GET"
+    assert http_record.url == url_with_unknown_host
     assert isinstance(http_record.exception, urllib3.exceptions.MaxRetryError)
-
-
-@pytest.mark.urllib3
-def test_urllib3_importerror(httpbin):
-    with patch.dict(sys.modules, {"urllib3": None}):
-        with httpdbg() as records:
-            http = urllib3.PoolManager()
-            http.request("GET", f"{httpbin.url}/get")
-
-    assert len(records) == 0

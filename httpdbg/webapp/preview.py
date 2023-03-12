@@ -15,11 +15,28 @@ def parse_content_type(content_type):
     return media_type, directives
 
 
-def generate_preview(path, filename, content_type, raw_data):
+def generate_preview(path, filename, raw_data, content_type, content_encoding):
     body = {
         "path": path,
         "filename": filename,
     }
+
+    if content_encoding.lower() == "br":
+        try:
+            import brotli
+
+            raw_data = brotli.decompress(raw_data)
+        except Exception:
+            # if there is no brotli library available to decompress the data we keep the compressed data
+            pass
+    elif content_encoding.lower() == "gzip":
+        try:
+            import zlib
+
+            raw_data = zlib.decompressobj(16 + zlib.MAX_WBITS).decompress(raw_data)
+        except Exception:
+            pass
+        # TODO deflate
 
     if "image/" in content_type.lower():
         body["image"] = True
