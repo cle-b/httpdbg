@@ -165,7 +165,7 @@ def set_hook_for_socket_sendall(records, method):
                     socketdata.record.request.rawdata = socketdata.rawdata
                     records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records.sockets[self(id)] = None
+                    records.sockets[id(self)] = None
 
         try:
             return method(self, bytes, *args, **kwargs)
@@ -202,7 +202,7 @@ def set_hook_for_socket_send(records, method):
                     socketdata.record.request.rawdata = socketdata.rawdata
                     records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records.sockets[self(id)] = None
+                    records.sockets[id(self)] = None
         return size
 
     return hook
@@ -247,7 +247,7 @@ def set_hook_for_sslobject_write(records, method):
                     socketdata.record.request.rawdata = socketdata.rawdata
                     records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records.sockets[self(id)] = None
+                    records.sockets[id(self)] = None
         return size
 
     return hook
