@@ -51,12 +51,12 @@ pyhttpdbg --pytest [arg1 --arg2 ...]
 
 ## Supported libraries
 
-| library    | status        | known limitations                                   |
-|------------|---------------|-----------------------------------------------------|
-| requests   | supported     | -                                                   |
-| urllib3    | supported     | -                                                   |
-| httpx      | supported     | async requests broken on Windows if Python >= 3.8   |
-| aiohttp    | supported     | broken on Windows if Python >= 3.8                  |
+| library    | status      | known limitations                                                 |
+|------------|-------------|-------------------------------------------------------------------|
+| requests   | supported   | -                                                                 |
+| urllib3    | supported   | -                                                                 |
+| httpx      | supported   | Async HTTP requests not intercepted on Windows if Python >= 3.8   |
+| aiohttp    | supported   | Async HTTP requests not intercepted on Windows if Python >= 3.8   |
 
 ## configuration
 

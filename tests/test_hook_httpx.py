@@ -192,8 +192,8 @@ def test_httpx_exception():
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
-    reason="An established connection was aborted by the software in your host machine",
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
 )
 async def test_httpx_asyncclient(httpbin):
     with httpdbg() as records:
@@ -212,8 +212,8 @@ async def test_httpx_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
-    reason="An established connection was aborted by the software in your host machine",
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
 )
 async def test_httpx_initiator_asyncclient(httpbin):
     with httpdbg() as records:
@@ -236,8 +236,8 @@ async def test_httpx_initiator_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
-    reason="An established connection was aborted by the software in your host machine",
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
 )
 async def test_httpx_request_asyncclient(httpbin):
     with httpdbg() as records:
@@ -258,8 +258,8 @@ async def test_httpx_request_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
-    reason="An established connection was aborted by the software in your host machine",
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
 )
 async def test_httpx_response_asyncclient(httpbin):
     with httpdbg() as records:
@@ -284,8 +284,8 @@ async def test_httpx_response_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
-    reason="An established connection was aborted by the software in your host machine",
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
 )
 async def test_httpx_cookies_asyncclient(httpbin):
     with httpdbg() as records:
@@ -315,8 +315,8 @@ async def test_httpx_cookies_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info > (3, 8)),
-    reason="An established connection was aborted by the software in your host machine",
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
 )
 async def test_httpx_exception_asyncclient():
     url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
