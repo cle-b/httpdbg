@@ -15,16 +15,12 @@ logger = logging.getLogger("httpdbg")
 
 def chunked_to_bytes(chunked):
     data = bytes()
-
-    end = chunked.find(b"\r\n0\r\n\r\n")
-    if end > -1:
-        b1 = 0
-        while b1 < end:
-            sep = chunked[b1:].find(b"\r\n")
-            size = int(chunked[b1 : b1 + sep], 16)
-            data += chunked[b1 + sep + 2 : b1 + sep + 2 + size]
-            b1 = b1 + sep + 2 + size + 2
-
+    b1 = 0
+    while b1 < len(chunked):
+        sep = chunked[b1:].find(b"\r\n")
+        size = int(chunked[b1 : b1 + sep], 16)
+        data += chunked[b1 + sep + 2 : b1 + sep + 2 + size]
+        b1 = b1 + sep + 2 + size + 2
     return data
 
 
