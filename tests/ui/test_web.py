@@ -4,7 +4,7 @@ import random
 import pytest
 import requests
 
-from httpdbg.server import httpdbg
+from httpdbg.hooks.all import httpdbg
 from httpdbg.server import httpdbg_srv
 from web.ui import HttpdbgWebUI
 

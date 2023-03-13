@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from http.cookies import SimpleCookie
 import logging
 import secrets
 import string
@@ -10,3 +11,66 @@ def get_new_uuid():
 
 
 logger = logging.getLogger("httpdbg")
+
+
+def chunked_to_bytes(chunked):
+    data = bytes()
+    b1 = 0
+    while b1 < len(chunked):
+        sep = chunked[b1:].find(b"\r\n")
+        size = int(chunked[b1 : b1 + sep], 16)
+        data += chunked[b1 + sep + 2 : b1 + sep + 2 + size]
+        b1 = b1 + sep + 2 + size + 2
+    return data
+
+
+def list_cookies_headers_request_simple_cookies(headers):
+    lst = []
+    for header in headers:
+        if header["name"].lower() == "cookie":
+            cookies = SimpleCookie()
+            cookies.load(header["value"])
+            for name, cookie in cookies.items():
+                madeleine = {"name": name, "value": cookie.value}
+                lst.append(madeleine)
+    return lst
+
+
+def list_cookies_headers_response_simple_cookies(headers):
+    lst = []
+    for header in headers:
+        if header["name"].lower() == "set-cookie":
+            cookies = SimpleCookie()
+            cookies.load(header["value"])
+            for name, cookie in cookies.items():
+                madeleine = {"name": name, "value": cookie.value}
+                attributes = []
+                # https://docs.python.org/3/library/http.cookies.html
+                if cookie.get("expires"):
+                    attributes.append(
+                        {"name": "expires", "attr": cookie.get("expires")}
+                    )
+                if cookie.get("path"):
+                    attributes.append({"name": "path", "attr": cookie.get("path")})
+                if cookie.get("comment"):
+                    attributes.append(
+                        {"name": "comment", "attr": cookie.get("comment")}
+                    )
+                if cookie.get("domain"):
+                    attributes.append({"name": "domain", "attr": cookie.get("domain")})
+                if cookie.get("max-age"):
+                    attributes.append(
+                        {"name": "max-age", "attr": cookie.get("max-age")}
+                    )
+                if cookie.get("samesite"):
+                    attributes.append(
+                        {"name": "SameSite", "attr": cookie.get("samesite")}
+                    )
+                if cookie.get("secure"):
+                    attributes.append({"name": "Secure"})
+                if cookie.get("httponly"):
+                    attributes.append({"name": "HttpOnly"})
+                if attributes:
+                    madeleine["attributes"] = attributes
+                lst.append(madeleine)
+    return lst

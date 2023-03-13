@@ -4,7 +4,7 @@ import time
 
 from httpdbg import VERSION
 from httpdbg.args import read_args
-from httpdbg.server import httpdbg
+from httpdbg.hooks.all import httpdbg
 from httpdbg.server import httpdbg_srv
 from httpdbg.mode_console import run_console
 from httpdbg.mode_pytest import run_pytest

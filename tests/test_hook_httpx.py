@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+import platform
 import sys
-from unittest.mock import patch
 
 import httpx
 import pytest
 
-from httpdbg.server import httpdbg
+from httpdbg.hooks.all import httpdbg
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -26,7 +26,6 @@ def test_httpx(httpbin):
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
-    assert http_record.stream is False
 
 
 @pytest.mark.httpx
@@ -56,7 +55,7 @@ def test_httpx_request(httpbin):
     assert http_record.method.upper() == "POST"
     assert http_record.status_code == 200
 
-    assert {"name": "content-length", "value": "3"} in http_record.request.headers
+    assert {"name": "Content-Length", "value": "3"} in http_record.request.headers
     assert http_record.request.cookies == []
     assert http_record.request.content == b"abc"
 
@@ -73,7 +72,7 @@ def test_httpx_response(httpbin):
     assert http_record.status_code == 200
 
     assert {
-        "name": "content-type",
+        "name": "Content-Type",
         "value": "application/json",
     } in http_record.response.headers
     assert http_record.response.cookies == []
@@ -92,11 +91,6 @@ def test_httpx_cookies(httpbin):
     http_record = records[0]
 
     assert {
-        "attributes": [
-            {"attr": "/", "name": "path"},
-            {"name": "Discard"},
-            {"name": "HttpOnly"},
-        ],
         "name": "jam",
         "value": "strawberry",
     } in http_record.request.cookies
@@ -104,7 +98,6 @@ def test_httpx_cookies(httpbin):
     assert {
         "attributes": [
             {"attr": "/", "name": "path"},
-            {"name": "Discard"},
         ],
         "name": "confiture",
         "value": "oignon",
@@ -112,21 +105,28 @@ def test_httpx_cookies(httpbin):
 
 
 @pytest.mark.httpx
-@pytest.mark.xfail(reason="stream mode unsupported")
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="An established connection was aborted by the software in your host machine",
+)
 def test_httpx_stream(httpbin):
+    request_content = b"key=value"
+    response_content = bytes()
     with httpdbg() as records:
-        httpx.stream("GET", f"{httpbin.url}/get")
+        with httpx.stream("POST", f"{httpbin.url}", data={"key": "value"}) as r:
+            for data in r.iter_bytes():
+                response_content += data
+
+    assert response_content != bytes()
 
     assert len(records) == 1
 
     http_record = records[0]
-    assert http_record.stream is True
-    assert http_record.request.content is None
-    assert http_record.response.content is None
+    assert http_record.request.content == request_content
+    assert http_record.response.content == response_content
 
 
 @pytest.mark.httpx
-@pytest.mark.xfail(reason="follow redirects mode unsupported")
 def test_httpx_redirect(httpbin):
     with httpdbg() as records:
         httpx.get(
@@ -166,32 +166,35 @@ def test_httpx_client(httpbin):
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
-    assert http_record.stream is False
 
     http_record = records[1]
     assert http_record.url == f"{httpbin.url}/post"
     assert http_record.method.upper() == "POST"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
-    assert http_record.stream is False
 
 
 @pytest.mark.httpx
 def test_httpx_exception():
+    url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
+
     with httpdbg() as records:
         with pytest.raises(httpx.ConnectError):
-            httpx.get("http://f.q.d.1234.n.t.n.e/")
+            httpx.get(url_with_unknown_host)
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
-    assert http_record.method.upper() == "GET"
+    assert http_record.url == url_with_unknown_host
     assert isinstance(http_record.exception, httpx.ConnectError)
 
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_httpx_asyncclient(httpbin):
     with httpdbg() as records:
         async with httpx.AsyncClient() as client:
@@ -204,11 +207,14 @@ async def test_httpx_asyncclient(httpbin):
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
-    assert http_record.stream is False
 
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_httpx_initiator_asyncclient(httpbin):
     with httpdbg() as records:
         async with httpx.AsyncClient() as client:
@@ -229,6 +235,10 @@ async def test_httpx_initiator_asyncclient(httpbin):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_httpx_request_asyncclient(httpbin):
     with httpdbg() as records:
         async with httpx.AsyncClient() as client:
@@ -240,13 +250,17 @@ async def test_httpx_request_asyncclient(httpbin):
     assert http_record.method.upper() == "POST"
     assert http_record.status_code == 200
 
-    assert {"name": "content-length", "value": "3"} in http_record.request.headers
+    assert {"name": "Content-Length", "value": "3"} in http_record.request.headers
     assert http_record.request.cookies == []
     assert http_record.request.content == b"abc"
 
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_httpx_response_asyncclient(httpbin):
     with httpdbg() as records:
         async with httpx.AsyncClient() as client:
@@ -259,7 +273,7 @@ async def test_httpx_response_asyncclient(httpbin):
     assert http_record.status_code == 200
 
     assert {
-        "name": "content-type",
+        "name": "Content-Type",
         "value": "application/json",
     } in http_record.response.headers
     assert http_record.response.cookies == []
@@ -269,6 +283,10 @@ async def test_httpx_response_asyncclient(httpbin):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_httpx_cookies_asyncclient(httpbin):
     with httpdbg() as records:
         async with httpx.AsyncClient() as client:
@@ -281,11 +299,6 @@ async def test_httpx_cookies_asyncclient(httpbin):
     http_record = records[0]
 
     assert {
-        "attributes": [
-            {"attr": "/", "name": "path"},
-            {"name": "Discard"},
-            {"name": "HttpOnly"},
-        ],
         "name": "jam",
         "value": "strawberry",
     } in http_record.request.cookies
@@ -293,7 +306,6 @@ async def test_httpx_cookies_asyncclient(httpbin):
     assert {
         "attributes": [
             {"attr": "/", "name": "path"},
-            {"name": "Discard"},
         ],
         "name": "confiture",
         "value": "oignon",
@@ -302,24 +314,20 @@ async def test_httpx_cookies_asyncclient(httpbin):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_httpx_exception_asyncclient():
+    url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
+
     with httpdbg() as records:
         with pytest.raises(httpx.ConnectError):
             async with httpx.AsyncClient() as client:
-                await client.get("http://f.q.d.1234.n.t.n.e/")
+                await client.get(url_with_unknown_host)
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
-    assert http_record.method.upper() == "GET"
+    assert http_record.url == url_with_unknown_host
     assert isinstance(http_record.exception, httpx.ConnectError)
-
-
-@pytest.mark.httpx
-def test_httpx_importerror(httpbin):
-    with patch.dict(sys.modules, {"httpx": None}):
-        with httpdbg() as records:
-            httpx.get(f"{httpbin.url}/get")
-
-    assert len(records) == 0

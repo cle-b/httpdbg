@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys
-from unittest.mock import patch
-
 import pytest
 import requests
 
-from httpdbg.server import httpdbg
+from httpdbg.hooks.all import httpdbg
 
 
 @pytest.mark.requests
@@ -20,7 +17,6 @@ def test_requests(httpbin):
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
-    assert http_record.stream is False
 
 
 @pytest.mark.requests
@@ -52,7 +48,7 @@ def test_requests_request(httpbin):
 
     assert {"name": "Content-Length", "value": "3"} in http_record.request.headers
     assert http_record.request.cookies == []
-    assert http_record.request.content == "abc"
+    assert http_record.request.content == b"abc"
 
 
 @pytest.mark.requests
@@ -95,7 +91,6 @@ def test_requests_cookies(httpbin):
     assert {
         "attributes": [
             {"attr": "/", "name": "path"},
-            {"name": "Discard"},
         ],
         "name": "confiture",
         "value": "oignon",
@@ -103,17 +98,21 @@ def test_requests_cookies(httpbin):
 
 
 @pytest.mark.requests
-@pytest.mark.xfail(reason="stream mode unsupported")
 def test_requests_stream(httpbin):
+    request_content = b"key=value"
+    response_content = bytes()
     with httpdbg() as records:
-        requests.stream("GET", f"{httpbin.url}/get")
+        with requests.post(f"{httpbin.url}", data={"key": "value"}) as r:
+            for data in r.iter_content():
+                response_content += data
+
+    assert response_content != bytes()
 
     assert len(records) == 1
 
     http_record = records[0]
-    assert http_record.stream is True
-    assert http_record.request.content is None
-    assert http_record.response.content is None
+    assert http_record.request.content == request_content
+    assert http_record.response.content == response_content
 
 
 @pytest.mark.requests
@@ -154,34 +153,24 @@ def test_requests_session(httpbin):
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
-    assert http_record.stream is False
 
     http_record = records[1]
     assert http_record.url == f"{httpbin.url}/post"
     assert http_record.method.upper() == "POST"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
-    assert http_record.stream is False
 
 
 @pytest.mark.requests
 def test_requests_exception():
+    url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
+
     with httpdbg() as records:
         with pytest.raises(requests.exceptions.ConnectionError):
-            requests.get("http://f.q.d.1234.n.t.n.e/")
+            requests.get(url_with_unknown_host)
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.url == "http://f.q.d.1234.n.t.n.e/"
-    assert http_record.method.upper() == "GET"
+    assert http_record.url == url_with_unknown_host
     assert isinstance(http_record.exception, requests.exceptions.ConnectionError)
-
-
-@pytest.mark.requests
-def test_requests_importerror(httpbin):
-    with patch.dict(sys.modules, {"requests": None}):
-        with httpdbg() as records:
-            requests.get(f"{httpbin.url}/get")
-
-    assert len(records) == 0

@@ -40,9 +40,17 @@ def test_context_manager_two_calls(httpbin):
 def test_context_manager_reentrant(httpbin):
     requests.get(httpbin.url + "/get")
 
-    with httpdbg() as records:
+    with httpdbg() as records1:
+        requests.get(httpbin.url + "/get/a1")
         with httpdbg() as records2:
-            requests.get(httpbin.url + "/get")
+            requests.get(httpbin.url + "/get/b1")
+            requests.get(httpbin.url + "/get/b2")
+            with httpdbg() as records3:
+                requests.get(httpbin.url + "/get/c1")
+        requests.get(httpbin.url + "/get/a2")
 
-    assert len(records.requests) == 1
-    assert len(records2.requests) == 1
+    requests.get(httpbin.url + "/get")
+
+    assert len(records1.requests) == 5
+    assert len(records2.requests) == 3
+    assert len(records3.requests) == 1
