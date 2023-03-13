@@ -3,6 +3,14 @@ import argparse
 
 
 def read_args(args):
+    httpdbg_args = args
+    client_args = []
+    for action in ["--console", "--module", "-m", "--script"]:
+        if action in args:
+            httpdbg_args = args[: args.index(action) + 2]
+            client_args = args[args.index(action) + 1 :]
+            break
+
     parser = argparse.ArgumentParser(
         description="httdbg - a very simple tool to debug HTTP(S) client requests"
     )
@@ -32,26 +40,21 @@ def read_args(args):
 
     actions = parser.add_mutually_exclusive_group()
 
-    actions.add_argument("--console", action="store_true", help="run a python console")
+    actions.add_argument(
+        "--console", action="store_true", help="run a python console (default)"
+    )
 
     actions.add_argument(
-        "--pytest",
-        action="store_true",
-        help="run pytest (the next args are passed to pytest as is)",
+        "--module",
+        "-m",
+        type=str,
+        help="run library module as a script (the next args are passed to pytest as is)",
     )
 
     actions.add_argument(
         "--script",
-        action="store_true",
-        help="run the script that follows this arg (the next args are passed to the script as is)",
+        type=str,
+        help="run a script (the next args are passed to the script as is)",
     )
-
-    httpdbg_args = args
-    client_args = []
-    for action in ["--console", "--pytest", "--script"]:
-        if action in args:
-            httpdbg_args = args[: args.index(action) + 1]
-            client_args = args[args.index(action) + 1 :]
-            break
 
     return parser.parse_args(httpdbg_args), client_args
