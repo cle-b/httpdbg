@@ -83,17 +83,17 @@ httdbg - a very simple tool to debug HTTP(S) client requests
 
 options:
   -h, --help            show this help message and exit
-  --port PORT, -p PORT  the web interface port
   --version, -v         print the httpdbg version
+
+  --port PORT, -p PORT  the web interface port
+  
   --keep-up, -k         keep the server up even if the requests have been read
-  --force-quit, -q      stop the server even if the requests have not been
-                        read
+  --force-quit, -q      stop the server even if the requests have not been read
+
   --console             run a python console (default)
   --module MODULE, -m MODULE
-                        run library module as a script (the next args are
-                        passed to pytest as is)
-  --script SCRIPT       run a script (the next args are passed to the script
-                        as is)
+                        run library module as a script (the next args are passed to pytest as is)
+  --script SCRIPT       run a script (the next args are passed to the script as is)
 ```
 
 ### web interace 
