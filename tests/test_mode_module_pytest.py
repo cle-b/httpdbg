@@ -11,7 +11,7 @@ from httpdbg.server import httpdbg_srv
 
 
 @pytest.mark.pytest
-def test_run_module_from_pyhttpdbg_entry_point(httpbin, httpdbg_port, monkeypatch):
+def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, httpdbg_port, monkeypatch):
     os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
     script_to_run = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
@@ -29,7 +29,7 @@ def test_run_module_from_pyhttpdbg_entry_point(httpbin, httpdbg_port, monkeypatc
 
 
 @pytest.mark.pytest
-def test_run_module(httpbin, httpdbg_port):
+def test_run_pytest(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
         with httpdbg(records):
             os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
@@ -49,7 +49,7 @@ def test_run_module(httpbin, httpdbg_port):
 
 
 @pytest.mark.pytest
-def test_run_module_with_exception(httpdbg_port, capsys):
+def test_run_pytest_with_exception(httpdbg_port, capsys):
     with httpdbg_srv(httpdbg_port) as records:
         with httpdbg(records):
             script_to_run = os.path.join(
@@ -68,7 +68,7 @@ def test_run_module_with_exception(httpdbg_port, capsys):
 
 @pytest.mark.api
 @pytest.mark.pytest
-def test_run_module_initiator(httpbin, httpdbg_port):
+def test_run_pytest_initiator(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
         with httpdbg(records):
             os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
