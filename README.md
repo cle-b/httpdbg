@@ -44,10 +44,21 @@ pyhttpdbg --script filename.py [arg1 --arg2 ...]
 You can trace all the HTTP requests performed during your tests
 
 ```sh
-pyhttpdbg --pytest [arg1 --arg2 ...]
+pyhttpdbg -m pytest [arg1 --arg2 ...]
 ```
 
 *note: the HTTP(S) requests are not recorded if the tests are executed in parallel using plugin like `xdist`*.
+
+### module
+
+You can trace all the HTTP requests performed by a library module run as a script using the `-m` command line argument.
+
+For example, you can view which HTTP requests are performed by `pip` when you install a package.
+
+```sh
+pyhttpdbg -m pip install httpdbg --upgrade
+```
+
 
 ## Supported libraries
 
@@ -66,24 +77,23 @@ No configuration is necessary to start but some few settings are available for p
 
 ```
 usage: pyhttpdbg [-h] [--port PORT] [--version] [--keep-up | --force-quit]
-                 [--console | --pytest | --script]
+                 [--console | --module MODULE | --script SCRIPT]
 
 httdbg - a very simple tool to debug HTTP(S) client requests
 
 options:
   -h, --help            show this help message and exit
-  
-  --port PORT, -p PORT  the web interface port
-  
   --version, -v         print the httpdbg version
 
+  --port PORT, -p PORT  the web interface port
+  
   --keep-up, -k         keep the server up even if the requests have been read
   --force-quit, -q      stop the server even if the requests have not been read
 
-  --console             run a python console
-  --pytest              run pytest (the next args are passed to pytest as is)
-  --script              run the script that follows this arg (the next args are passed to the script as is)
-                        
+  --console             run a python console (default)
+  --module MODULE, -m MODULE
+                        run library module as a script (the next args are passed to pytest as is)
+  --script SCRIPT       run a script (the next args are passed to the script as is)
 ```
 
 ### web interace 

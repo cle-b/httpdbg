@@ -7,7 +7,7 @@ from httpdbg.args import read_args
 from httpdbg.hooks.all import httpdbg
 from httpdbg.server import httpdbg_srv
 from httpdbg.mode_console import run_console
-from httpdbg.mode_pytest import run_pytest
+from httpdbg.mode_module import run_module
 from httpdbg.mode_script import run_script
 
 
@@ -26,8 +26,8 @@ def pyhttpdbg(params, subparams, test_mode=False):
 
     with httpdbg_srv(params.port) as records:
         with httpdbg(records):
-            if params.pytest:
-                run_pytest(subparams)
+            if params.module:
+                run_module(subparams)
             elif params.script:
                 run_script(subparams)
             else:

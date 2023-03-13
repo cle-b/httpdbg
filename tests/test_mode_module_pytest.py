@@ -4,7 +4,7 @@ import os
 import pytest
 import requests
 
-from httpdbg.mode_pytest import run_pytest
+from httpdbg.mode_module import run_module
 from httpdbg.__main__ import pyhttpdbg_entry_point
 from httpdbg.hooks.all import httpdbg
 from httpdbg.server import httpdbg_srv
@@ -18,7 +18,8 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, httpdbg_port, monkeypatc
     )
 
     monkeypatch.setattr(
-        "sys.argv", ["pyhttpdbg", "--pytest", f"{script_to_run}::test_demo_pytest"]
+        "sys.argv",
+        ["pyhttpdbg", "--module", "pytest", f"{script_to_run}::test_demo_pytest"],
     )
 
     pyhttpdbg_entry_point(test_mode=True)
@@ -35,7 +36,7 @@ def test_run_pytest(httpbin, httpdbg_port):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
             )
-            run_pytest([f"{script_to_run}::test_demo_pytest"])
+            run_module(["pytest", f"{script_to_run}::test_demo_pytest"])
 
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
@@ -54,7 +55,7 @@ def test_run_pytest_with_exception(httpdbg_port, capsys):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
             )
-            run_pytest([f"{script_to_run}::test_demo_raise_exception"])
+            run_module(["pytest", f"{script_to_run}::test_demo_raise_exception"])
 
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
@@ -74,7 +75,7 @@ def test_run_pytest_initiator(httpbin, httpdbg_port):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
             )
-            run_pytest([f"{script_to_run}::test_demo_pytest"])
+            run_module(["pytest", f"{script_to_run}::test_demo_pytest"])
 
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
