@@ -214,10 +214,14 @@ def set_hook_for_asyncio_create_connection(records, method):
 
         if allargs.get("ssl"):
             if allargs.get("sock") and records.sockets.get(id(allargs.get("sock"))):
-                records.sockets[id(allargs.get("ssl"))] = records.sockets[id(allargs.get("sock"))]
+                records.sockets[id(allargs.get("ssl"))] = records.sockets[
+                    id(allargs.get("sock"))
+                ]
             elif allargs.get("host") and allargs.get("port"):
                 records.sockets[id(allargs.get("ssl"))] = SocketRawData(
-                    id(allargs.get("ssl")), (allargs.get("host"), allargs.get("port")), True
+                    id(allargs.get("ssl")),
+                    (allargs.get("host"), allargs.get("port")),
+                    True,
                 )
 
         return method(self, *args, **kwargs)
