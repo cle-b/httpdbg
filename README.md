@@ -44,7 +44,7 @@ pyhttpdbg --script filename.py [arg1 --arg2 ...]
 You can trace all the HTTP requests performed during your tests
 
 ```sh
-pyhttpdbg --module pytest [arg1 --arg2 ...]
+pyhttpdbg -m pytest [arg1 --arg2 ...]
 ```
 
 *note: the HTTP(S) requests are not recorded if the tests are executed in parallel using plugin like `xdist`*.
