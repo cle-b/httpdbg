@@ -68,8 +68,7 @@ class HTTPRecords:
         socket_data = None
 
         if force_new:
-            if id(obj) in self._sockets:
-                del self._sockets[id(obj)]
+            self.del_socket_data(obj)
 
         if id(obj) in self._sockets:
             socket_data = self._sockets[id(obj)]
