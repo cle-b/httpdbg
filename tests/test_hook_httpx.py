@@ -15,14 +15,14 @@ def skip_incompatible_python():
 
 
 @pytest.mark.httpx
-def test_httpx(httpbin):
+def test_httpx(httpbin_both):
     with httpdbg() as records:
-        httpx.get(f"{httpbin.url}/get")
+        httpx.get(f"{httpbin_both.url}/get", verify=False)
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.url == f"{httpbin.url}/get"
+    assert http_record.url == f"{httpbin_both.url}/get"
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
@@ -45,9 +45,9 @@ def test_httpx_initiator(httpbin):
 
 
 @pytest.mark.httpx
-def test_httpx_request(httpbin):
+def test_httpx_request(httpbin_both):
     with httpdbg() as records:
-        httpx.post(f"{httpbin.url}/post", content="abc")
+        httpx.post(f"{httpbin_both.url}/post", content="abc", verify=False)
 
     assert len(records) == 1
     http_record = records[0]
@@ -61,9 +61,9 @@ def test_httpx_request(httpbin):
 
 
 @pytest.mark.httpx
-def test_httpx_response(httpbin):
+def test_httpx_response(httpbin_both):
     with httpdbg() as records:
-        httpx.put(f"{httpbin.url}/put?azerty", content="def")
+        httpx.put(f"{httpbin_both.url}/put?azerty", content="def", verify=False)
 
     assert len(records) == 1
     http_record = records[0]
@@ -103,6 +103,30 @@ def test_httpx_cookies(httpbin):
         "value": "oignon",
     } in http_record.response.cookies
 
+@pytest.mark.httpx
+def test_httpx_cookies_secure(httpbin_secure):
+    with httpdbg() as records:
+        httpx.get(
+            f"{httpbin_secure.url}/cookies/set/confiture/oignon", cookies={"jam": "strawberry"}, verify=False
+        )
+
+    assert len(records) == 1
+    http_record = records[0]
+
+    assert {
+        "name": "jam",
+        "value": "strawberry",
+    } in http_record.request.cookies
+
+    assert {
+        "attributes": [
+            {"attr": "/", "name": "path"},
+              {"name": "Secure"},
+        ],
+        "name": "confiture",
+        "value": "oignon",
+    } in http_record.response.cookies
+
 
 @pytest.mark.httpx
 @pytest.mark.xfail(
@@ -130,7 +154,7 @@ def test_httpx_stream(httpbin):
 def test_httpx_redirect(httpbin):
     with httpdbg() as records:
         httpx.get(
-            f"{httpbin.url}/redirect-to?url={httpbin.url}/get", follow_redirects=True
+            f"{httpbin.url}/redirect-to?url={httpbin.url}/get", follow_redirects=True, verify=False
         )
 
     assert len(records) == 2
@@ -139,36 +163,36 @@ def test_httpx_redirect(httpbin):
 
 
 @pytest.mark.httpx
-def test_httpx_not_found(httpbin):
+def test_httpx_not_found(httpbin_both):
     with httpdbg() as records:
-        httpx.get(f"{httpbin.url}/404")
+        httpx.get(f"{httpbin_both.url}/404", verify=False)
 
     assert len(records) == 1
 
     http_record = records[0]
-    assert records[0].url == f"{httpbin.url}/404"
+    assert records[0].url == f"{httpbin_both.url}/404"
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 404
     assert http_record.reason.upper() == "NOT FOUND"
 
 
 @pytest.mark.httpx
-def test_httpx_client(httpbin):
+def test_httpx_client(httpbin_both):
     with httpdbg() as records:
-        with httpx.Client() as client:
-            client.get(f"{httpbin.url}/get")
-            client.post(f"{httpbin.url}/post", content="azerty")
+        with httpx.Client(verify=False) as client:
+            client.get(f"{httpbin_both.url}/get")
+            client.post(f"{httpbin_both.url}/post", content="azerty")
 
     assert len(records) == 2
 
     http_record = records[0]
-    assert http_record.url == f"{httpbin.url}/get"
+    assert http_record.url == f"{httpbin_both.url}/get"
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
 
     http_record = records[1]
-    assert http_record.url == f"{httpbin.url}/post"
+    assert http_record.url == f"{httpbin_both.url}/post"
     assert http_record.method.upper() == "POST"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
@@ -190,20 +214,31 @@ def test_httpx_exception():
 
 
 @pytest.mark.httpx
-@pytest.mark.asyncio
-@pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
-    reason="Async HTTP requests not intercepted on Windows",
-)
-async def test_httpx_asyncclient(httpbin):
+def test_httpx_get_empty_request_content(httpbin_both):
     with httpdbg() as records:
-        async with httpx.AsyncClient() as client:
-            await client.get(f"{httpbin.url}/get")
+        httpx.get(f"{httpbin_both.url}/get", verify=False)
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.url == f"{httpbin.url}/get"
+    assert http_record.url == f"{httpbin_both.url}/get"
+    assert http_record.request.content == b""
+
+
+@pytest.mark.httpx
+@pytest.mark.asyncio
+@pytest.mark.xfail(
+    reason="Async HTTPS requests not intercepted",
+)
+async def test_httpx_asyncclient(httpbin_both):
+    with httpdbg() as records:
+        async with httpx.AsyncClient(verify=False) as client:
+            await client.get(f"{httpbin_both.url}/get")
+
+    assert len(records) == 1
+    http_record = records[0]
+
+    assert http_record.url == f"{httpbin_both.url}/get"
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
@@ -212,8 +247,7 @@ async def test_httpx_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
-    reason="Async HTTP requests not intercepted on Windows",
+    reason="Async HTTPS requests not intercepted",
 )
 async def test_httpx_initiator_asyncclient(httpbin):
     with httpdbg() as records:
@@ -236,13 +270,12 @@ async def test_httpx_initiator_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
-    reason="Async HTTP requests not intercepted on Windows",
+    reason="Async HTTPS requests not intercepted",
 )
-async def test_httpx_request_asyncclient(httpbin):
+async def test_httpx_request_asyncclient(httpbin_both):
     with httpdbg() as records:
-        async with httpx.AsyncClient() as client:
-            await client.post(f"{httpbin.url}/post", content="abc")
+        async with httpx.AsyncClient(verify=False) as client:
+            await client.post(f"{httpbin_both.url}/post", content="abc")
 
     assert len(records) == 1
     http_record = records[0]
@@ -258,13 +291,12 @@ async def test_httpx_request_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
-    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
-    reason="Async HTTP requests not intercepted on Windows",
+    reason="Async HTTPS requests not intercepted",
 )
-async def test_httpx_response_asyncclient(httpbin):
+async def test_httpx_response_asyncclient(httpbin_both):
     with httpdbg() as records:
-        async with httpx.AsyncClient() as client:
-            await client.put(f"{httpbin.url}/put?azerty", content="def")
+        async with httpx.AsyncClient(verify=False) as client:
+            await client.put(f"{httpbin_both.url}/put?azerty", content="def")
 
     assert len(records) == 1
     http_record = records[0]
@@ -311,12 +343,45 @@ async def test_httpx_cookies_asyncclient(httpbin):
         "value": "oignon",
     } in http_record.response.cookies
 
+@pytest.mark.httpx
+@pytest.mark.asyncio
+@pytest.mark.xfail(
+    reason="Async HTTPS requests not intercepted",
+)
+async def test_httpx_cookies_asyncclient_secure(httpbin_secure):
+    with httpdbg() as records:
+        async with httpx.AsyncClient(verify=False) as client:
+            await client.get(
+                f"{httpbin_secure.url}/cookies/set/confiture/oignon",
+                cookies={"jam": "strawberry"},
+            )
+
+    assert len(records) == 1
+    http_record = records[0]
+
+    assert {
+        "name": "jam",
+        "value": "strawberry",
+    } in http_record.request.cookies
+
+    assert {
+        "attributes": [
+            {"attr": "/", "name": "path"},
+            {"name": "Secure"},
+        ],
+        "name": "confiture",
+        "value": "oignon",
+    } in http_record.response.cookies
+
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
     (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
     reason="Async HTTP requests not intercepted on Windows",
+)
+@pytest.mark.xfail(
+    reason="Async HTTPS requests not intercepted",
 )
 async def test_httpx_exception_asyncclient():
     url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
@@ -331,3 +396,20 @@ async def test_httpx_exception_asyncclient():
 
     assert http_record.url == url_with_unknown_host
     assert isinstance(http_record.exception, httpx.ConnectError)
+
+
+@pytest.mark.httpx
+@pytest.mark.asyncio
+@pytest.mark.xfail(
+    reason="Async HTTPS requests not intercepted",
+)
+async def test_httpx_get_empty_request_content_asyncclient(httpbin_both):
+    with httpdbg() as records:
+        async with httpx.AsyncClient(verify=False) as client:
+            await client.get(f"{httpbin_both.url}/get")
+
+    assert len(records) == 1
+    http_record = records[0]
+
+    assert http_record.url == f"{httpbin_both.url}/get"
+    assert http_record.request.content == b""

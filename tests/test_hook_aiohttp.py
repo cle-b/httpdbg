@@ -20,15 +20,17 @@ def skip_incompatible_python():
     (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
     reason="Async HTTP requests not intercepted on Windows",
 )
-async def test_aiohttp(httpbin):
+async def test_aiohttp(httpbin_both):
     with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
-            await session.get(f"{httpbin.url}/get")
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
+            await session.get(f"{httpbin_both.url}/get")
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.url == f"{httpbin.url}/get"
+    assert http_record.url == f"{httpbin_both.url}/get"
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
@@ -42,7 +44,9 @@ async def test_aiohttp(httpbin):
 )
 async def test_aiohttp_initiator(httpbin):
     with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
             await session.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
@@ -64,10 +68,12 @@ async def test_aiohttp_initiator(httpbin):
     (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
     reason="Async HTTP requests not intercepted on Windows",
 )
-async def test_aiohttp_request_post_bytes(httpbin):
+async def test_aiohttp_request_post_bytes(httpbin_both):
     with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
-            await session.post(f"{httpbin.url}/post", data=b"abc")
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
+            await session.post(f"{httpbin_both.url}/post", data=b"abc")
 
     assert len(records) == 1
     http_record = records[0]
@@ -86,10 +92,12 @@ async def test_aiohttp_request_post_bytes(httpbin):
     (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
     reason="Async HTTP requests not intercepted on Windows",
 )
-async def test_aiohttp_request_post_str(httpbin):
+async def test_aiohttp_request_post_str(httpbin_both):
     with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
-            await session.post(f"{httpbin.url}/post", data="abc")
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
+            await session.post(f"{httpbin_both.url}/post", data="abc")
 
     assert len(records) == 1
     http_record = records[0]
@@ -108,10 +116,12 @@ async def test_aiohttp_request_post_str(httpbin):
     (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
     reason="Async HTTP requests not intercepted on Windows",
 )
-async def test_aiohttp_request_post_json(httpbin):
+async def test_aiohttp_request_post_json(httpbin_both):
     with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
-            await session.post(f"{httpbin.url}/post", json={"a": "bc"})
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
+            await session.post(f"{httpbin_both.url}/post", json={"a": "bc"})
 
     assert len(records) == 1
     http_record = records[0]
@@ -130,10 +140,12 @@ async def test_aiohttp_request_post_json(httpbin):
     (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
     reason="Async HTTP requests not intercepted on Windows",
 )
-async def test_aiohttp_request_post_form(httpbin):
+async def test_aiohttp_request_post_form(httpbin_both):
     with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
-            await session.post(f"{httpbin.url}/post", data={"a": "bc", "d": "ef"})
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
+            await session.post(f"{httpbin_both.url}/post", data={"a": "bc", "d": "ef"})
 
     assert len(records) == 1
     http_record = records[0]
@@ -152,10 +164,14 @@ async def test_aiohttp_request_post_form(httpbin):
     (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
     reason="Async HTTP requests not intercepted on Windows",
 )
-async def test_aiohttp_response(httpbin):
+async def test_aiohttp_response(httpbin_both):
     with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
-            async with session.put(f"{httpbin.url}/put?azerty", data="def") as resp:
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
+            async with session.put(
+                f"{httpbin_both.url}/put?azerty", data="def"
+            ) as resp:
                 await resp.json()
 
     assert len(records) == 1
@@ -181,7 +197,9 @@ async def test_aiohttp_response(httpbin):
 )
 async def test_aiohttp_cookies(httpbin):
     with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
             await session.get(
                 f"{httpbin.url}/cookies/set/confiture/oignon",
                 cookies={"jam": "strawberry"},
@@ -208,14 +226,29 @@ async def test_aiohttp_cookies(httpbin):
     (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
     reason="Async HTTP requests not intercepted on Windows",
 )
-async def test_aiohttp_redirect(httpbin):
+async def test_aiohttp_cookies_secure(httpbin_secure):
     with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
-            await session.get(f"{httpbin.url}/redirect-to?url={httpbin.url}/get")
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
+            await session.get(
+                f"{httpbin_secure.url}/cookies/set/confiture/oignon",
+                cookies={"jam": "strawberry"},
+            )
 
     assert len(records) == 2
-    assert records[0].url == f"{httpbin.url}/redirect-to?url={httpbin.url}/get"
-    assert records[1].url == f"{httpbin.url}/get"
+    http_record = records[0]
+
+    assert {
+        "name": "jam",
+        "value": "strawberry",
+    } in http_record.request.cookies
+
+    assert {
+        "attributes": [{"attr": "/", "name": "path"}, {"name": "Secure"}],
+        "name": "confiture",
+        "value": "oignon",
+    } in http_record.response.cookies
 
 
 @pytest.mark.aiohttp
@@ -224,14 +257,38 @@ async def test_aiohttp_redirect(httpbin):
     (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
     reason="Async HTTP requests not intercepted on Windows",
 )
-async def test_aiohttp_not_found(httpbin):
+async def test_aiohttp_redirect(httpbin_both):
     with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
-            await session.get(f"{httpbin.url}/404")
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
+            await session.get(
+                f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get"
+            )
+
+    assert len(records) == 2
+    assert (
+        records[0].url == f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get"
+    )
+    assert records[1].url == f"{httpbin_both.url}/get"
+
+
+@pytest.mark.aiohttp
+@pytest.mark.asyncio
+@pytest.mark.xfail(
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
+)
+async def test_aiohttp_not_found(httpbin_both):
+    with httpdbg() as records:
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
+            await session.get(f"{httpbin_both.url}/404")
     assert len(records) == 1
 
     http_record = records[0]
-    assert records[0].url == f"{httpbin.url}/404"
+    assert records[0].url == f"{httpbin_both.url}/404"
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 404
     assert http_record.reason.upper() == "NOT FOUND"
@@ -258,3 +315,23 @@ async def test_aiohttp_exception_asyncclient():
     assert isinstance(
         http_record.exception, aiohttp.client_exceptions.ClientConnectorError
     )
+
+
+@pytest.mark.aiohttp
+@pytest.mark.asyncio
+@pytest.mark.xfail(
+    (platform.system().lower() == "windows") and (sys.version_info >= (3, 8)),
+    reason="Async HTTP requests not intercepted on Windows",
+)
+async def test_aiohttp_get_empty_request_content(httpbin_both):
+    with httpdbg() as records:
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
+            await session.get(f"{httpbin_both.url}/get")
+
+    assert len(records) == 1
+    http_record = records[0]
+
+    assert http_record.url == f"{httpbin_both.url}/get"
+    assert http_record.request.content == b""

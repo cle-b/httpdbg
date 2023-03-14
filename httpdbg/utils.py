@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
 from http.cookies import SimpleCookie
 import logging
+import os
 import secrets
 import string
+
+logger = logging.getLogger("httpdbg")
+logger.setLevel(100)
+log_level = os.environ.get("HTTPDBG_LOG")
+if log_level is not None:
+    logging.basicConfig(level=int(log_level), format="%(message)s")
+    logger.setLevel(int(log_level))
 
 
 def get_new_uuid():
@@ -10,18 +18,19 @@ def get_new_uuid():
     return "".join(secrets.choice(string.ascii_letters) for i in range(10))
 
 
-logger = logging.getLogger("httpdbg")
-
-
 def chunked_to_bytes(chunked):
     data = bytes()
-    b1 = 0
-    while b1 < len(chunked):
-        sep = chunked[b1:].find(b"\r\n")
-        size = int(chunked[b1 : b1 + sep], 16)
-        data += chunked[b1 + sep + 2 : b1 + sep + 2 + size]
-        b1 = b1 + sep + 2 + size + 2
-    return data
+    try:
+        b1 = 0
+        while b1 < len(chunked):
+            sep = chunked[b1:].find(b"\r\n")
+            size = int(chunked[b1 : b1 + sep], 16)
+            data += chunked[b1 + sep + 2 : b1 + sep + 2 + size]
+            b1 = b1 + sep + 2 + size + 2
+        return data
+    except Exception:
+        # the chunked data can be incomplete or malformated
+        return bytes()
 
 
 def list_cookies_headers_request_simple_cookies(headers):

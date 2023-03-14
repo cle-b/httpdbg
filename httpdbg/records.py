@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import socket
+import ssl
 import time
 from urllib.parse import urlparse
 
@@ -6,6 +8,42 @@ from httpdbg.utils import get_new_uuid
 from httpdbg.utils import chunked_to_bytes
 from httpdbg.utils import list_cookies_headers_request_simple_cookies
 from httpdbg.utils import list_cookies_headers_response_simple_cookies
+from httpdbg.utils import logger
+
+
+class SocketRawData(object):
+    def __init__(self, id, address, ssl):
+        self.id = id
+        self.address = address
+        self.ssl = ssl
+        self._rawdata = bytes()
+        self.record = None
+
+    @property
+    def rawdata(self):
+        return self._rawdata
+
+    @rawdata.setter
+    def rawdata(self, value):
+        logger.info(f"SocketRawData id={self.id} newdata={value[:20]} len={len(value)}")
+        self._rawdata = value
+
+    def http_detected(self):
+        end_of_first_line = self.rawdata[:2048].find(b"\r\n")
+        if end_of_first_line == -1:
+            if len(self.rawdata) > 2048:
+                return False
+            else:
+                return None
+        firstline = self.rawdata[:end_of_first_line]
+        if firstline.upper().endswith(b"HTTP/1.1"):
+            return True
+        if firstline.upper().endswith(b"HTTP/1.0"):
+            return True
+        return False
+
+    def __repr__(self):
+        return f"SocketRawData id={self.id} {self.address}"
 
 
 class HTTPRecords:
@@ -14,7 +52,7 @@ class HTTPRecords:
         self.requests = {}
         self.requests_already_loaded = 0
         self._initiators = {}
-        self.sockets = {}
+        self._sockets = {}
 
     @property
     def unread(self):
@@ -26,8 +64,49 @@ class HTTPRecords:
     def __len__(self):
         return len(self.requests)
 
+    def get_socket_data(self, obj, extra_sock=None, force_new=False):
+        socket_data = None
 
-class HTTPRecordReq(object):
+        if force_new:
+            if id(obj) in self._sockets:
+                del self._sockets[id(obj)]
+
+        if id(obj) in self._sockets:
+            socket_data = self._sockets[id(obj)]
+        else:
+            if isinstance(obj, socket.socket):
+                self._sockets[id(obj)] = SocketRawData(
+                    id(obj), obj.getsockname(), isinstance(obj, ssl.SSLSocket)
+                )
+                socket_data = self._sockets[id(obj)]
+            else:
+                if extra_sock:
+                    self._sockets[id(obj)] = SocketRawData(
+                        id(obj),
+                        extra_sock.getsockname(),
+                        isinstance(obj, (ssl.SSLObject, ssl.SSLSocket)),
+                    )
+                    socket_data = self._sockets[id(obj)]
+
+        return socket_data
+
+    def move_socket_data(self, dest, ori):
+        if id(ori) in self._sockets:
+            socket_data = self.get_socket_data(ori)
+            if socket_data:
+                self._sockets[id(dest)] = socket_data
+                if isinstance(dest, (ssl.SSLSocket, ssl.SSLObject)):
+                    socket_data.ssl = True
+                self.del_socket_data(ori)
+
+    def del_socket_data(self, obj):
+        if id(obj) in self._sockets:
+            logger.info(f"SocketRawData del id={id(obj)}")
+            self._sockets[id(obj)] = None
+            del self._sockets[id(obj)]
+
+
+class HTTPRecordReqResp(object):
     def __init__(self):
         self.rawdata = bytes()
         self._rawheaders = bytes()
@@ -91,7 +170,7 @@ class HTTPRecordReq(object):
         self.__dict__["last_update"] = int(time.time() * 1000)
 
 
-class HTTPRecordRequest(HTTPRecordReq):
+class HTTPRecordRequest(HTTPRecordReqResp):
     def __init__(self):
         super().__init__()
         self._method = bytes()
@@ -126,7 +205,7 @@ class HTTPRecordRequest(HTTPRecordReq):
         return self._protocol.decode()
 
 
-class HTTPRecordResponse(HTTPRecordReq):
+class HTTPRecordResponse(HTTPRecordReqResp):
     def __init__(self):
         super().__init__()
         self._protocol = bytes()

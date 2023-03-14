@@ -6,15 +6,15 @@ from httpdbg.hooks.all import httpdbg
 
 
 @pytest.mark.urllib3
-def test_urllib3(httpbin):
+def test_urllib3(httpbin_both):
     with httpdbg() as records:
-        http = urllib3.PoolManager()
-        http.request("GET", f"{httpbin.url}/get")
+        with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            http.request("GET", f"{httpbin_both.url}/get")
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.url == f"{httpbin.url}/get"
+    assert http_record.url == f"{httpbin_both.url}/get"
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 200
     assert http_record.reason.upper() == "OK"
@@ -23,8 +23,8 @@ def test_urllib3(httpbin):
 @pytest.mark.urllib3
 def test_urllib3_initiator(httpbin):
     with httpdbg() as records:
-        http = urllib3.PoolManager()
-        http.request("GET", f"{httpbin.url}/get")
+        with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            http.request("GET", f"{httpbin.url}/get")
 
     assert len(records) == 1
     http_record = records[0]
@@ -40,12 +40,15 @@ def test_urllib3_initiator(httpbin):
 
 
 @pytest.mark.urllib3
-def test_urllib3_request(httpbin):
+def test_urllib3_request(httpbin_both):
     with httpdbg() as records:
-        http = urllib3.PoolManager()
-        http.request(
-            "POST", f"{httpbin.url}/post", body="abc", headers={"Content-Length": "3"}
-        )
+        with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            http.request(
+                "POST",
+                f"{httpbin_both.url}/post",
+                body="abc",
+                headers={"Content-Length": "3"},
+            )
 
     assert len(records) == 1
     http_record = records[0]
@@ -59,15 +62,15 @@ def test_urllib3_request(httpbin):
 
 
 @pytest.mark.urllib3
-def test_urllib3_response(httpbin):
+def test_urllib3_response(httpbin_both):
     with httpdbg() as records:
-        http = urllib3.PoolManager()
-        http.request(
-            "PUT",
-            f"{httpbin.url}/put?azerty",
-            body="def",
-            headers={"Content-Length": "3"},
-        )
+        with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            http.request(
+                "PUT",
+                f"{httpbin_both.url}/put?azerty",
+                body="def",
+                headers={"Content-Length": "3"},
+            )
 
     assert len(records) == 1
     http_record = records[0]
@@ -87,13 +90,13 @@ def test_urllib3_response(httpbin):
 @pytest.mark.urllib3
 def test_urllib3_cookies(httpbin):
     with httpdbg() as records:
-        http = urllib3.PoolManager()
-        http.request(
-            "GET",
-            f"{httpbin.url}/cookies/set/confiture/oignon",
-            headers={"Content-Length": "3", "Cookie": "jam=strawberry"},
-            redirect=False,
-        )
+        with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            http.request(
+                "GET",
+                f"{httpbin.url}/cookies/set/confiture/oignon",
+                headers={"Content-Length": "3", "Cookie": "jam=strawberry"},
+                redirect=False,
+            )
 
     assert len(records) == 1
 
@@ -111,26 +114,56 @@ def test_urllib3_cookies(httpbin):
 
 
 @pytest.mark.urllib3
-def test_urllib3_redirect(httpbin):
+def test_urllib3_cookies_secure(httpbin_secure):
     with httpdbg() as records:
-        http = urllib3.PoolManager()
-        http.request("GET", f"{httpbin.url}/redirect-to?url={httpbin.url}/get")
-
-    assert len(records) == 2
-    assert records[0].url == f"{httpbin.url}/redirect-to?url={httpbin.url}/get"
-    assert records[1].url == f"{httpbin.url}/get"
-
-
-@pytest.mark.urllib3
-def test_urllib3_not_found(httpbin):
-    with httpdbg() as records:
-        http = urllib3.PoolManager()
-        http.request("GET", f"{httpbin.url}/404")
+        with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            http.request(
+                "GET",
+                f"{httpbin_secure.url}/cookies/set/confiture/oignon",
+                headers={"Content-Length": "3", "Cookie": "jam=strawberry"},
+                redirect=False,
+            )
 
     assert len(records) == 1
 
     http_record = records[0]
-    assert records[0].url == f"{httpbin.url}/404"
+    assert {
+        "name": "jam",
+        "value": "strawberry",
+    } in http_record.request.cookies
+
+    assert {
+        "attributes": [{"attr": "/", "name": "path"}, {"name": "Secure"}],
+        "name": "confiture",
+        "value": "oignon",
+    } in http_record.response.cookies
+
+
+@pytest.mark.urllib3
+def test_urllib3_redirect(httpbin_both):
+    with httpdbg() as records:
+        with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            http.request(
+                "GET", f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get"
+            )
+
+    assert len(records) == 2
+    assert (
+        records[0].url == f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get"
+    )
+    assert records[1].url == f"{httpbin_both.url}/get"
+
+
+@pytest.mark.urllib3
+def test_urllib3_not_found(httpbin_both):
+    with httpdbg() as records:
+        with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            http.request("GET", f"{httpbin_both.url}/404")
+
+    assert len(records) == 1
+
+    http_record = records[0]
+    assert records[0].url == f"{httpbin_both.url}/404"
     assert http_record.method.upper() == "GET"
     assert http_record.status_code == 404
     assert http_record.reason.upper() == "NOT FOUND"
@@ -142,11 +175,24 @@ def test_urllib3_exception():
 
     with httpdbg() as records:
         with pytest.raises(urllib3.exceptions.MaxRetryError):
-            http = urllib3.PoolManager()
-            http.request("GET", url_with_unknown_host)
+            with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+                http.request("GET", url_with_unknown_host)
 
     assert len(records) == 1
     http_record = records[0]
 
     assert http_record.url == url_with_unknown_host
     assert isinstance(http_record.exception, urllib3.exceptions.MaxRetryError)
+
+
+@pytest.mark.urllib3
+def test_urllib3_get_empty_request_content(httpbin_both):
+    with httpdbg() as records:
+        with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            http.request("GET", f"{httpbin_both.url}/get")
+
+    assert len(records) == 1
+    http_record = records[0]
+
+    assert http_record.url == f"{httpbin_both.url}/get"
+    assert http_record.request.content == b""
