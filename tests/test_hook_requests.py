@@ -217,3 +217,44 @@ def test_requests_get_empty_request_content(httpbin_both):
 
     assert http_record.url == f"{httpbin_both.url}/get"
     assert http_record.request.content == b""
+
+
+@pytest.mark.requests
+def test_requests_many_requests():
+    with httpdbg() as records:
+        requests.get("https://httpbin.org/get")
+        requests.get("https://httpbin.org/get/abc")
+        requests.post("https://httpbin.org/post", data="abc")
+        requests.get("https://httpbin.org/get")
+
+    assert len(records) == 4
+
+    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].request.content == b""
+    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].request.content == b""
+    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].request.content == b"abc"
+    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].request.content == b""
+
+
+@pytest.mark.requests
+def test_requests_many_requests_session():
+    with httpdbg() as records:
+        with requests.Session() as session:
+            session.get("https://httpbin.org/get")
+            session.get("https://httpbin.org/get/abc")
+            session.post("https://httpbin.org/post", data="abc")
+            session.get("https://httpbin.org/get")
+
+    assert len(records) == 4
+
+    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].request.content == b""
+    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].request.content == b""
+    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].request.content == b"abc"
+    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].request.content == b""

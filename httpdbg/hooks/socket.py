@@ -171,7 +171,7 @@ def set_hook_for_socket_recv(records, method):
 
 def set_hook_for_socket_sendall(records, method):
     def hook(self, bytes, *args, **kwargs):
-        socketdata = records.get_socket_data(self)
+        socketdata = records.get_socket_data(self, request=True)
         if socketdata:
             logger.info(
                 f"SENDALL - self={self} id={id(self)} socketdata={socketdata} bytes={(b''+bytes)[:20]} type={type(bytes)} len={len(bytes)} args={args} kwargs={kwargs}"
@@ -206,7 +206,7 @@ def set_hook_for_socket_sendall(records, method):
 
 def set_hook_for_socket_send(records, method):
     def hook(self, bytes, *args, **kwargs):
-        socketdata = records.get_socket_data(self)
+        socketdata = records.get_socket_data(self, request=True)
         if socketdata:
             logger.info(
                 f"SEND - self={self} id={id(self)} socketdata={socketdata} bytes={(b''+bytes)[:20]} args={args} kwargs={kwargs}"
@@ -264,7 +264,7 @@ def set_hook_for_asyncio_create_connection(records, method):
 
 def set_hook_for_sslobject_write(records, method):
     def hook(self, buf, *args, **kwargs):
-        socketdata = records.get_socket_data(self)
+        socketdata = records.get_socket_data(self, request=True)
         if socketdata:
             logger.info(
                 f"WRITE - self={self} id={id(self)} socketdata={socketdata} buf={(b'' + buf)[:20]} args={args} kwargs={kwargs}"
