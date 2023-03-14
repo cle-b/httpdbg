@@ -2,6 +2,6 @@
 from httpdbg.hooks.all import httpdbg
 from httpdbg.utils import logger
 
-VERSION = "0.7.1"
+VERSION = "0.7.2"
 
 __all__ = ["httpdbg", "logger"]
