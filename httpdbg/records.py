@@ -74,18 +74,28 @@ class HTTPRecords:
             socket_data = self._sockets[id(obj)]
         else:
             if isinstance(obj, socket.socket):
-                self._sockets[id(obj)] = SocketRawData(
-                    id(obj), obj.getsockname(), isinstance(obj, ssl.SSLSocket)
-                )
-                socket_data = self._sockets[id(obj)]
-            else:
-                if extra_sock:
+                try:
+                    address = obj.getsockname()
                     self._sockets[id(obj)] = SocketRawData(
-                        id(obj),
-                        extra_sock.getsockname(),
-                        isinstance(obj, (ssl.SSLObject, ssl.SSLSocket)),
+                        id(obj), address, isinstance(obj, ssl.SSLSocket)
                     )
                     socket_data = self._sockets[id(obj)]
+                except OSError:
+                    # OSError: [WinError 10022] An invalid argument was supplied
+                    pass
+            else:
+                if extra_sock:
+                    try:
+                        address = extra_sock.getsockname()
+                        self._sockets[id(obj)] = SocketRawData(
+                            id(obj),
+                            address,
+                            isinstance(obj, (ssl.SSLObject, ssl.SSLSocket)),
+                        )
+                        socket_data = self._sockets[id(obj)]
+                    except OSError:
+                        # OSError: [WinError 10022] An invalid argument was supplied
+                        pass
 
         return socket_data
 
