@@ -163,7 +163,9 @@ def test_httpx_redirect(httpbin_both):
         )
 
     assert len(records) == 2
-    assert records[0].url == f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get"
+    assert (
+        records[0].url == f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get"
+    )
     assert records[1].url == f"{httpbin_both.url}/get"
 
 
