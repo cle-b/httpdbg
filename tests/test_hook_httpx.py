@@ -103,11 +103,14 @@ def test_httpx_cookies(httpbin):
         "value": "oignon",
     } in http_record.response.cookies
 
+
 @pytest.mark.httpx
 def test_httpx_cookies_secure(httpbin_secure):
     with httpdbg() as records:
         httpx.get(
-            f"{httpbin_secure.url}/cookies/set/confiture/oignon", cookies={"jam": "strawberry"}, verify=False
+            f"{httpbin_secure.url}/cookies/set/confiture/oignon",
+            cookies={"jam": "strawberry"},
+            verify=False,
         )
 
     assert len(records) == 1
@@ -121,7 +124,7 @@ def test_httpx_cookies_secure(httpbin_secure):
     assert {
         "attributes": [
             {"attr": "/", "name": "path"},
-              {"name": "Secure"},
+            {"name": "Secure"},
         ],
         "name": "confiture",
         "value": "oignon",
@@ -154,7 +157,9 @@ def test_httpx_stream(httpbin):
 def test_httpx_redirect(httpbin):
     with httpdbg() as records:
         httpx.get(
-            f"{httpbin.url}/redirect-to?url={httpbin.url}/get", follow_redirects=True, verify=False
+            f"{httpbin.url}/redirect-to?url={httpbin.url}/get",
+            follow_redirects=True,
+            verify=False,
         )
 
     assert len(records) == 2
@@ -342,6 +347,7 @@ async def test_httpx_cookies_asyncclient(httpbin):
         "name": "confiture",
         "value": "oignon",
     } in http_record.response.cookies
+
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
