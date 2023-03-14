@@ -90,7 +90,7 @@ def test_urllib3_response(httpbin_both):
 @pytest.mark.urllib3
 def test_urllib3_cookies(httpbin):
     with httpdbg() as records:
-        with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+        with urllib3.PoolManager() as http:
             http.request(
                 "GET",
                 f"{httpbin.url}/cookies/set/confiture/oignon",
@@ -175,7 +175,7 @@ def test_urllib3_exception():
 
     with httpdbg() as records:
         with pytest.raises(urllib3.exceptions.MaxRetryError):
-            with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            with urllib3.PoolManager() as http:
                 http.request("GET", url_with_unknown_host)
 
     assert len(records) == 1

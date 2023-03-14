@@ -154,17 +154,17 @@ def test_httpx_stream(httpbin):
 
 
 @pytest.mark.httpx
-def test_httpx_redirect(httpbin):
+def test_httpx_redirect(httpbin_both):
     with httpdbg() as records:
         httpx.get(
-            f"{httpbin.url}/redirect-to?url={httpbin.url}/get",
+            f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get",
             follow_redirects=True,
             verify=False,
         )
 
     assert len(records) == 2
-    assert records[0].url == f"{httpbin.url}/redirect-to?url={httpbin.url}/get"
-    assert records[1].url == f"{httpbin.url}/get"
+    assert records[0].url == f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get"
+    assert records[1].url == f"{httpbin_both.url}/get"
 
 
 @pytest.mark.httpx

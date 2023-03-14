@@ -44,9 +44,7 @@ async def test_aiohttp(httpbin_both):
 )
 async def test_aiohttp_initiator(httpbin):
     with httpdbg() as records:
-        async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
-        ) as session:
+        async with aiohttp.ClientSession() as session:
             await session.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
