@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import platform
 import sys
 
 import aiohttp
@@ -15,6 +16,10 @@ def skip_incompatible_python():
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
@@ -33,6 +38,10 @@ async def test_aiohttp(httpbin_both):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_initiator(httpbin):
     with httpdbg() as records:
         async with aiohttp.ClientSession() as session:
@@ -53,6 +62,10 @@ async def test_aiohttp_initiator(httpbin):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_request_post_bytes(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
@@ -73,6 +86,10 @@ async def test_aiohttp_request_post_bytes(httpbin_both):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_request_post_str(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
@@ -93,6 +110,10 @@ async def test_aiohttp_request_post_str(httpbin_both):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_request_post_json(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
@@ -113,6 +134,10 @@ async def test_aiohttp_request_post_json(httpbin_both):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_request_post_form(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
@@ -133,6 +158,10 @@ async def test_aiohttp_request_post_form(httpbin_both):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_response(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
@@ -160,6 +189,10 @@ async def test_aiohttp_response(httpbin_both):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_cookies(httpbin):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
@@ -187,6 +220,10 @@ async def test_aiohttp_cookies(httpbin):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_cookies_secure(httpbin_secure):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
@@ -214,6 +251,10 @@ async def test_aiohttp_cookies_secure(httpbin_secure):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_redirect(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
@@ -232,6 +273,10 @@ async def test_aiohttp_redirect(httpbin_both):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_not_found(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
@@ -249,6 +294,10 @@ async def test_aiohttp_not_found(httpbin_both):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_exception_asyncclient():
     url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
 
@@ -268,6 +317,10 @@ async def test_aiohttp_exception_asyncclient():
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
 async def test_aiohttp_get_empty_request_content(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(

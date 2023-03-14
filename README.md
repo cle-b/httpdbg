@@ -67,7 +67,7 @@ pyhttpdbg -m pip install httpdbg --upgrade
 | requests   | supported   | -                                                                 |
 | urllib3    | supported   | -                                                                 |
 | httpx      | supported   | Async HTTPS requests not intercepted                              |
-| aiohttp    | supported   |                                                                   |
+| aiohttp    | supported   | HTTP requests not intercepted on Windows                          |
 
 ## configuration
 
