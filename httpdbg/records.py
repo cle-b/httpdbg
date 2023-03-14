@@ -64,14 +64,25 @@ class HTTPRecords:
     def __len__(self):
         return len(self.requests)
 
-    def get_socket_data(self, obj, extra_sock=None, force_new=False):
-        socket_data = None
+    def get_socket_data(self, obj, extra_sock=None, force_new=False, request=None):
+        socketdata = None
 
         if force_new:
             self.del_socket_data(obj)
 
         if id(obj) in self._sockets:
-            socket_data = self._sockets[id(obj)]
+            socketdata = self._sockets[id(obj)]
+            if request:
+                if (
+                    socketdata
+                    and socketdata.record
+                    and socketdata.record.response.rawdata
+                ):
+                    # the socket is reused for a new request
+                    self._sockets[id(obj)] = SocketRawData(
+                        id(obj), socketdata.address, socketdata.ssl
+                    )
+                    socketdata = self._sockets[id(obj)]
         else:
             if isinstance(obj, socket.socket):
                 try:
@@ -79,7 +90,7 @@ class HTTPRecords:
                     self._sockets[id(obj)] = SocketRawData(
                         id(obj), address, isinstance(obj, ssl.SSLSocket)
                     )
-                    socket_data = self._sockets[id(obj)]
+                    socketdata = self._sockets[id(obj)]
                 except OSError:
                     # OSError: [WinError 10022] An invalid argument was supplied
                     pass
@@ -92,20 +103,20 @@ class HTTPRecords:
                             address,
                             isinstance(obj, (ssl.SSLObject, ssl.SSLSocket)),
                         )
-                        socket_data = self._sockets[id(obj)]
+                        socketdata = self._sockets[id(obj)]
                     except OSError:
                         # OSError: [WinError 10022] An invalid argument was supplied
                         pass
 
-        return socket_data
+        return socketdata
 
     def move_socket_data(self, dest, ori):
         if id(ori) in self._sockets:
-            socket_data = self.get_socket_data(ori)
-            if socket_data:
-                self._sockets[id(dest)] = socket_data
+            socketdata = self.get_socket_data(ori)
+            if socketdata:
+                self._sockets[id(dest)] = socketdata
                 if isinstance(dest, (ssl.SSLSocket, ssl.SSLObject)):
-                    socket_data.ssl = True
+                    socketdata.ssl = True
                 self.del_socket_data(ori)
 
     def del_socket_data(self, obj):

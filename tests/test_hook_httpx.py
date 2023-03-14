@@ -233,6 +233,47 @@ def test_httpx_get_empty_request_content(httpbin_both):
 
 
 @pytest.mark.httpx
+def test_httpx_many_requests():
+    with httpdbg() as records:
+        httpx.get("https://httpbin.org/get")
+        httpx.get("https://httpbin.org/get/abc")
+        httpx.post("https://httpbin.org/post", data="abc")
+        httpx.get("https://httpbin.org/get")
+
+    assert len(records) == 4
+
+    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].request.content == b""
+    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].request.content == b""
+    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].request.content == b"abc"
+    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].request.content == b""
+
+
+@pytest.mark.httpx
+def test_httpx_many_requests_session():
+    with httpdbg() as records:
+        with httpx.Client() as session:
+            session.get("https://httpbin.org/get")
+            session.get("https://httpbin.org/get/abc")
+            session.post("https://httpbin.org/post", data="abc")
+            session.get("https://httpbin.org/get")
+
+    assert len(records) == 4
+
+    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].request.content == b""
+    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].request.content == b""
+    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].request.content == b"abc"
+    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].request.content == b""
+
+
+@pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
     platform.system().lower() == "windows",
@@ -439,3 +480,32 @@ async def test_httpx_get_empty_request_content_asyncclient(httpbin_both):
 
     assert http_record.url == f"{httpbin_both.url}/get"
     assert http_record.request.content == b""
+
+
+@pytest.mark.httpx
+@pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
+@pytest.mark.xfail(
+    reason="Async HTTPS requests not intercepted",
+)
+async def test_httpx_many_requests_session_asyncclient():
+    with httpdbg() as records:
+        async with httpx.AsyncClient() as session:
+            await session.get("https://httpbin.org/get")
+            await session.get("https://httpbin.org/get/abc")
+            await session.post("https://httpbin.org/post", data="abc")
+            await session.get("https://httpbin.org/get")
+
+    assert len(records) == 4
+
+    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].request.content == b""
+    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].request.content == b""
+    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].request.content == b"abc"
+    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].request.content == b""

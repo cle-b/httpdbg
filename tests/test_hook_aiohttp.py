@@ -321,7 +321,7 @@ async def test_aiohttp_exception_asyncclient():
     platform.system().lower() == "windows",
     reason="Async HTTP requests not intercepted on Windows",
 )
-async def test_aiohttp_get_empty_request_content(httpbin_both):
+async def test_aiohttp_get_empty_request_content_asyncclient(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(verify_ssl=False)
@@ -333,3 +333,29 @@ async def test_aiohttp_get_empty_request_content(httpbin_both):
 
     assert http_record.url == f"{httpbin_both.url}/get"
     assert http_record.request.content == b""
+
+
+@pytest.mark.aiohttp
+@pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="Async HTTP requests not intercepted on Windows",
+)
+async def test_aiohttp_many_requests_session_asyncclient():
+    with httpdbg() as records:
+        async with aiohttp.ClientSession() as session:
+            await session.get("https://httpbin.org/get")
+            await session.get("https://httpbin.org/get/abc")
+            await session.post("https://httpbin.org/post", data="abc")
+            await session.get("https://httpbin.org/get")
+
+    assert len(records) == 4
+
+    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].request.content == b""
+    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].request.content == b""
+    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].request.content == b"abc"
+    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].request.content == b""
