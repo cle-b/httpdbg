@@ -97,7 +97,11 @@ class HTTPRecords:
             else:
                 if extra_sock:
                     try:
-                        address = extra_sock.getsockname()
+                        address = (
+                            extra_sock.getsockname()
+                            if hasattr(extra_sock, "getsockname")
+                            else ("", 0)  # wrap_bio
+                        )
                         self._sockets[id(obj)] = SocketRawData(
                             id(obj),
                             address,
