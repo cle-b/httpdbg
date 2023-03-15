@@ -32,7 +32,9 @@ def set_hook_for_socket_connect(records, method):
         try:
             r = method(self, address)
         except Exception as ex:
-            if not isinstance(ex, BlockingIOError):  # for async
+            if not isinstance(
+                ex, (BlockingIOError, OSError)
+            ):  # BlockingIOError for async, OSError for ipv6
                 record = HTTPRecord()
                 record.initiator = get_initiator(records._initiators)
 
@@ -61,11 +63,13 @@ def set_hook_for_ssl_wrap_socket(records, method):
 
             raise
 
+        logger.info(
+            f"WRAP_SOCKET - {type(sock)}={id(sock)} {type(sslsocket)}={id(sslsocket)}"
+        )
+
         socketdata = records.move_socket_data(sslsocket, sock)
         if socketdata:
-            logger.info(
-                f"WRAP_SOCKET - sock={sock} sockid={id(sock)} sslsocket={sslsocket} sslsocketid={id(sslsocket)} socketdata={socketdata}"
-            )
+            logger.info(f"WRAP_SOCKET * - socketdata={socketdata}")
 
         return sslsocket
 
@@ -86,11 +90,13 @@ def set_hook_for_sslcontext_wrap_socket(records, method):
 
             raise
 
+        logger.info(
+            f"WRAP_SOCKET (SSLContext) - {type(self)}={id(self)}  {type(sock)}={id(sock)} {type(sslsocket)}={id(sslsocket)}"
+        )
+
         socketdata = records.move_socket_data(sslsocket, sock)
         if socketdata:
-            logger.info(
-                f"WRAP_SOCKET (SSLContext) - socket={sock} socketid={id(sock)} sslsocket={sslsocket} sslsocketid={id(sslsocket)} socketdata={socketdata}"
-            )
+            logger.info(f"WRAP_SOCKET (SSLContext) * - socketdata={socketdata}")
 
         return sslsocket
 
@@ -111,11 +117,13 @@ def set_hook_for_socket_wrap_bio(records, method):
 
             raise
 
-        socketdata = records.move_socket_data(sslobject, self)
+        logger.info(
+            f"WRAP_SOCKET_BIO - {type(self)}={id(self)} {type(sslobject)}={id(sslobject)}"
+        )
+
+        socketdata = records.get_socket_data(sslobject, self)
         if socketdata:
-            logger.info(
-                f"WRAP_SOCKET_BIO - sock={self} sockid={id(self)} sslobject={sslobject} sslobjectid={id(sslobject)} socketdata={socketdata}"
-            )
+            logger.info(f"WRAP_SOCKET_BIO * - socketdata={socketdata}")
 
         return sslobject
 
@@ -264,11 +272,10 @@ def set_hook_for_asyncio_create_connection(records, method):
 
 def set_hook_for_sslobject_write(records, method):
     def hook(self, buf, *args, **kwargs):
+        logger.info(f"WRITE - {type(self)}={id(self)} buf={(b'' + buf)[:20]}")
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
-            logger.info(
-                f"WRITE - self={self} id={id(self)} socketdata={socketdata} buf={(b'' + buf)[:20]} args={args} kwargs={kwargs}"
-            )
+            logger.info(f"WRITE * - socketdata={socketdata}")
 
         try:
             size = method(self, buf, *args, **kwargs)
@@ -299,11 +306,10 @@ def set_hook_for_sslobject_write(records, method):
 
 def set_hook_for_sslobject_read(records, method):
     def hook(self, *args, **kwargs):
+        logger.info(f"READ - {type(self)}={id(self)}")
         socketdata = records.get_socket_data(self)
         if socketdata:
-            logger.info(
-                f"READ - self={self} id={id(self)} socketdata={socketdata} args={args} kwargs={kwargs}"
-            )
+            logger.info(f"READ * - socketdata={socketdata}")
 
         try:
             r = method(self, *args, **kwargs)
