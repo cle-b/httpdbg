@@ -255,7 +255,7 @@ class HTTPRecordResponse(HTTPRecordReqResp):
     def status_code(self):
         if not self._status_code:
             self._parse_first_line()
-        return int(self._status_code.decode()) if self._status_code else -1
+        return int(self._status_code.decode()) if self._status_code else 0
 
     @property
     def message(self):
@@ -303,7 +303,10 @@ class HTTPRecord:
 
     @property
     def status_code(self):
-        return self.response.status_code if self.response.status_code else -1
+        if self.exception:
+            return -1
+        else:
+            return self.response.status_code if self.response.status_code else 0
 
     @property
     def reason(self):

@@ -10,8 +10,6 @@
   --table-header-btn-hover: #eeeeee;
   --table-initiator: #eeeeee;
   --selected-url-text: #000000;
-  --tooltip-bg-color: #111111;
-  --tooltip-text: #ffffff;
   --header-cookie-key-text: #222288;
   --header-cookie-value-text: #000000;
   --details-text: #000000;
@@ -30,9 +28,18 @@ header {
 }
 
 #navbar {
-  text-align: right;
+  display: inline-block;
+  width: 100%;
   background-color: var(--table-header-bg);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+#navbar .menu-left {
+  float: left;
+}
+
+#navbar .menu-right {
+  float: right;
 }
 
 a:link {

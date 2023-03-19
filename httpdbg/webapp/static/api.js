@@ -1,6 +1,6 @@
 "use strict";
 
-let global = {
+const global = {
     "k7": null,
     "requests": {},
     "connected": false
@@ -9,6 +9,9 @@ let global = {
 function save_request(request_id, request) {
     request.loaded = false;
     request.to_refresh = true;
+    if (request.pin == undefined) {
+        request.pin = "";
+    }
     global.requests[request_id] = request;
     switch (global.requests[request_id].status_code) {
         case 0:
@@ -22,7 +25,9 @@ function save_request(request_id, request) {
             break;
     }
 
-    get_request(request_id);
+    if (!request.pin) {
+        get_request(request_id);
+    }
 }
 
 async function get_all_requests() {
@@ -45,7 +50,7 @@ async function get_all_requests() {
 
             if (data.id != global.k7) {
                 global.k7 = data.id;
-                global.requests = {};
+                clean();
             };
 
             for (const [request_id, request] of Object.entries(data.requests)) {
@@ -90,5 +95,13 @@ async function pol_new_data() {
             get_all_requests(),
             wait_for(1000)
         ]);
+    }
+}
+
+function pin_request(request_id, pin) {
+    if (pin) {
+        global.requests[request_id].pin = "checked";
+    } else {
+        global.requests[request_id].pin = "";
     }
 }

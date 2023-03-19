@@ -8,16 +8,7 @@ async function refresh_resquests() {
     var template_initiator = document.getElementById("template_initiator").innerHTML;
 
     if (global.k7 != k7_id) {
-        var initiators = document.getElementsByName("initiator");
-        while (initiators.length > 0) {
-            initiators[0].remove();
-        }
-        document.getElementById("headers").innerHTML = 'select a request to view details';
-        document.getElementById("cookies").innerHTML = 'select a request to view details';
-        document.getElementById("body_sent").innerHTML = 'select a request to view details';
-        document.getElementById("body_received").innerHTML = 'select a request to view details';
-        document.getElementById("exception").innerHTML = 'select a request to view details';
-        document.getElementById("stack").innerHTML = 'select a request to view details';
+        clean();
     };
     k7_id = global.k7;
 
@@ -164,4 +155,35 @@ function show_raw_data(elt, show_raw_text, raw_text, parsed_text) {
     }
 
     elt.textContent = preview;
+}
+
+function clean(force_clean = false) {
+    var onlynew = document.getElementById("onlynew");
+    if (onlynew.checked || force_clean) {
+
+        var initiators = document.getElementsByName("initiator");
+        while (initiators.length > 0) {
+            initiators[0].remove();
+        }
+        document.getElementById("headers").innerHTML = 'select a request to view details';
+        document.getElementById("cookies").innerHTML = 'select a request to view details';
+        document.getElementById("body_sent").innerHTML = 'select a request to view details';
+        document.getElementById("body_received").innerHTML = 'select a request to view details';
+        document.getElementById("exception").innerHTML = 'select a request to view details';
+        document.getElementById("stack").innerHTML = 'select a request to view details';
+
+        var tmprequests = {};
+
+        for (const [request_id, request] of Object.entries(global.requests)) {
+            if (request.pin == "checked") {
+                tmprequests[request_id] = request
+            }
+        };
+
+        global.requests = {};
+
+        for (const [request_id, request] of Object.entries(tmprequests)) {
+            save_request(request_id, request);
+        };
+    }
 }
