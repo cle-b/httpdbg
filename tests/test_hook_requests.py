@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import platform
 import pytest
 import requests
 
@@ -123,6 +124,10 @@ def test_requests_cookies_secure(httpbin_secure):
 
 
 @pytest.mark.requests
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="An established connection was aborted by the software in your host machine",
+)
 def test_requests_stream(httpbin_both):
     request_content = b"key=value"
     response_content = bytes()

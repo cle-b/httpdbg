@@ -30,6 +30,25 @@
     background-color: var(--table-initiator);
 }
 
+.pin {
+    width: 18px;
+    padding: 2px !important;
+}
+
+.pin-checkbox {
+    display: none;
+}
+
+.pin-checkbox:checked+label {
+    filter: none;
+}
+
+.pin-icon {
+    width: 16px;
+    padding: 0px !important;
+    filter: grayscale(90%);
+}
+
 .status {
     text-align: center;
     width: 36px;

@@ -1,3 +1,4 @@
+pytest-asyncio<0.21.0
 selenium
 niobium
 pytest-selenium
