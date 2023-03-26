@@ -27,12 +27,17 @@
     <header>
         <nav id="navbar">
             <div class="menu-left">
-                <button id="trash" onclick="clean(true)">&#129529;</button>
+                <button id="trash" onclick="clean(true)">
+                    <img class="icon" src="static/icons/recycle-bin-line-icon.svg" />
+                </button>
                 <input type="checkbox" id="onlynew" name="cleannew" checked>
                 <label for="clean">force clean for new session</label>
             </div>
             <div class="menu-right">
-                httpdbg <button id="config" onclick="config()">&#9881;</button>
+                httpdbg
+                <button id="config" onclick="config()">
+                    <img class="icon" src="static/icons/engine-gears-icon.svg" />
+                </button>
             </div>
         </nav>
     </header>
@@ -69,11 +74,12 @@
                         <th class="pin" title="pin"></th>
                         <th class="status" title="status"></th>
                         <th class="method" title="method"></th>
-                        <th class="url">url
-                            <span id="filter-url-btn" onclick="show_filter_url()">&#10729;</span>
+                        <th class="url">
+                            url
+                            <img class="icon" src="static/icons/filter-outline-icon.svg" />
                             <input type="text" value="" id="filter-url" onkeyup="update_filter_url()"
-                                oncut="update_filter_url()" onpaste="update_filter_url()" onchange="update_filter_url()"
-                                style="display: none;">
+                                oncut="update_filter_url()" onpaste="update_filter_url()"
+                                onchange="update_filter_url()">
                         </th>
                     </tr>
                 </thead>
@@ -96,7 +102,7 @@
                         data-qa-request="{{id}}">
                         <td class="pin" onclick="event.stopPropagation();">
                             <input class="pin-checkbox" type="checkbox" id="pin{{id}}" onclick="pin_request('{{id}}',this.checked)" {{pin}}>
-                            <label class="pin-icon" for="pin{{id}}">&#128204;</label>
+                            <label class="pin-icon" for="pin{{id}}"><img class="icon" src="static/icons/push-pin-green-icon.svg"/></label>
                         </td>
                         <td class="status"><span title="{{reason}}" data-qa-request-status>{{{status_code_view}}}</span></td>
                         <td class="method"><span title="{{verb}}" data-qa-request-method>{{verb}}</span></td>

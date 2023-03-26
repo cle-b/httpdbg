@@ -70,3 +70,9 @@ a:link {
 .previewimage {
   border: 1px solid var(--preview-code-border);
 }
+
+.icon {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}

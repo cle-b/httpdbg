@@ -1,6 +1,9 @@
 # Credits
 
-Thanks to all the contributors of the following librairies.
+Thanks to all the contributors of the following librairies / ressources:
 
-Javascript:
+## Javascript:
 * [mustache.js - Logic-less {{mustache}} templates with JavaScript](https://github.com/janl/mustache.js)
+
+## Icons:
+* [UXWing - Free Vector icons for Website and Mobile App](https://github.com/UXWing/vector-icons)

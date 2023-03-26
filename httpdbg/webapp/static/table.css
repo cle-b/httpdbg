@@ -40,13 +40,19 @@
 }
 
 .pin-checkbox:checked+label {
-    filter: none;
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+.pin-checkbox:checked+label img {
+    transform: rotate(-45deg);
 }
 
 .pin-icon {
     width: 16px;
     padding: 0px !important;
-    filter: grayscale(90%);
+    opacity: 0.4;
+    filter: grayscale(100%);
 }
 
 .status {

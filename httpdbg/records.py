@@ -137,11 +137,11 @@ class HTTPRecordReqResp(object):
         self._headers = []
         self.last_update = 0
 
-    def get_header(self, name):
+    def get_header(self, name, default=""):
         for header in self.headers:
             if header["name"].lower() == name.lower():
                 return header["value"]
-        return ""
+        return default
 
     @property
     def rawheaders(self):
@@ -325,6 +325,16 @@ class HTTPRecord:
     @property
     def urlext(self):
         return self.url[len(self.netloc) :]
+
+    @property
+    def in_progress(self):
+        try:
+            length = int(self.response.get_header("Content-Length", 0))
+            if length:
+                return len(self.response.content) < length
+        except Exception:
+            pass
+        return False
 
     @property
     def last_update(self):
