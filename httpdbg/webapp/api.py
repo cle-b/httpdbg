@@ -21,6 +21,7 @@ class RequestPayload(JSONEncoder):
             "response": None,
             "exception": None,
             "initiator": req.initiator.to_json(),
+            "in_progress": req.in_progress,
         }
 
         if req.request is not None:
@@ -79,6 +80,7 @@ class RequestListPayload(JSONEncoder):
                 "reason": req.reason,
                 "verb": req.method,
                 "initiator": req.initiator.to_json(full=False),
+                "in_progress": req.in_progress,
                 "last_update": req.last_update,
             }
 

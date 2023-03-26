@@ -13,16 +13,20 @@ function save_request(request_id, request) {
         request.pin = "";
     }
     global.requests[request_id] = request;
-    switch (global.requests[request_id].status_code) {
-        case 0:
-            global.requests[request_id].status_code_view = "&#9203";
-            break;
-        case -1:
-            global.requests[request_id].status_code_view = "&#10060";
-            break;
-        default:
-            global.requests[request_id].status_code_view = global.requests[request_id].status_code;
-            break;
+    if (global.requests[request_id].in_progress) {
+        global.requests[request_id].status_code_view = "<img class='icon' src='static/icons/wait-sandclock-icon.svg' />";
+    } else {
+        switch (global.requests[request_id].status_code) {
+            case 0:
+                global.requests[request_id].status_code_view = "<img class='icon' src='static/icons/wait-sandclock-icon.svg' />";
+                break;
+            case -1:
+                global.requests[request_id].status_code_view = "<img class='icon' src='static/icons/math-multiplication-icon.svg' />";
+                break;
+            default:
+                global.requests[request_id].status_code_view = global.requests[request_id].status_code;
+                break;
+        }
     }
 
     if (!request.pin) {
