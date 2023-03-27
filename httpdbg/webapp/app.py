@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-import json
+import glob
 from http.server import BaseHTTPRequestHandler
+import json
 import mimetypes
 import os
 import re
 from urllib.parse import urlparse, parse_qs
 
+from httpdbg import VERSION
 from httpdbg.webapp.api import RequestListPayload, RequestPayload
 
 
@@ -30,6 +32,8 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
                 break
 
     def serve_static(self, url):
+        base_path = os.path.dirname(os.path.realpath(__file__))
+
         if not (
             (url.path.lower() in ["/", "index.htm", "index.html"])
             or url.path.startswith("/static/")
@@ -39,11 +43,12 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         if url.path.lower() in ["/", "index.htm", "index.html"]:
             self.path = "/static/index.htm"
 
-        fullpath = os.path.realpath(
-            os.path.join(os.path.dirname(os.path.realpath(__file__)), self.path[1:])
-        )
+        # get real path
+        self.path = self.path.split("-+-")[0]
 
-        if not fullpath.startswith(os.path.dirname(os.path.realpath(__file__))):
+        fullpath = os.path.realpath(os.path.join(base_path, self.path[1:]))
+
+        if not fullpath.startswith(base_path):
             # if the file is not in the static directory, we don't serve it
             return self.serve_not_found()
 
@@ -54,10 +59,32 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header(
                 "content-type", mimetypes.types_map[os.path.splitext(fullpath)[1]]
             )
-            self.send_header_no_cache()
+            if self.path == "/static/index.htm":
+                self.send_header_no_cache()
+            else:
+                self.send_header_with_cache(604800)
             self.end_headers()
+
             with open(fullpath, "rb") as f:
-                self.wfile.write(f.read())
+                filecontent = f.read()
+
+                if b"$**PRELOAD_ICONS**$" in filecontent:
+                    icons = ""
+                    for icon in glob.glob(
+                        os.path.realpath(base_path) + "/static/icons/*.svg"
+                    ):
+                        icon_path = icon.replace(os.path.realpath(base_path) + "/", "")
+                        icons += f"<link rel='preload' href='{icon_path}-+-$**HTTPDBG_VERSION**$' as='image' type='image/svg+xml' />\n"
+
+                    filecontent = filecontent.replace(
+                        b"$**PRELOAD_ICONS**$", icons.encode("utf-8")
+                    )
+
+                filecontent = filecontent.replace(
+                    b"$**HTTPDBG_VERSION**$", VERSION.encode("utf-8")
+                )
+
+                self.wfile.write(filecontent)
 
         return True
 
@@ -166,3 +193,6 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def send_header_no_cache(self):
         self.send_header("Cache-Control", "max-age=0, no-cache, no-store, private")
+
+    def send_header_with_cache(self, seconds):
+        self.send_header("Cache-Control", f"max-age={seconds}")
