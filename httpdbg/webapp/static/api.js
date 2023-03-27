@@ -14,14 +14,14 @@ function save_request(request_id, request) {
     }
     global.requests[request_id] = request;
     if (global.requests[request_id].in_progress) {
-        global.requests[request_id].status_code_view = "<img class='icon' src='static/icons/wait-sandclock-icon.svg' />";
+        global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" />';
     } else {
         switch (global.requests[request_id].status_code) {
             case 0:
-                global.requests[request_id].status_code_view = "<img class='icon' src='static/icons/wait-sandclock-icon.svg' />";
+                global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$/" />';
                 break;
             case -1:
-                global.requests[request_id].status_code_view = "<img class='icon' src='static/icons/math-multiplication-icon.svg' />";
+                global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/math-multiplication-icon.svg-+-$**HTTPDBG_VERSION**$/" />';
                 break;
             default:
                 global.requests[request_id].status_code_view = global.requests[request_id].status_code;

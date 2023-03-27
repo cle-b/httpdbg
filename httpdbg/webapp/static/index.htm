@@ -6,21 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>httpdbg</title>
 
-    <link rel="shortcut icon" href="static/favicon.ico">
+    <link rel="shortcut icon" href="static/favicon.ico-+-$**HTTPDBG_VERSION**$">
 
-    <link rel="stylesheet" href="static/style.css">
-    <link rel="stylesheet" href="static/table.css">
-    <link rel="stylesheet" href="static/column.css">
-    <link rel="stylesheet" href="static/detail.css">
+    $**PRELOAD_ICONS**$
+
+    <link rel="stylesheet" href="static/style.css-+-$**HTTPDBG_VERSION**$">
+    <link rel="stylesheet" href="static/table.css-+-$**HTTPDBG_VERSION**$">
+    <link rel="stylesheet" href="static/column.css-+-$**HTTPDBG_VERSION**$">
+    <link rel="stylesheet" href="static/detail.css-+-$**HTTPDBG_VERSION**$">
     <style type="text/css" id="filter"></style>
     <style type="text/css" id="configurationcss"></style>
     <style type="text/css" id="serverstatuscss"></style>
-    <script src="static/mustache.min.js"></script>
-    <script src="static/main.js"></script>
-    <script src="static/api.js"></script>
-    <script src="static/render.js"></script>
-    <script src="static/filter.js"></script>
-    <script src="static/configuration.js"></script>
+    <script src="static/mustache.min.js-+-$**HTTPDBG_VERSION**$"></script>
+    <script src="static/main.js-+-$**HTTPDBG_VERSION**$"></script>
+    <script src="static/api.js-+-$**HTTPDBG_VERSION**$"></script>
+    <script src="static/render.js-+-$**HTTPDBG_VERSION**$"></script>
+    <script src="static/filter.js-+-$**HTTPDBG_VERSION**$"></script>
+    <script src="static/configuration.js-+-$**HTTPDBG_VERSION**$"></script>
 </head>
 
 <body>
@@ -28,7 +30,7 @@
         <nav id="navbar">
             <div class="menu-left">
                 <button id="trash" onclick="clean(true)">
-                    <img class="icon" src="static/icons/recycle-bin-line-icon.svg" />
+                    <img class="icon" src="static/icons/recycle-bin-line-icon.svg-+-$**HTTPDBG_VERSION**$" />
                 </button>
                 <input type="checkbox" id="onlynew" name="cleannew" checked>
                 <label for="clean">force clean for new session</label>
@@ -36,7 +38,7 @@
             <div class="menu-right">
                 httpdbg
                 <button id="config" onclick="config()">
-                    <img class="icon" src="static/icons/engine-gears-icon.svg" />
+                    <img class="icon" src="static/icons/engine-gears-icon.svg-+-$**HTTPDBG_VERSION**$" />
                 </button>
             </div>
         </nav>
@@ -76,7 +78,7 @@
                         <th class="method" title="method"></th>
                         <th class="url">
                             url
-                            <img class="icon" src="static/icons/filter-outline-icon.svg" />
+                            <img class="icon" src="static/icons/filter-outline-icon.svg-+-$**HTTPDBG_VERSION**$" />
                             <input type="text" value="" id="filter-url" onkeyup="update_filter_url()"
                                 oncut="update_filter_url()" onpaste="update_filter_url()"
                                 onchange="update_filter_url()">
@@ -102,7 +104,7 @@
                         data-qa-request="{{id}}">
                         <td class="pin" onclick="event.stopPropagation();">
                             <input class="pin-checkbox" type="checkbox" id="pin{{id}}" onclick="pin_request('{{id}}',this.checked)" {{pin}}>
-                            <label class="pin-icon" for="pin{{id}}"><img class="icon" src="static/icons/push-pin-green-icon.svg"/></label>
+                            <label class="pin-icon" for="pin{{id}}"><img class="icon" src="static/icons/push-pin-green-icon.svg-+-$**HTTPDBG_VERSION**$"/></label>
                         </td>
                         <td class="status"><span title="{{reason}}" data-qa-request-status>{{{status_code_view}}}</span></td>
                         <td class="method"><span title="{{verb}}" data-qa-request-method>{{verb}}</span></td>
@@ -202,7 +204,7 @@
                             {{#body}}
                                 {{#body.path}}
                                 <a href="{{body.path}}" download="{{body.filename}}" class="need-server"><button>download</button></a>
-                                <img class="icon need-server-info" title="Use the '-k' option to keep the server up and being able to download the content." src="static/icons/information-mark-circle-outline-icon.svg" />
+                                <img class="icon need-server-info" title="Use the '-k' option to keep the server up and being able to download the content." src="static/icons/information-mark-circle-outline-icon.svg-+-$**HTTPDBG_VERSION**$" />
                                 {{/body.path}}
 
                                 {{#body.text}}
