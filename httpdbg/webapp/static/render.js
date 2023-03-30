@@ -63,8 +63,6 @@ function compare_to_request(request_id) {
 
         document.getElementById("request-" + request_id).classList.add("active-row-compare");
 
-        var data = global.requests[request_id].data;
-
         fill_content(request_id, "compareto");
         hide_elts("compareto", false);
     }
