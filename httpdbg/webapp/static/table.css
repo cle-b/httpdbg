@@ -87,7 +87,12 @@
 }
 
 .requests-table tbody tr.active-row {
-    font-weight: bold;
+    background-color: var(--selected-url-bgcolor);
+    color: var(--selected-url-text);
+}
+
+.requests-table tbody tr.active-row-compare {
+    background-color: var(--compare-url-bgcolor);
     color: var(--selected-url-text);
 }
 

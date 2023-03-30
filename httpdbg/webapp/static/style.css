@@ -9,6 +9,8 @@
   --table-header-btn-active: #cccccc;
   --table-header-btn-hover: #eeeeee;
   --table-initiator: #eeeeee;
+  --selected-url-bgcolor: #98c5e7;
+  --compare-url-bgcolor: #98e7cf;
   --selected-url-text: #000000;
   --header-cookie-key-text: #222288;
   --header-cookie-value-text: #000000;
@@ -16,6 +18,7 @@
   --details-section-text: #000000;
   --link-server-disconnected: #444444;
   --preview-code-border: #777777;
+  --column-border: #dadada;
 }
 
 body {
