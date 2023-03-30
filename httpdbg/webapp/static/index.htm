@@ -99,7 +99,7 @@
                 <script id="template_request" type="x-tmpl-mustache">
                     <tr id="request-{{id}}"
                         data-filter-url="{{url}}"
-                        onclick="show_request('{{id}}')"
+                        onclick="select_request(arguments[0], '{{id}}')"
                         class="request"
                         data-qa-request="{{id}}">
                         <td class="pin" onclick="event.stopPropagation();">
@@ -108,7 +108,7 @@
                         </td>
                         <td class="status"><span title="{{reason}}" data-qa-request-status>{{{status_code_view}}}</span></td>
                         <td class="method"><span title="{{verb}}" data-qa-request-method>{{verb}}</span></td>
-                        <td class="url"><span title="{{url}}" data-qa-request-url><span class="netloc">{{netloc}}</span><span>{{urlext}}</span<></span></td>
+                        <td class="url" title="ctrl+click to compare to"><span title="{{url}}" data-qa-request-url><span class="netloc">{{netloc}}</span><span>{{urlext}}</span<></span></td>
                     </tr>
                 </script>
 
@@ -118,152 +118,178 @@
 
         <div class="grid-column">
 
+            <table class="request-details">
 
-            <div class="req-detail">
+                <thead>
+                    <tr>
+                        <th>
+                            <div class="tab">
+                                <button id="btn-tab-headers" class="tablinks"
+                                    onclick="opentab(event.currentTarget, 'tabHeaders')">headers</button>
+                                <button id="btn-tab-cookies" class="tablinks"
+                                    onclick="opentab(event.currentTarget, 'tabCookies')">cookies</button>
+                                <button id="btn-tab-request" class="tablinks"
+                                    onclick="opentab(event.currentTarget, 'tabRequest')">request</button>
+                                <button id="btn-tab-response" class="tablinks"
+                                    onclick="opentab(event.currentTarget, 'tabResponse')">response</button>
+                                <button id="btn-tab-exception" class="tablinks"
+                                    onclick="opentab(event.currentTarget, 'tabException')">exception</button>
+                                <button id="btn-tab-stack" class="tablinks"
+                                    onclick="opentab(event.currentTarget, 'tabStack')">stack</button>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
 
-                <div class="tab">
-                    <button id="btn-tab-headers" class="tablinks"
-                        onclick="opentab(event.currentTarget, 'tabHeaders')">headers</button>
-                    <button id="btn-tab-cookies" class="tablinks"
-                        onclick="opentab(event.currentTarget, 'tabCookies')">cookies</button>
-                    <button id="btn-tab-request" class="tablinks"
-                        onclick="opentab(event.currentTarget, 'tabRequest')">request</button>
-                    <button id="btn-tab-response" class="tablinks"
-                        onclick="opentab(event.currentTarget, 'tabResponse')">response</button>
-                    <button id="btn-tab-exception" class="tablinks"
-                        onclick="opentab(event.currentTarget, 'tabException')">exception</button>
-                    <button id="btn-tab-stack" class="tablinks"
-                        onclick="opentab(event.currentTarget, 'tabStack')">stack</button>
-                </div>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div id="tabHeaders" class="tabcontent">
+                                <div id="headers" class="content">
+                                    <div class="colcontent" name="request">select a request to view details</div>
+                                    <div class="colcontent" name="compareto"></div>
+                                </div>
 
+                                <script id="template_headers" type="x-tmpl-mustache">
+                                       <b>{{ method }}</b> <a href="{{ url }}">{{ url }}</a>
+                                       <hr>
+                                       <h4>status</h4>
+                                          {{ status_code }} {{ reason }}
+                                       <hr>
+                                       <h4>response headers</h4>
+                                       {{#response}}
+                                           {{#response.headers}}
+                                           <span class="header-cookie-key">{{name}}</span>:
+                                           <span class="header-cookie-value">{{value}}</span>
+                                           <br>
+                                           {{/response.headers}}
+                                       {{/response}}
+                                       <hr>
+                                       <h4>request headers</h4>
+                                       {{#request.headers}}
+                                       <span class="header-cookie-key">{{name}}</span>:
+                                       <span class="header-cookie-value">{{value}}</span>
+                                       <br>
+                                       {{/request.headers}}
+                                    </script>
+                            </div>
 
-                <div id="tabHeaders" class="tabcontent">
-                    <div id="headers">select a request to view details</div>
-                    <script id="template_headers" type="x-tmpl-mustache">
-                           <b>{{ method }}</b> <a href="{{ url }}">{{ url }}</a>
-                           <hr>
-                           <h4>status</h4>
-                              {{ status_code }} {{ reason }}
-                           <hr>
-                           <h4>response headers</h4>
-                           {{#response}}
-                               {{#response.headers}}
-                               <span class="header-cookie-key">{{name}}</span>:
-                               <span class="header-cookie-value">{{value}}</span>
-                               <br>
-                               {{/response.headers}}
-                           {{/response}}
-                           <hr>
-                           <h4>request headers</h4>
-                           {{#request.headers}}
-                           <span class="header-cookie-key">{{name}}</span>:
-                           <span class="header-cookie-value">{{value}}</span>
-                           <br>
-                           {{/request.headers}}
-                        </script>
-                </div>
+                            <div id="tabCookies" class="tabcontent">
+                                <div id="cookies" class="content">
+                                    <div class="colcontent" name="request">select a request to view details</div>
+                                    <div class="colcontent" name="compareto"></div>
+                                </div>
+                                <script id="template_cookies" type="x-tmpl-mustache">
+                                       <h4>response cookies</h4>
+                                       {{#response}}
+                                           {{#response.cookies}}
+                                           <span class="header-cookie-key">{{name}}</span>: 
+                                           <span class="header-cookie-value">{{value}}</span> 
+                                             <ul>
+                                               {{#attributes}}
+                                               <li>
+                                                <span class="header-cookie-key">{{name}}</span>{{#attr}}: <span class="header-cookie-value">{{attr}}</span>{{/attr}}
+                                               </li>
+                                               {{/attributes}}
+                                             </ul>
+                                           {{/response.cookies}}
+                                       {{/response}}
+                                       <hr>
+                                       <h4>request cookies</h4>
+                                       {{#request.cookies}}
+                                       <span class="header-cookie-key">{{name}}</span>: 
+                                       <span class="header-cookie-value">{{value}}</span>
+                                       <br> 
+                                       <br>
+                                       {{/request.cookies}}
+                                    </script>
+                            </div>
 
-                <div id="tabCookies" class="tabcontent">
-                    <div id="cookies">select a request to view details</div>
-                    <script id="template_cookies" type="x-tmpl-mustache">
-                           <h4>response cookies</h4>
-                           {{#response}}
-                               {{#response.cookies}}
-                               <span class="header-cookie-key">{{name}}</span>: 
-                               <span class="header-cookie-value">{{value}}</span> 
-                                 <ul>
-                                   {{#attributes}}
-                                   <li>
-                                    <span class="header-cookie-key">{{name}}</span>{{#attr}}: <span class="header-cookie-value">{{attr}}</span>{{/attr}}
-                                   </li>
-                                   {{/attributes}}
-                                 </ul>
-                               {{/response.cookies}}
-                           {{/response}}
-                           <hr>
-                           <h4>request cookies</h4>
-                           {{#request.cookies}}
-                           <span class="header-cookie-key">{{name}}</span>: 
-                           <span class="header-cookie-value">{{value}}</span>
-                           <br> 
-                           <br>
-                           {{/request.cookies}}
-                        </script>
-                </div>
+                            <div id="tabRequest" class="tabcontent">
+                                <div id="body_sent" class="content">
+                                    <div class="colcontent" name="request">select a request to view details</div>
+                                    <div class="colcontent" name="compareto"></div>
+                                </div>
+                                <script id="template_body" type="x-tmpl-mustache">
+                                        {{^body}}
+                                        -- no content --
+                                        {{#stream}}
+                                        (because stream mode on)
+                                        {{/stream}}
+                                        {{/body}}
+            
+                                        {{#body}}
+                                            {{#body.path}}
+                                            <a href="{{body.path}}" download="{{body.filename}}" class="need-server"><button title="download"><img title="copy to clipboard" class="icon" src="static/icons/download-install-line-icon.svg-+-$**HTTPDBG_VERSION**$"/></button></a>
+                                            <img class="icon need-server-info" title="Use the '-k' option to keep the server up and being able to download the content." src="static/icons/information-mark-circle-outline-icon.svg-+-$**HTTPDBG_VERSION**$" />
+                                            {{/body.path}}
+            
+                                            {{#body.text}}
+                                            
+                                            {{#body.raw_text}}
+                                            <button onclick="navigator.clipboard.writeText({{body.raw_text}});"><img title="copy to clipboard" class="icon" src="static/icons/files-papers-outline-icon.svg-+-$**HTTPDBG_VERSION**$"/></button>
+                                            {{/body.raw_text}}
+            
+                                            <label><input type="checkbox" onclick='show_wrap_lines(this.parentNode.parentNode.querySelector(".previewcode"));'>Wrap lines</label>
+                                            {{#body.parsed}}
+                                                <label><input type="checkbox" onclick='show_raw_data(this.parentNode.parentNode.querySelector(".previewcode"), this.checked, {{body.raw_text}}, {{body.parsed_text}});'>Raw data</label>
+                                                <pre class="previewcode">{{body.parsed}}</pre>
+                                            {{/body.parsed}}                                    
+                                            {{^body.parsed}}
+                                                <pre class="previewcode">{{body.text}}</pre>
+                                            {{/body.parsed}}
+                                            
+                                            {{/body.text}}
+            
+                                            {{#body.image}}
+                                            <br><br>
+                                            <img class="previewimage" src="{{body.path}}">
+                                            {{/body.image}}
+                                        {{/body}}
+                                    </script>
+                            </div>
 
-                <div id="tabRequest" class="tabcontent">
-                    <div id="body_sent">select a request to view details</div>
-                    <script id="template_body" type="x-tmpl-mustache">
-                            {{^body}}
-                            -- no content --
-                            {{#stream}}
-                            (because stream mode on)
-                            {{/stream}}
-                            {{/body}}
+                            <div id="tabResponse" class="tabcontent">
+                                <div id="body_received" class="content">
+                                    <div class="colcontent" name="request">select a request to view details</div>
+                                    <div class="colcontent" name="compareto"></div>
+                                </div>
+                            </div>
 
-                            {{#body}}
-                                {{#body.path}}
-                                <a href="{{body.path}}" download="{{body.filename}}" class="need-server"><button>download</button></a>
-                                <img class="icon need-server-info" title="Use the '-k' option to keep the server up and being able to download the content." src="static/icons/information-mark-circle-outline-icon.svg-+-$**HTTPDBG_VERSION**$" />
-                                {{/body.path}}
+                            <div id="tabException" class="tabcontent">
+                                <div id="exception" class="content">
+                                    <div class="colcontent" name="request">select a request to view details</div>
+                                    <div class="colcontent" name="compareto"></div>
+                                </div>
+                                <script id="template_exception" type="x-tmpl-mustache">
+                                    {{^exception}}
+                                    -- no exception --
+                                    {{/exception}}
+                                    {{#exception}}
+                                        <span>{{exception.type}}</span>
+                                        <pre>{{exception.message}}</pre>
+                                    {{/exception}}
+                                </script>
+                            </div>
 
-                                {{#body.text}}
-                                
-                                {{#body.raw_text}}
-                                <button onclick="navigator.clipboard.writeText({{body.raw_text}});">copy to clipboard</button>
-                                {{/body.raw_text}}
+                            <div id="tabStack" class="tabcontent">
+                                <div id="stack" class="content">
+                                    <div class="colcontent" name="request">select a request to view details</div>
+                                    <div class="colcontent" name="compareto"></div>
+                                </div>
+                                <script id="template_stack" type="x-tmpl-mustache">
+                                    {{#initiator}}
+                                        <pre>{{initiator.stack}}</pre>
+                                    {{/initiator}}
+                                </script>
+                            </div>
 
-                                <label><input type="checkbox" onclick='show_wrap_lines(this.parentNode.parentNode.querySelector(".previewcode"));'>Wrap lines</label>
-                                {{#body.parsed}}
-                                    <label><input type="checkbox" onclick='show_raw_data(this.parentNode.parentNode.querySelector(".previewcode"), this.checked, {{body.raw_text}}, {{body.parsed_text}});'>Raw data</label>
-                                    <pre class="previewcode">{{body.parsed}}</pre>
-                                {{/body.parsed}}                                    
-                                {{^body.parsed}}
-                                    <pre class="previewcode">{{body.text}}</pre>
-                                {{/body.parsed}}
-                                
-                                {{/body.text}}
-
-                                {{#body.image}}
-                                <br><br>
-                                <img class="previewimage" src="{{body.path}}">
-                                {{/body.image}}
-                            {{/body}}
-                        </script>
-                </div>
-
-                <div id="tabResponse" class="tabcontent">
-                    <div id="body_received">select a request to view details</div>
-                </div>
-            </div>
-
-            <div id="tabException" class="tabcontent">
-                <div id="exception">select a request to view details</div>
-                <script id="template_exception" type="x-tmpl-mustache">
-                        {{^exception}}
-                        -- no exception --
-                        {{/exception}}
-                        {{#exception}}
-                            <span>{{exception.type}}</span>
-                            <pre>{{exception.message}}</pre>
-                        {{/exception}}
-                    </script>
-            </div>
-
-            <div id="tabStack" class="tabcontent">
-                <div id="stack">select a request to view details</div>
-                <script id="template_stack" type="x-tmpl-mustache">
-                        {{#initiator}}
-                            <pre>{{initiator.stack}}</pre>
-                        {{/initiator}}
-                    </script>
-            </div>
-
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-
     </div>
-
-
     <script>
         load_config_from_url(true);
         update_filter_url();

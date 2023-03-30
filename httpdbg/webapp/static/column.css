@@ -2,11 +2,13 @@
     display: grid;
     grid-template-columns: 1fr 2fr;
     grid-gap: 10px;
+    height: 90vh;
 }
 
 .grid-column {
     height: 90vh;
     overflow: auto;
+    border: 1px solid var(--column-border);
 }
 
 .grid-column-left {

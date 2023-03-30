@@ -33,27 +33,62 @@ async function refresh_resquests() {
 }
 
 
-function update_with_template(template_id, target_id, data) {
+function update_with_template(template_id, element, data) {
     var template = document.getElementById(template_id).innerHTML;
     var rendered = Mustache.render(template, data);
-    document.getElementById(target_id).innerHTML = rendered;
+    element.innerHTML = rendered;
 }
 
+function select_request(event, request_id) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!(event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) || (document.getElementsByClassName("active-row").length == 0)) {
+        show_request(request_id);
+    } else {
+        compare_to_request(request_id);
+    }
+}
+
+function remove_class(classname) {
+    var elts = document.getElementsByClassName(classname);
+    [].forEach.call(elts, function (el) {
+        el.classList.remove(classname);
+    });
+}
+
+function compare_to_request(request_id) {
+    if (!document.getElementById("request-" + request_id).classList.contains("active-row")) {
+        remove_class("active-row-compare");
+
+        document.getElementById("request-" + request_id).classList.add("active-row-compare");
+
+        var data = global.requests[request_id].data;
+
+        fill_content(request_id, "compareto");
+        hide_elts("compareto", false);
+    }
+}
 
 function show_request(request_id) {
 
-    var active_rows = document.getElementsByClassName("active-row");
-    [].forEach.call(active_rows, function (el) {
-        el.classList.remove("active-row");
-    });
+    remove_class("active-row");
+    remove_class("active-row-compare");
+    empty_content("compareto", "");
+    hide_elts("compareto", true);
 
     document.getElementById("request-" + request_id).classList.add("active-row");
 
+    fill_content(request_id, "request");
+}
+
+function fill_content(request_id, name) {
+
     var data = global.requests[request_id].data;
 
-    update_with_template("template_headers", "headers", data);
+    update_with_template("template_headers", document.querySelector("#headers > div[name='" + name + "']"), data);
 
-    update_with_template("template_cookies", "cookies", data);
+    update_with_template("template_cookies", document.querySelector("#cookies > div[name='" + name + "']"), data);
 
     var request = data.request ? data.request : {
         "body": null
@@ -66,7 +101,7 @@ function show_request(request_id) {
         }
     };
 
-    update_with_template("template_body", "body_sent", request);
+    update_with_template("template_body", document.querySelector("#body_sent > div[name='" + name + "']"), request);
 
     var response = data.response ? data.response : {
         "body": null
@@ -79,11 +114,11 @@ function show_request(request_id) {
         }
     };
 
-    update_with_template("template_body", "body_received", response);
+    update_with_template("template_body", document.querySelector("#body_received > div[name='" + name + "']"), response);
 
-    update_with_template("template_exception", "exception", data);
+    update_with_template("template_exception", document.querySelector("#exception > div[name='" + name + "']"), data);
 
-    update_with_template("template_stack", "stack", data);
+    update_with_template("template_stack", document.querySelector("#stack > div[name='" + name + "']"), data);
 }
 
 
@@ -165,12 +200,11 @@ function clean(force_clean = false) {
         while (initiators.length > 0) {
             initiators[0].remove();
         }
-        document.getElementById("headers").innerHTML = 'select a request to view details';
-        document.getElementById("cookies").innerHTML = 'select a request to view details';
-        document.getElementById("body_sent").innerHTML = 'select a request to view details';
-        document.getElementById("body_received").innerHTML = 'select a request to view details';
-        document.getElementById("exception").innerHTML = 'select a request to view details';
-        document.getElementById("stack").innerHTML = 'select a request to view details';
+
+        empty_content("request", "select a request to view details");
+
+        empty_content("compareto", "");
+        hide_elts("compareto", true);
 
         var tmprequests = {};
 
@@ -186,4 +220,18 @@ function clean(force_clean = false) {
             save_request(request_id, request);
         };
     }
+}
+
+function empty_content(name, value) {
+    var elts = document.getElementsByName(name);
+    [].forEach.call(elts, function (el) {
+        el.innerHTML = value;
+    });
+}
+
+function hide_elts(name, value) {
+    var elts = document.getElementsByName(name);
+    [].forEach.call(elts, function (el) {
+        el.hidden = value;
+    });
 }
