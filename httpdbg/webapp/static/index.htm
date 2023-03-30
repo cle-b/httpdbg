@@ -220,14 +220,14 @@
             
                                         {{#body}}
                                             {{#body.path}}
-                                            <a href="{{body.path}}" download="{{body.filename}}" class="need-server"><button title="download"><img title="copy to clipboard" class="icon" src="static/icons/download-install-line-icon.svg-+-$**HTTPDBG_VERSION**$"/></button></a>
+                                            <a href="{{body.path}}" download="{{body.filename}}" class="need-server"><button title="download"><img class="icon" src="static/icons/download-install-line-icon.svg-+-$**HTTPDBG_VERSION**$"/></button></a>
                                             <img class="icon need-server-info" title="Use the '-k' option to keep the server up and being able to download the content." src="static/icons/information-mark-circle-outline-icon.svg-+-$**HTTPDBG_VERSION**$" />
                                             {{/body.path}}
             
                                             {{#body.text}}
                                             
                                             {{#body.raw_text}}
-                                            <button onclick="navigator.clipboard.writeText({{body.raw_text}});"><img title="copy to clipboard" class="icon" src="static/icons/files-papers-outline-icon.svg-+-$**HTTPDBG_VERSION**$"/></button>
+                                            <button title="copy to clipboard" onclick="navigator.clipboard.writeText({{body.raw_text}});"><img class="icon" src="static/icons/files-papers-outline-icon.svg-+-$**HTTPDBG_VERSION**$"/></button>
                                             {{/body.raw_text}}
             
                                             <label><input type="checkbox" onclick='show_wrap_lines(this.parentNode.parentNode.querySelector(".previewcode"));'>Wrap lines</label>
