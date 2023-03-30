@@ -18,11 +18,11 @@
   z-index: 9;
 }
 
-.req-detail {
+.request-details {
   color: var(--details-text);
 }
 
-.req-detail h4 {
+.request-details h4 {
   color: var(--details-section-text);
 }
 
@@ -72,10 +72,6 @@
 
 pre {
   white-space: pre-wrap;
-}
-
-.req-detail {
-  width: 99%;
 }
 
 .content {
