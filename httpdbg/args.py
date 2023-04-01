@@ -2,7 +2,7 @@
 import argparse
 
 
-def read_args(args):
+def read_args(args: list[str]) -> tuple[argparse.Namespace, list[str]]:
     httpdbg_args = args
     client_args = []
     for action in ["--console", "--module", "-m", "--script"]:

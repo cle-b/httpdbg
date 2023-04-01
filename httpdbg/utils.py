@@ -5,6 +5,7 @@ import os
 import secrets
 import string
 
+
 logger = logging.getLogger("httpdbg")
 logger.setLevel(100)
 log_level = os.environ.get("HTTPDBG_LOG")
@@ -13,12 +14,12 @@ if log_level is not None:
     logger.setLevel(int(log_level))
 
 
-def get_new_uuid():
+def get_new_uuid() -> str:
     # important - the uuid must be compatible with method naming rules
     return "".join(secrets.choice(string.ascii_letters) for i in range(10))
 
 
-def chunked_to_bytes(chunked):
+def chunked_to_bytes(chunked: bytes) -> bytes:
     data = bytes()
     try:
         b1 = 0
@@ -33,26 +34,53 @@ def chunked_to_bytes(chunked):
         return bytes()
 
 
-def list_cookies_headers_request_simple_cookies(headers):
+class HTTPDBGCookie(object):
+    def __init__(self, name: str, value: str = None, attributes: list = None) -> None:
+        self.name = name
+        self.value = value
+        self.attributes = [] if attributes is None else attributes
+
+    def __str__(self) -> str:
+        return f"cookie name=[{self.name}] value=[{self.value}] attributes=[{self.attributes}]"
+
+    def to_json(self) -> dict:
+        return {"name": self.name, "value": self.value, "attributes": self.attributes}
+
+
+class HTTPDBGHeader(object):
+    def __init__(self, name: str, value: str = ""):
+        self.name = name
+        self.value = value
+
+    def __str__(self) -> str:
+        return f"header name=[{self.name}] value=[{self.value}]"
+
+    def to_json(self) -> dict:
+        return {"name": self.name, "value": self.value}
+
+
+def list_cookies_headers_request_simple_cookies(
+    headers: list[HTTPDBGHeader],
+) -> list[HTTPDBGCookie]:
     lst = []
     for header in headers:
-        if header["name"].lower() == "cookie":
-            cookies = SimpleCookie()
-            cookies.load(header["value"])
+        if header.name.lower() == "cookie":
+            cookies: SimpleCookie = SimpleCookie()
+            cookies.load(header.value)
             for name, cookie in cookies.items():
-                madeleine = {"name": name, "value": cookie.value}
-                lst.append(madeleine)
+                lst.append(HTTPDBGCookie(name, cookie.value))
     return lst
 
 
-def list_cookies_headers_response_simple_cookies(headers):
+def list_cookies_headers_response_simple_cookies(
+    headers: list[HTTPDBGHeader],
+) -> list[HTTPDBGCookie]:
     lst = []
     for header in headers:
-        if header["name"].lower() == "set-cookie":
-            cookies = SimpleCookie()
-            cookies.load(header["value"])
+        if header.name.lower() == "set-cookie":
+            cookies: SimpleCookie = SimpleCookie()
+            cookies.load(header.value)
             for name, cookie in cookies.items():
-                madeleine = {"name": name, "value": cookie.value}
                 attributes = []
                 # https://docs.python.org/3/library/http.cookies.html
                 if cookie.get("expires"):
@@ -79,7 +107,5 @@ def list_cookies_headers_response_simple_cookies(headers):
                     attributes.append({"name": "Secure"})
                 if cookie.get("httponly"):
                     attributes.append({"name": "HttpOnly"})
-                if attributes:
-                    madeleine["attributes"] = attributes
-                lst.append(madeleine)
+                lst.append(HTTPDBGCookie(name, cookie.value, attributes))
     return lst

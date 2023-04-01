@@ -7,13 +7,13 @@ from httpdbg.utils import get_new_uuid
 
 
 class Initiator(object):
-    def __init__(self, id, short_label, long_label, stack):
+    def __init__(self, id: str, short_label: str, long_label: str, stack: str):
         self.id = id
         self.short_label = short_label
         self.long_label = long_label
         self.stack = stack
 
-    def to_json(self, full=True):
+    def to_json(self, full: bool = True) -> dict:
         if full:
             json = {
                 "id": self.id,
@@ -30,14 +30,14 @@ class Initiator(object):
         return json
 
 
-def compatible_path(path):
+def compatible_path(path: str) -> str:
     p = path
     if platform.system().lower() == "windows":
         p = path.replace("/", "\\")
     return p
 
 
-def in_lib(line, packages=[]):
+def in_lib(line: str, packages: list[str] = None):
     if not packages:
         packages = ["requests", "httpx", "aiohttp", "urllib3"]
     return any(

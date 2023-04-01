@@ -33,3 +33,7 @@ httpdbg = ["webapp/static/*", "webapp/static/icons/*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "httpdbg.VERSION"}
+
+[tool.mypy]
+no_implicit_optional = false
+files = ["httpdbg"]

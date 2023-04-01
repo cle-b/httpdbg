@@ -6,7 +6,7 @@ def console_exit():
     raise SystemExit
 
 
-def run_console(test_mode=False):
+def run_console(test_mode: bool = False) -> code.InteractiveConsole | None:
     try:
         vars = globals()
         vars.update(locals())
@@ -32,3 +32,5 @@ def run_console(test_mode=False):
             return new_console
     except SystemExit:  # pragma: no cover
         pass
+
+    return None

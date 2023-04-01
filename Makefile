@@ -1,4 +1,4 @@
-.PHONY: setup format lint test allpytest clean ci coverage selenium testui testall ciall
+.PHONY: setup format lint test allpytest clean ci coverage selenium testui testall ciall typing check
 
 setup:
 	pip install -e .
@@ -47,3 +47,8 @@ ciall:
 	pip install -r requirements-dev-ui.txt
 	pip install .
 	coverage run -m pytest -v --driver Remote --capability browserName chrome tests/
+
+typing:
+	mypy
+
+check: lint typing
