@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import json
 import urllib
+from typing import Tuple, Dict, Union
 from xml.dom import minidom
 
 
-def parse_content_type(content_type: str) -> tuple[str, dict[str, str]]:
+def parse_content_type(content_type: str) -> Tuple[str, Dict[str, str]]:
     s = content_type.split(";")
     media_type = s[0]
     directives = {}
@@ -17,8 +18,8 @@ def parse_content_type(content_type: str) -> tuple[str, dict[str, str]]:
 
 def generate_preview(
     path: str, filename: str, raw_data: bytes, content_type: str, content_encoding: str
-) -> dict[str, str | bool]:
-    body: dict[str, str | bool] = {
+) -> Dict[str, Union[str, bool]]:
+    body: Dict[str, Union[str, bool]] = {
         "path": path,
         "filename": filename,
     }

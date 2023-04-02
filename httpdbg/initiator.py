@@ -2,6 +2,7 @@
 import os
 import platform
 import traceback
+from typing import List
 
 from httpdbg.utils import get_new_uuid
 
@@ -37,7 +38,7 @@ def compatible_path(path: str) -> str:
     return p
 
 
-def in_lib(line: str, packages: list[str] = None):
+def in_lib(line: str, packages: List[str] = None):
     if not packages:
         packages = ["requests", "httpx", "aiohttp", "urllib3"]
     return any(

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from collections.abc import Generator
 from contextlib import contextmanager
 from http.server import HTTPServer
 import threading
+from typing import Generator
 
 from httpdbg.records import HTTPRecords
 from httpdbg.webapp import HttpbgHTTPRequestHandler

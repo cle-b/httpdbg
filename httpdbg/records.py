@@ -3,6 +3,7 @@ import socket
 import ssl
 import time
 from urllib.parse import urlparse
+from typing import Dict, List, Tuple, Union
 
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
@@ -15,7 +16,7 @@ from httpdbg.utils import logger
 
 
 class SocketRawData(object):
-    def __init__(self, id: str, address: tuple[str, int], ssl: bool) -> None:
+    def __init__(self, id: str, address: Tuple[str, int], ssl: bool) -> None:
         self.id = id
         self.address = address
         self.ssl = ssl
@@ -33,7 +34,7 @@ class SocketRawData(object):
         )
         self._rawdata = value
 
-    def http_detected(self) -> bool | None:
+    def http_detected(self) -> Union[bool, None]:
         end_of_first_line = self.rawdata[:2048].find(b"\r\n")
         if end_of_first_line == -1:
             if len(self.rawdata) > 2048:
@@ -55,7 +56,7 @@ class HTTPRecordReqResp(object):
     def __init__(self) -> None:
         self.rawdata = bytes()
         self._rawheaders = bytes()
-        self._headers: list[HTTPDBGHeader] = []
+        self._headers: List[HTTPDBGHeader] = []
         self.last_update = 0
 
     def get_header(self, name: str, default: str = "") -> str:
@@ -73,7 +74,7 @@ class HTTPRecordReqResp(object):
         return self._rawheaders
 
     @property
-    def headers(self) -> list[HTTPDBGHeader]:
+    def headers(self) -> List[HTTPDBGHeader]:
         if not self._headers:
             if self.rawheaders:
                 for header in self.rawheaders[self.rawheaders.find(b"\r\n") :].split(
@@ -120,7 +121,7 @@ class HTTPRecordRequest(HTTPRecordReqResp):
         self._protocol = bytes()
 
     @property
-    def cookies(self) -> list[HTTPDBGCookie]:
+    def cookies(self) -> List[HTTPDBGCookie]:
         return list_cookies_headers_request_simple_cookies(self.headers)
 
     def _parse_first_line(self) -> None:
@@ -155,7 +156,7 @@ class HTTPRecordResponse(HTTPRecordReqResp):
         self._message = bytes()
 
     @property
-    def cookies(self) -> list[HTTPDBGCookie]:
+    def cookies(self) -> List[HTTPDBGCookie]:
         return list_cookies_headers_response_simple_cookies(self.headers)
 
     def _parse_first_line(self) -> None:
@@ -185,8 +186,8 @@ class HTTPRecordResponse(HTTPRecordReqResp):
 class HTTPRecord:
     def __init__(self) -> None:
         self.id = get_new_uuid()
-        self.address: tuple[str, int] = ("", 0)
-        self._url: str | None = None
+        self.address: Tuple[str, int] = ("", 0)
+        self._url: Union[str, None] = None
         self.initiator: Initiator = Initiator("", "", "", "")
         self.exception = None
         self.request = HTTPRecordRequest()
@@ -262,10 +263,10 @@ class HTTPRecord:
 class HTTPRecords:
     def __init__(self) -> None:
         self.id = get_new_uuid()
-        self.requests: dict[str, HTTPRecord] = {}
+        self.requests: Dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
-        self._initiators: dict[str, Initiator] = {}
-        self._sockets: dict[str, SocketRawData] = {}
+        self._initiators: Dict[str, Initiator] = {}
+        self._sockets: Dict[str, SocketRawData] = {}
 
     @property
     def unread(self) -> int:

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import code
+from typing import Union
 
 
 def console_exit():
     raise SystemExit
 
 
-def run_console(test_mode: bool = False) -> code.InteractiveConsole | None:
+def run_console(test_mode: bool = False) -> Union[code.InteractiveConsole, None]:
     try:
         vars = globals()
         vars.update(locals())

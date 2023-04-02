@@ -4,7 +4,7 @@ import logging
 import os
 import secrets
 import string
-
+from typing import List
 
 logger = logging.getLogger("httpdbg")
 logger.setLevel(100)
@@ -85,8 +85,8 @@ class HTTPDBGHeader(object):
 
 
 def list_cookies_headers_request_simple_cookies(
-    headers: list[HTTPDBGHeader],
-) -> list[HTTPDBGCookie]:
+    headers: List[HTTPDBGHeader],
+) -> List[HTTPDBGCookie]:
     lst = []
     for header in headers:
         if header.name.lower() == "cookie":
@@ -98,8 +98,8 @@ def list_cookies_headers_request_simple_cookies(
 
 
 def list_cookies_headers_response_simple_cookies(
-    headers: list[HTTPDBGHeader],
-) -> list[HTTPDBGCookie]:
+    headers: List[HTTPDBGHeader],
+) -> List[HTTPDBGCookie]:
     lst = []
     for header in headers:
         if header.name.lower() == "set-cookie":
