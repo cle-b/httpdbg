@@ -43,8 +43,24 @@ class HTTPDBGCookie(object):
     def __str__(self) -> str:
         return f"cookie name=[{self.name}] value=[{self.value}] attributes=[{self.attributes}]"
 
+    def __repr__(self) -> str:
+        return str(self)
+
     def to_json(self) -> dict:
         return {"name": self.name, "value": self.value, "attributes": self.attributes}
+
+    def __eq__(self, other) -> bool:
+        if type(other) == HTTPDBGCookie:
+            return (
+                (self.name == other.name)
+                and (self.value == other.value)
+                and (
+                    sorted(self.attributes, key=lambda x: x.get("name"))
+                    == sorted(other.attributes, key=lambda x: x.get("name"))
+                )
+            )
+        else:
+            return False
 
 
 class HTTPDBGHeader(object):
@@ -55,8 +71,17 @@ class HTTPDBGHeader(object):
     def __str__(self) -> str:
         return f"header name=[{self.name}] value=[{self.value}]"
 
+    def __repr__(self) -> str:
+        return str(self)
+
     def to_json(self) -> dict:
         return {"name": self.name, "value": self.value}
+
+    def __eq__(self, other) -> bool:
+        if type(other) == HTTPDBGHeader:
+            return (self.name == other.name) and (self.value == other.value)
+        else:
+            return False
 
 
 def list_cookies_headers_request_simple_cookies(
