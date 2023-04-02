@@ -5,6 +5,8 @@ import sys
 import httpx
 import pytest
 
+from httpdbg.utils import HTTPDBGCookie
+from httpdbg.utils import HTTPDBGHeader
 from httpdbg.hooks.all import httpdbg
 
 
@@ -55,7 +57,7 @@ def test_httpx_request(httpbin_both):
     assert http_record.method.upper() == "POST"
     assert http_record.status_code == 200
 
-    assert {"name": "Content-Length", "value": "3"} in http_record.request.headers
+    assert HTTPDBGHeader("Content-Length", "3") in http_record.request.headers
     assert http_record.request.cookies == []
     assert http_record.request.content == b"abc"
 
@@ -71,10 +73,10 @@ def test_httpx_response(httpbin_both):
     assert http_record.method.upper() == "PUT"
     assert http_record.status_code == 200
 
-    assert {
-        "name": "Content-Type",
-        "value": "application/json",
-    } in http_record.response.headers
+    assert (
+        HTTPDBGHeader("Content-Type", "application/json")
+        in http_record.response.headers
+    )
     assert http_record.response.cookies == []
     assert b'"args":{"azerty":""}' in http_record.response.content
     assert b'"data":"def"' in http_record.response.content
@@ -90,18 +92,12 @@ def test_httpx_cookies(httpbin):
     assert len(records) == 1
     http_record = records[0]
 
-    assert {
-        "name": "jam",
-        "value": "strawberry",
-    } in http_record.request.cookies
+    assert HTTPDBGCookie("jam", "strawberry") in http_record.request.cookies
 
-    assert {
-        "attributes": [
-            {"attr": "/", "name": "path"},
-        ],
-        "name": "confiture",
-        "value": "oignon",
-    } in http_record.response.cookies
+    assert (
+        HTTPDBGCookie("confiture", "oignon", [{"attr": "/", "name": "path"}])
+        in http_record.response.cookies
+    )
 
 
 @pytest.mark.httpx
@@ -116,19 +112,14 @@ def test_httpx_cookies_secure(httpbin_secure):
     assert len(records) == 1
     http_record = records[0]
 
-    assert {
-        "name": "jam",
-        "value": "strawberry",
-    } in http_record.request.cookies
+    assert HTTPDBGCookie("jam", "strawberry") in http_record.request.cookies
 
-    assert {
-        "attributes": [
-            {"attr": "/", "name": "path"},
-            {"name": "Secure"},
-        ],
-        "name": "confiture",
-        "value": "oignon",
-    } in http_record.response.cookies
+    assert (
+        HTTPDBGCookie(
+            "confiture", "oignon", [{"attr": "/", "name": "path"}, {"name": "Secure"}]
+        )
+        in http_record.response.cookies
+    )
 
 
 @pytest.mark.httpx
@@ -334,7 +325,7 @@ async def test_httpx_request_asyncclient(httpbin_both):
     assert http_record.method.upper() == "POST"
     assert http_record.status_code == 200
 
-    assert {"name": "Content-Length", "value": "3"} in http_record.request.headers
+    assert HTTPDBGHeader("Content-Length", "3") in http_record.request.headers
     assert http_record.request.cookies == []
     assert http_record.request.content == b"abc"
 
@@ -356,10 +347,10 @@ async def test_httpx_response_asyncclient(httpbin_both):
     assert http_record.method.upper() == "PUT"
     assert http_record.status_code == 200
 
-    assert {
-        "name": "Content-Type",
-        "value": "application/json",
-    } in http_record.response.headers
+    assert (
+        HTTPDBGHeader("Content-Type", "application/json")
+        in http_record.response.headers
+    )
     assert http_record.response.cookies == []
     assert b'"args":{"azerty":""}' in http_record.response.content
     assert b'"data":"def"' in http_record.response.content
@@ -382,18 +373,12 @@ async def test_httpx_cookies_asyncclient(httpbin):
     assert len(records) == 1
     http_record = records[0]
 
-    assert {
-        "name": "jam",
-        "value": "strawberry",
-    } in http_record.request.cookies
+    assert HTTPDBGCookie("jam", "strawberry") in http_record.request.cookies
 
-    assert {
-        "attributes": [
-            {"attr": "/", "name": "path"},
-        ],
-        "name": "confiture",
-        "value": "oignon",
-    } in http_record.response.cookies
+    assert (
+        HTTPDBGCookie("confiture", "oignon", [{"attr": "/", "name": "path"}])
+        in http_record.response.cookies
+    )
 
 
 @pytest.mark.httpx
@@ -413,19 +398,14 @@ async def test_httpx_cookies_asyncclient_secure(httpbin_secure):
     assert len(records) == 1
     http_record = records[0]
 
-    assert {
-        "name": "jam",
-        "value": "strawberry",
-    } in http_record.request.cookies
+    assert HTTPDBGCookie("jam", "strawberry") in http_record.request.cookies
 
-    assert {
-        "attributes": [
-            {"attr": "/", "name": "path"},
-            {"name": "Secure"},
-        ],
-        "name": "confiture",
-        "value": "oignon",
-    } in http_record.response.cookies
+    assert (
+        HTTPDBGCookie(
+            "confiture", "oignon", [{"attr": "/", "name": "path"}, {"name": "Secure"}]
+        )
+        in http_record.response.cookies
+    )
 
 
 @pytest.mark.httpx

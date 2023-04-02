@@ -7,11 +7,7 @@ from httpdbg.webapp.preview import generate_preview
 
 
 class RequestPayload(JSONEncoder):
-    def default(self, req):
-        assert isinstance(
-            req, HTTPRecord
-        ), "This encoder works only for HTTPRecord object."
-
+    def default(self, req: HTTPRecord) -> dict:
         payload = {
             "url": req.url,
             "method": req.method,
@@ -24,28 +20,27 @@ class RequestPayload(JSONEncoder):
             "in_progress": req.in_progress,
         }
 
-        if req.request is not None:
-            payload["request"] = {
-                "headers": req.request.headers,
-                "cookies": req.request.cookies,
-            }
+        payload["request"] = {
+            "headers": [header.to_json() for header in req.request.headers],
+            "cookies": [cookie.to_json() for cookie in req.request.cookies],
+        }
 
-            if req.request.content:
-                payload["request"]["body"] = generate_preview(
-                    f"/request/{req.id}/up",
-                    "upload",
-                    req.request.content,
-                    req.request.get_header("Content-Type"),
-                    req.request.get_header("Content-Encoding"),
-                )
+        if req.request.content:
+            payload["request"]["body"] = generate_preview(  # type: ignore
+                f"/request/{req.id}/up",
+                "upload",
+                req.request.content,
+                req.request.get_header("Content-Type"),
+                req.request.get_header("Content-Encoding"),
+            )
 
-        if req.response is not None:
-            payload["response"] = {
-                "headers": req.response.headers,
-                "cookies": req.response.cookies,
-            }
+        payload["response"] = {
+            "headers": [header.to_json() for header in req.response.headers],
+            "cookies": [cookie.to_json() for cookie in req.response.cookies],
+        }
 
-            payload["response"]["body"] = generate_preview(
+        if req.response.content:
+            payload["response"]["body"] = generate_preview(  # type: ignore
                 f"/request/{req.id}/down",
                 "download",
                 req.response.content,

@@ -5,6 +5,8 @@ import sys
 import aiohttp
 import pytest
 
+from httpdbg.utils import HTTPDBGCookie
+from httpdbg.utils import HTTPDBGHeader
 from httpdbg.hooks.all import httpdbg
 
 
@@ -23,7 +25,7 @@ def skip_incompatible_python():
 async def test_aiohttp(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
+            connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             await session.get(f"{httpbin_both.url}/get")
 
@@ -69,7 +71,7 @@ async def test_aiohttp_initiator(httpbin):
 async def test_aiohttp_request_post_bytes(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
+            connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             await session.post(f"{httpbin_both.url}/post", data=b"abc")
 
@@ -79,7 +81,7 @@ async def test_aiohttp_request_post_bytes(httpbin_both):
     assert http_record.method.upper() == "POST"
     assert http_record.status_code == 200
 
-    assert {"name": "Content-Length", "value": "3"} in http_record.request.headers
+    assert HTTPDBGHeader("Content-Length", "3") in http_record.request.headers
     assert http_record.request.cookies == []
     assert bytes(http_record.request.content) == b"abc"
 
@@ -93,7 +95,7 @@ async def test_aiohttp_request_post_bytes(httpbin_both):
 async def test_aiohttp_request_post_str(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
+            connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             await session.post(f"{httpbin_both.url}/post", data="abc")
 
@@ -103,7 +105,7 @@ async def test_aiohttp_request_post_str(httpbin_both):
     assert http_record.method.upper() == "POST"
     assert http_record.status_code == 200
 
-    assert {"name": "Content-Length", "value": "3"} in http_record.request.headers
+    assert HTTPDBGHeader("Content-Length", "3") in http_record.request.headers
     assert http_record.request.cookies == []
     assert bytes(http_record.request.content) == b"abc"
 
@@ -117,7 +119,7 @@ async def test_aiohttp_request_post_str(httpbin_both):
 async def test_aiohttp_request_post_json(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
+            connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             await session.post(f"{httpbin_both.url}/post", json={"a": "bc"})
 
@@ -127,7 +129,7 @@ async def test_aiohttp_request_post_json(httpbin_both):
     assert http_record.method.upper() == "POST"
     assert http_record.status_code == 200
 
-    assert {"name": "Content-Length", "value": "11"} in http_record.request.headers
+    assert HTTPDBGHeader("Content-Length", "11") in http_record.request.headers
     assert http_record.request.cookies == []
     assert bytes(http_record.request.content) == b'{"a": "bc"}'
 
@@ -141,7 +143,7 @@ async def test_aiohttp_request_post_json(httpbin_both):
 async def test_aiohttp_request_post_form(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
+            connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             await session.post(f"{httpbin_both.url}/post", data={"a": "bc", "d": "ef"})
 
@@ -151,7 +153,7 @@ async def test_aiohttp_request_post_form(httpbin_both):
     assert http_record.method.upper() == "POST"
     assert http_record.status_code == 200
 
-    assert {"name": "Content-Length", "value": "9"} in http_record.request.headers
+    assert HTTPDBGHeader("Content-Length", "9") in http_record.request.headers
     assert http_record.request.cookies == []
     assert bytes(http_record.request.content) == b"a=bc&d=ef"
 
@@ -165,7 +167,7 @@ async def test_aiohttp_request_post_form(httpbin_both):
 async def test_aiohttp_response(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
+            connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             async with session.put(
                 f"{httpbin_both.url}/put?azerty", data="def"
@@ -178,10 +180,10 @@ async def test_aiohttp_response(httpbin_both):
     assert http_record.method.upper() == "PUT"
     assert http_record.status_code == 200
 
-    assert {
-        "name": "Content-Type",
-        "value": "application/json",
-    } in http_record.response.headers
+    assert (
+        HTTPDBGHeader("Content-Type", "application/json")
+        in http_record.response.headers
+    )
     assert http_record.response.cookies == []
     assert b'"args":{"azerty":""}' in http_record.response.content
     assert b'"data":"def"' in http_record.response.content
@@ -196,7 +198,7 @@ async def test_aiohttp_response(httpbin_both):
 async def test_aiohttp_cookies(httpbin):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
+            connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             await session.get(
                 f"{httpbin.url}/cookies/set/confiture/oignon",
@@ -206,16 +208,12 @@ async def test_aiohttp_cookies(httpbin):
     assert len(records) == 2
     http_record = records[0]
 
-    assert {
-        "name": "jam",
-        "value": "strawberry",
-    } in http_record.request.cookies
+    assert HTTPDBGCookie("jam", "strawberry") in http_record.request.cookies
 
-    assert {
-        "attributes": [{"attr": "/", "name": "path"}],
-        "name": "confiture",
-        "value": "oignon",
-    } in http_record.response.cookies
+    assert (
+        HTTPDBGCookie("confiture", "oignon", [{"attr": "/", "name": "path"}])
+        in http_record.response.cookies
+    )
 
 
 @pytest.mark.aiohttp
@@ -227,7 +225,7 @@ async def test_aiohttp_cookies(httpbin):
 async def test_aiohttp_cookies_secure(httpbin_secure):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
+            connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             await session.get(
                 f"{httpbin_secure.url}/cookies/set/confiture/oignon",
@@ -237,16 +235,14 @@ async def test_aiohttp_cookies_secure(httpbin_secure):
     assert len(records) == 2
     http_record = records[0]
 
-    assert {
-        "name": "jam",
-        "value": "strawberry",
-    } in http_record.request.cookies
+    assert HTTPDBGCookie("jam", "strawberry") in http_record.request.cookies
 
-    assert {
-        "attributes": [{"attr": "/", "name": "path"}, {"name": "Secure"}],
-        "name": "confiture",
-        "value": "oignon",
-    } in http_record.response.cookies
+    assert (
+        HTTPDBGCookie(
+            "confiture", "oignon", [{"attr": "/", "name": "path"}, {"name": "Secure"}]
+        )
+        in http_record.response.cookies
+    )
 
 
 @pytest.mark.aiohttp
@@ -258,7 +254,7 @@ async def test_aiohttp_cookies_secure(httpbin_secure):
 async def test_aiohttp_redirect(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
+            connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             await session.get(
                 f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get"
@@ -280,7 +276,7 @@ async def test_aiohttp_redirect(httpbin_both):
 async def test_aiohttp_not_found(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
+            connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             await session.get(f"{httpbin_both.url}/404")
     assert len(records) == 1
@@ -324,7 +320,7 @@ async def test_aiohttp_exception_asyncclient():
 async def test_aiohttp_get_empty_request_content_asyncclient(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)
+            connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             await session.get(f"{httpbin_both.url}/get")
 

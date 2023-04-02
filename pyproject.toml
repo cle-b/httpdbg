@@ -28,8 +28,15 @@ dynamic = ["version"]
 [project.scripts]
 pyhttpdbg = "httpdbg.__main__:pyhttpdbg_entry_point"
 
+[tool.setuptools]
+packages = ["httpdbg"]
+
 [tool.setuptools.package-data]
 httpdbg = ["webapp/static/*", "webapp/static/icons/*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "httpdbg.VERSION"}
+
+[tool.mypy]
+no_implicit_optional = false
+files = ["httpdbg"]

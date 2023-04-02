@@ -2,13 +2,14 @@
 from contextlib import contextmanager
 from http.server import HTTPServer
 import threading
+from typing import Generator
 
 from httpdbg.records import HTTPRecords
 from httpdbg.webapp import HttpbgHTTPRequestHandler
 
 
 @contextmanager
-def httpdbg_srv(port):
+def httpdbg_srv(port: int) -> Generator[HTTPRecords, None, None]:
     server = None
     records = HTTPRecords()
     try:
@@ -25,7 +26,7 @@ def httpdbg_srv(port):
 
 
 class ServerThread(threading.Thread):
-    def __init__(self, port, records):
+    def __init__(self, port: int, records: HTTPRecords) -> None:
         threading.Thread.__init__(self)
         self.port = port
 
