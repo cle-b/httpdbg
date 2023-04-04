@@ -50,6 +50,14 @@ function select_request(event, request_id) {
     }
 }
 
+function unselect_request(request_id) {
+    if (document.querySelector(".active-row") == document.querySelector("#request-" + request_id)) {
+        document.querySelector(".active-row-compare").click();
+    } else {
+        document.querySelector(".active-row").click();
+    }
+}
+
 function remove_class(classname) {
     var elts = document.getElementsByClassName(classname);
     [].forEach.call(elts, function (el) {
@@ -64,7 +72,7 @@ function compare_to_request(request_id) {
         document.getElementById("request-" + request_id).classList.add("active-row-compare");
 
         fill_content(request_id, "compareto");
-        hide_elts("compareto", false);
+        hide_elts(".comparison", false);
     }
 }
 
@@ -72,8 +80,8 @@ function show_request(request_id) {
 
     remove_class("active-row");
     remove_class("active-row-compare");
-    empty_content("compareto", "");
-    hide_elts("compareto", true);
+    empty_content("[name='compareto']", "");
+    hide_elts(".comparison", true);
 
     document.getElementById("request-" + request_id).classList.add("active-row");
 
@@ -83,6 +91,9 @@ function show_request(request_id) {
 function fill_content(request_id, name) {
 
     var data = global.requests[request_id].data;
+
+    update_with_template("template_title", document.querySelector("#title > div[name='" + name + "']"), data);
+
 
     update_with_template("template_headers", document.querySelector("#headers > div[name='" + name + "']"), data);
 
@@ -199,10 +210,10 @@ function clean(force_clean = false) {
             initiators[0].remove();
         }
 
-        empty_content("request", "select a request to view details");
+        empty_content("[name='request']", "select a request to view details");
 
-        empty_content("compareto", "");
-        hide_elts("compareto", true);
+        empty_content("[name='compareto']", "");
+        hide_elts(".comparison", true);
 
         var tmprequests = {};
 
@@ -220,15 +231,15 @@ function clean(force_clean = false) {
     }
 }
 
-function empty_content(name, value) {
-    var elts = document.getElementsByName(name);
+function empty_content(selector, value) {
+    var elts = document.querySelectorAll(selector);
     [].forEach.call(elts, function (el) {
         el.innerHTML = value;
     });
 }
 
-function hide_elts(name, value) {
-    var elts = document.getElementsByName(name);
+function hide_elts(selector, value) {
+    var elts = document.querySelectorAll(selector);
     [].forEach.call(elts, function (el) {
         el.hidden = value;
     });

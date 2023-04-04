@@ -83,3 +83,20 @@ pre {
   flex: 1;
   overflow: auto;
 }
+
+[name='request'],
+[name='compareto'] {
+  padding: 2px;
+}
+
+#title>[name='request'] {
+  background-color: var(--selected-url-bgcolor);
+}
+
+#title>[name='compareto'] {
+  background-color: var(--compare-url-bgcolor);
+}
+
+.closecol {
+  float: right;
+}
