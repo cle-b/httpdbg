@@ -9,7 +9,10 @@ from httpdbg.webapp.preview import generate_preview
 class RequestPayload(JSONEncoder):
     def default(self, req: HTTPRecord) -> dict:
         payload = {
+            "id": req.id,
             "url": req.url,
+            "netloc": req.netloc,
+            "urlext": req.urlext,
             "method": req.method,
             "status_code": req.status_code,
             "reason": req.reason,

@@ -108,7 +108,7 @@
                         </td>
                         <td class="status"><span title="{{reason}}" data-qa-request-status>{{{status_code_view}}}</span></td>
                         <td class="method"><span title="{{verb}}" data-qa-request-method>{{verb}}</span></td>
-                        <td class="url" title="ctrl+click to compare to"><span title="{{url}}" data-qa-request-url><span class="netloc">{{netloc}}</span><span>{{urlext}}</span<></span></td>
+                        <td class="url" title="ctrl+click to compare to"><span title="{{url}}" data-qa-request-url><span class="netloc">{{netloc}}</span><span>{{urlext}}</span></span></td>
                     </tr>
                 </script>
 
@@ -142,12 +142,24 @@
                 </thead>
 
                 <tbody>
+                    <tr class="comparison title">
+                        <td>
+                            <div id="title" class="content">
+                                <div class="colcontent" name="request"></div>
+                                <div class="colcontent" name="compareto"></div>
+                            </div>
+                            <script id="template_title" type="x-tmpl-mustache">
+                                <button onclick="unselect_request('{{id}}')" class="closecol">x</button>
+                                <div class="url"><span title="{{url}}"><span class="netloc">{{netloc}}</span><span>{{urlext}}</span></span></div>
+                             </script>
+                        </td>
+                    </tr>
                     <tr>
                         <td>
                             <div id="tabHeaders" class="tabcontent">
                                 <div id="headers" class="content">
                                     <div class="colcontent" name="request">select a request to view details</div>
-                                    <div class="colcontent" name="compareto"></div>
+                                    <div class="colcontent comparison" name="compareto"></div>
                                 </div>
 
                                 <script id="template_headers" type="x-tmpl-mustache">
@@ -177,7 +189,7 @@
                             <div id="tabCookies" class="tabcontent">
                                 <div id="cookies" class="content">
                                     <div class="colcontent" name="request">select a request to view details</div>
-                                    <div class="colcontent" name="compareto"></div>
+                                    <div class="colcontent comparison" name="compareto"></div>
                                 </div>
                                 <script id="template_cookies" type="x-tmpl-mustache">
                                        <h4>response cookies</h4>
@@ -208,7 +220,7 @@
                             <div id="tabRequest" class="tabcontent">
                                 <div id="body_sent" class="content">
                                     <div class="colcontent" name="request">select a request to view details</div>
-                                    <div class="colcontent" name="compareto"></div>
+                                    <div class="colcontent comparison" name="compareto"></div>
                                 </div>
                                 <script id="template_body" type="x-tmpl-mustache">
                                         {{^body}}
@@ -252,14 +264,14 @@
                             <div id="tabResponse" class="tabcontent">
                                 <div id="body_received" class="content">
                                     <div class="colcontent" name="request">select a request to view details</div>
-                                    <div class="colcontent" name="compareto"></div>
+                                    <div class="colcontent comparison" name="compareto"></div>
                                 </div>
                             </div>
 
                             <div id="tabException" class="tabcontent">
                                 <div id="exception" class="content">
                                     <div class="colcontent" name="request">select a request to view details</div>
-                                    <div class="colcontent" name="compareto"></div>
+                                    <div class="colcontent comparison" name="compareto"></div>
                                 </div>
                                 <script id="template_exception" type="x-tmpl-mustache">
                                     {{^exception}}
@@ -275,7 +287,7 @@
                             <div id="tabStack" class="tabcontent">
                                 <div id="stack" class="content">
                                     <div class="colcontent" name="request">select a request to view details</div>
-                                    <div class="colcontent" name="compareto"></div>
+                                    <div class="colcontent comparison" name="compareto"></div>
                                 </div>
                                 <script id="template_stack" type="x-tmpl-mustache">
                                     {{#initiator}}
