@@ -28,7 +28,7 @@ ci:
 	python -m pip install pip --upgrade
 	pip install -r requirements-dev.txt
 	pip install .
-	cd tests && python -m pytest -v -m "not ui" ./ --ignore=./ui/
+	cd tests && python -m pytest -v -m "not ui" ./ --ignore=./ui/ && cd ..
 
 coverage:
 	coverage run -m pytest -v tests/
@@ -47,7 +47,7 @@ ciall:
 	pip install -r requirements-dev.txt
 	pip install -r requirements-dev-ui.txt
 	pip install .
-	coverage run -m pytest -v --driver Remote --capability browserName chrome tests/
+	cd tests/ && coverage run -m pytest -v --driver Remote --capability browserName chrome ./ && cd ..
 
 typing:
 	mypy
