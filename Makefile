@@ -46,7 +46,7 @@ ciall:
 	pip install -r requirements-dev.txt
 	pip install -r requirements-dev-ui.txt
 	pip install .
-	cd tests/ && coverage run -m pytest -v --driver Remote --capability browserName chrome ./ && cd ..
+	cd tests/ && coverage run -m pytest -v --driver Remote --capability browserName chrome ./
 
 typing:
 	mypy
