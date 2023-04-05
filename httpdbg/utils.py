@@ -4,7 +4,7 @@ import logging
 import os
 import secrets
 import string
-from typing import List
+
 
 logger = logging.getLogger("httpdbg")
 logger.setLevel(100)
@@ -14,12 +14,12 @@ if log_level is not None:
     logger.setLevel(int(log_level))
 
 
-def get_new_uuid() -> str:
+def get_new_uuid():
     # important - the uuid must be compatible with method naming rules
     return "".join(secrets.choice(string.ascii_letters) for i in range(10))
 
 
-def chunked_to_bytes(chunked: bytes) -> bytes:
+def chunked_to_bytes(chunked):
     data = bytes()
     try:
         b1 = 0
@@ -35,21 +35,21 @@ def chunked_to_bytes(chunked: bytes) -> bytes:
 
 
 class HTTPDBGCookie(object):
-    def __init__(self, name: str, value: str = None, attributes: list = None) -> None:
+    def __init__(self, name, value=None, attributes=None):
         self.name = name
         self.value = value
         self.attributes = [] if attributes is None else attributes
 
-    def __str__(self) -> str:
+    def __str__(self):
         return f"cookie name=[{self.name}] value=[{self.value}] attributes=[{self.attributes}]"
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return str(self)
 
-    def to_json(self) -> dict:
+    def to_json(self):
         return {"name": self.name, "value": self.value, "attributes": self.attributes}
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other):
         if type(other) == HTTPDBGCookie:
             return (
                 (self.name == other.name)
@@ -64,46 +64,42 @@ class HTTPDBGCookie(object):
 
 
 class HTTPDBGHeader(object):
-    def __init__(self, name: str, value: str = ""):
+    def __init__(self, name, value=""):
         self.name = name
         self.value = value
 
-    def __str__(self) -> str:
+    def __str__(self):
         return f"header name=[{self.name}] value=[{self.value}]"
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return str(self)
 
-    def to_json(self) -> dict:
+    def to_json(self):
         return {"name": self.name, "value": self.value}
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other):
         if type(other) == HTTPDBGHeader:
             return (self.name == other.name) and (self.value == other.value)
         else:
             return False
 
 
-def list_cookies_headers_request_simple_cookies(
-    headers: List[HTTPDBGHeader],
-) -> List[HTTPDBGCookie]:
+def list_cookies_headers_request_simple_cookies(headers):
     lst = []
     for header in headers:
         if header.name.lower() == "cookie":
-            cookies: SimpleCookie = SimpleCookie()
+            cookies = SimpleCookie()
             cookies.load(header.value)
             for name, cookie in cookies.items():
                 lst.append(HTTPDBGCookie(name, cookie.value))
     return lst
 
 
-def list_cookies_headers_response_simple_cookies(
-    headers: List[HTTPDBGHeader],
-) -> List[HTTPDBGCookie]:
+def list_cookies_headers_response_simple_cookies(headers):
     lst = []
     for header in headers:
         if header.name.lower() == "set-cookie":
-            cookies: SimpleCookie = SimpleCookie()
+            cookies = SimpleCookie()
             cookies.load(header.value)
             for name, cookie in cookies.items():
                 attributes = []

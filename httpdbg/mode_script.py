@@ -2,10 +2,9 @@
 import importlib
 import sys
 import traceback
-from typing import List
 
 
-def run_script(argv: List[str]) -> None:
+def run_script(argv):
     sys.argv = argv
     if len(argv) == 0:
         exit("script mode - error - python file required, but none set")

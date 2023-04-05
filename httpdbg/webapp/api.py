@@ -2,12 +2,11 @@
 from json import JSONEncoder
 
 from httpdbg.records import HTTPRecords
-from httpdbg.records import HTTPRecord
 from httpdbg.webapp.preview import generate_preview
 
 
 class RequestPayload(JSONEncoder):
-    def default(self, req: HTTPRecord) -> dict:
+    def default(self, req):
         payload = {
             "id": req.id,
             "url": req.url,

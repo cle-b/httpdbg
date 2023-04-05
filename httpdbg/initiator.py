@@ -2,19 +2,18 @@
 import os
 import platform
 import traceback
-from typing import List
 
 from httpdbg.utils import get_new_uuid
 
 
 class Initiator(object):
-    def __init__(self, id: str, short_label: str, long_label: str, stack: str):
+    def __init__(self, id, short_label, long_label, stack):
         self.id = id
         self.short_label = short_label
         self.long_label = long_label
         self.stack = stack
 
-    def to_json(self, full: bool = True) -> dict:
+    def to_json(self, full=True):
         if full:
             json = {
                 "id": self.id,
@@ -31,14 +30,14 @@ class Initiator(object):
         return json
 
 
-def compatible_path(path: str) -> str:
+def compatible_path(path):
     p = path
     if platform.system().lower() == "windows":
         p = path.replace("/", "\\")
     return p
 
 
-def in_lib(line: str, packages: List[str] = None):
+def in_lib(line, packages=None):
     if not packages:
         packages = ["requests", "httpx", "aiohttp", "urllib3"]
     return any(

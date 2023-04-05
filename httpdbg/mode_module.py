@@ -2,10 +2,9 @@
 import runpy
 from unittest.mock import patch
 import sys
-from typing import List
 
 
-def run_module(argv: List[str]) -> None:
+def run_module(argv):
     try:
         with patch.object(sys, "argv", argv):
             runpy.run_module(argv[0], run_name="__main__")
