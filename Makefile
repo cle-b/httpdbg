@@ -8,7 +8,7 @@ setup:
 format:
 	black httpdbg tests
 
-lint:
+check:
 	black --check httpdbg tests
 	flake8 httpdbg tests
 
@@ -49,7 +49,3 @@ ciall:
 	pip install .
 	cd tests/ && coverage run -m pytest -v --driver Remote --capability browserName chrome ./ && cd ..
 
-typing:
-	mypy
-
-check: lint typing

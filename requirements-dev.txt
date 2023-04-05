@@ -12,6 +12,3 @@ httpx
 pytest-asyncio
 aiohttp
 build
-mypy
-types-requests
-types-urllib3
