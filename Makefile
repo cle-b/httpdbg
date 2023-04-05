@@ -28,7 +28,8 @@ ci:
 	python -m pip install pip --upgrade
 	pip install -r requirements-dev.txt
 	pip install .
-	python -m pytest -v -m "not ui" tests/ --ignore=tests/ui/
+	cd tests && python -m pytest -v -m "not ui" ./ --ignore=./ui/
+
 coverage:
 	coverage run -m pytest -v tests/
 
