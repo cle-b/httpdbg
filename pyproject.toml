@@ -25,6 +25,11 @@ classifiers = [
 ]
 dynamic = ["version"]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["httpdbg*"]
+namespaces = false
+
 [project.scripts]
 pyhttpdbg = "httpdbg.__main__:pyhttpdbg_entry_point"
 
