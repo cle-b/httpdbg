@@ -1,4 +1,4 @@
-.PHONY: setup format lint test allpytest clean ci coverage selenium testui testall ciall typing check
+.PHONY: setup format lint typing check test allpytest clean ci coverage selenium testui testall ciall cidetectsetuperror
 
 setup:
 	pip install -e .
@@ -11,6 +11,11 @@ format:
 lint:
 	black --check httpdbg tests
 	flake8 httpdbg tests
+
+typing:
+	mypy
+
+check: lint typing
 
 test:
 	pytest -v -m "not ui" tests/
@@ -29,6 +34,7 @@ ci:
 	pip install -r requirements-dev.txt
 	pip install .
 	python -m pytest -v -m "not ui" tests/ --ignore=tests/ui/
+
 coverage:
 	coverage run -m pytest -v tests/
 
@@ -46,9 +52,8 @@ ciall:
 	pip install -r requirements-dev.txt
 	pip install -r requirements-dev-ui.txt
 	pip install .
-	cd tests/ && coverage run -m pytest -v --driver Remote --capability browserName chrome ./
+	coverage run -m pytest -v --driver Remote --capability browserName chrome tests/
 
-typing:
-	mypy
+cidetectsetuperror:
+	cd tests/ && python -m pytest -v -m "not ui" ./ --ignore=./ui/ && cd ..
 
-check: lint typing
