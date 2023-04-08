@@ -37,6 +37,9 @@ jobs:
         coveralls
       env:
         GITHUB_TOKEN: ${{ secrets.COVERALLS }}
+    - name: Missing module detection
+      run: |
+        cidetectsetuperror
 
   testospython:
     name: Test OS/Python version
