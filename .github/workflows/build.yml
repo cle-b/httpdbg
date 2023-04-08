@@ -39,7 +39,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.COVERALLS }}
     - name: Missing module detection
       run: |
-        cidetectsetuperror
+        make cidetectsetuperror
 
   testospython:
     name: Test OS/Python version
