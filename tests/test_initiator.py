@@ -6,6 +6,7 @@ import requests
 
 from httpdbg.hooks.all import httpdbg
 
+
 @pytest.mark.xfail(
     platform.system().lower() == "windows",
     reason="problem with stack view in windows",
@@ -24,8 +25,8 @@ def test_initiator_script(httpbin, monkeypatch):
     assert http_record.initiator.long_label is None
 
     assert (
-        """test_initiator.py", line 18, in test_initiator_script
- 18.             requests.get(f"{httpbin.url}/get")
+        """test_initiator.py", line 19, in test_initiator_script
+ 19.             requests.get(f"{httpbin.url}/get")
 ----------
 requests.api.get(
     url="""
@@ -36,19 +37,19 @@ requests.api.get(
     )
 
     assert (
-        """test_initiator.py", line 18, 
- 14. def test_initiator_script(httpbin, monkeypatch):
- 15.     with monkeypatch.context() as m:
- 16.         m.delenv("PYTEST_CURRENT_TEST")
- 17.         with httpdbg() as records:
- 18.             requests.get(f"{httpbin.url}/get") <====
- 19. 
- 20.     assert len(records) == 1
- 21.     http_record = records[0]
- 22. 
- 23.     assert http_record.initiator.short_label == \'requests.get(f"{httpbin.url}/get")\'
- 24.     assert http_record.initiator.long_label is None
- 25."""  # noqa W291
+        """test_initiator.py", line 19, 
+ 15. def test_initiator_script(httpbin, monkeypatch):
+ 16.     with monkeypatch.context() as m:
+ 17.         m.delenv("PYTEST_CURRENT_TEST")
+ 18.         with httpdbg() as records:
+ 19.             requests.get(f"{httpbin.url}/get") <====
+ 20. 
+ 21.     assert len(records) == 1
+ 22.     http_record = records[0]
+ 23. 
+ 24.     assert http_record.initiator.short_label == \'requests.get(f"{httpbin.url}/get")\'
+ 25.     assert http_record.initiator.long_label is None
+ 26."""  # noqa W291
         in http_record.initiator.stack[0]
     )
 
