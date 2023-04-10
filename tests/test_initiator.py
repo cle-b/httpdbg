@@ -6,7 +6,7 @@ from httpdbg.hooks.all import httpdbg
 
 
 @pytest.mark.initiator
-def test__initiator_script(httpbin, monkeypatch):
+def test_initiator_script(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
         with httpdbg() as records:
@@ -15,12 +15,11 @@ def test__initiator_script(httpbin, monkeypatch):
     assert len(records) == 1
     http_record = records[0]
 
-    print(http_record.initiator.stack)
     assert http_record.initiator.short_label == 'requests.get(f"{httpbin.url}/get")'
     assert http_record.initiator.long_label is None
+
     assert (
-        http_record.initiator.short_stack
-        == """File "/home/cle/dev/httpdbg/tests/test_initiator.py", line 13, in test__initiator_script
+        """httpdbg/tests/test_initiator.py", line 13, in test_initiator_script
  13.             requests.get(f"{httpbin.url}/get")
 ----------
 requests.api.get(
@@ -28,10 +27,12 @@ requests.api.get(
         + f"{httpbin.url}/get"
         + """
 )"""
+        in http_record.initiator.short_stack
     )
-    assert http_record.initiator.stack == [
-        """File "/home/cle/dev/httpdbg/tests/test_initiator.py", line 13, 
- 9. def test__initiator_script(httpbin, monkeypatch):
+
+    assert (
+        """dev/httpdbg/tests/test_initiator.py", line 13, 
+ 9. def test_initiator_script(httpbin, monkeypatch):
  10.     with monkeypatch.context() as m:
  11.         m.delenv("PYTEST_CURRENT_TEST")
  12.         with httpdbg() as records:
@@ -40,15 +41,15 @@ requests.api.get(
  15.     assert len(records) == 1
  16.     http_record = records[0]
  17. 
- 18.     print(http_record.initiator.stack)
- 19.     assert http_record.initiator.short_label == \'requests.get(f"{httpbin.url}/get")\'
- 20.     assert http_record.initiator.long_label is None
-"""  # noqa W291
-    ]
+ 18.     assert http_record.initiator.short_label == \'requests.get(f"{httpbin.url}/get")\'
+ 19.     assert http_record.initiator.long_label is None
+ 20."""  # noqa W291
+        in http_record.initiator.stack[0]
+    )
 
 
 @pytest.mark.initiator
-def test__initiator_same_line_different_initiators(httpbin, monkeypatch):
+def test_initiator_same_line_different_initiators(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
         with httpdbg() as records:
@@ -63,7 +64,7 @@ def test__initiator_same_line_different_initiators(httpbin, monkeypatch):
 
 
 @pytest.mark.initiator
-def test__initiator_redirection_same_initiator(httpbin, monkeypatch):
+def test_initiator_redirection_same_initiator(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
         with httpdbg() as records:
