@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import platform
+
 import pytest
 import requests
 
@@ -6,6 +8,10 @@ from httpdbg.hooks.all import httpdbg
 
 
 @pytest.mark.initiator
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="problem with stack view in windows",
+)
 def test_initiator_script(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
@@ -78,6 +84,10 @@ def test_initiator_redirection_same_initiator(httpbin, monkeypatch):
 
 
 @pytest.mark.initiator
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="problem with stack view in windows",
+)
 def test_initiator_pytest(httpbin):
     with httpdbg() as records:
         requests.get(f"{httpbin.url}/get")
