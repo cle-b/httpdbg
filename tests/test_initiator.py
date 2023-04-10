@@ -31,7 +31,7 @@ requests.api.get(
     )
 
     assert (
-        """dev/httpdbg/tests/test_initiator.py", line 13, 
+        """httpdbg/tests/test_initiator.py", line 13, 
  9. def test_initiator_script(httpbin, monkeypatch):
  10.     with monkeypatch.context() as m:
  11.         m.delenv("PYTEST_CURRENT_TEST")
