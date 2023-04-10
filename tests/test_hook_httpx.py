@@ -30,20 +30,22 @@ def test_httpx(httpbin_both):
     assert http_record.reason.upper() == "OK"
 
 
+@pytest.mark.initiator
 @pytest.mark.httpx
-def test_httpx_initiator(httpbin):
-    with httpdbg() as records:
-        httpx.get(f"{httpbin.url}/get")
+def test_httpx_initiator(httpbin, monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv("PYTEST_CURRENT_TEST")
+        with httpdbg() as records:
+            httpx.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.initiator.short_label == "test_httpx_initiator"
-    assert (
-        http_record.initiator.long_label
-        == "tests/test_hook_httpx.py::test_httpx_initiator"
+    assert http_record.initiator.short_label == 'httpx.get(f"{httpbin.url}/get")'
+    assert http_record.initiator.long_label is None
+    assert 'httpx.get(f"{httpbin.url}/get") <===' in "".join(
+        http_record.initiator.stack
     )
-    assert 'httpx.get(f"{httpbin.url}/get")' in "".join(http_record.initiator.stack)
 
 
 @pytest.mark.httpx
@@ -284,26 +286,26 @@ async def test_httpx_asyncclient(httpbin_both):
     assert http_record.reason.upper() == "OK"
 
 
+@pytest.mark.initiator
 @pytest.mark.httpx
 @pytest.mark.asyncio
 @pytest.mark.xfail(
     platform.system().lower() == "windows",
     reason="Async HTTP requests not intercepted on Windows",
 )
-async def test_httpx_initiator_asyncclient(httpbin):
-    with httpdbg() as records:
-        async with httpx.AsyncClient() as client:
-            await client.get(f"{httpbin.url}/get")
+async def test_httpx_initiator_asyncclient(httpbin, monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv("PYTEST_CURRENT_TEST")
+        with httpdbg() as records:
+            async with httpx.AsyncClient() as client:
+                await client.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.initiator.short_label == "test_httpx_initiator_asyncclient"
-    assert (
-        http_record.initiator.long_label
-        == "tests/test_hook_httpx.py::test_httpx_initiator_asyncclient"
-    )
-    assert 'await client.get(f"{httpbin.url}/get")' in "".join(
+    assert http_record.initiator.short_label == 'await client.get(f"{httpbin.url}/get")'
+    assert http_record.initiator.long_label is None
+    assert 'await client.get(f"{httpbin.url}/get") <===' in "".join(
         http_record.initiator.stack
     )
 

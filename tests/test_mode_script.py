@@ -75,28 +75,25 @@ def test_run_script_not_a_python_script(httpbin, capsys):
 @pytest.mark.script
 def test_run_script_initiator(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
-        PYTEST_CURRENT_TEST = os.environ["PYTEST_CURRENT_TEST"]
-        os.environ.pop("PYTEST_CURRENT_TEST")
-
         with httpdbg(records):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
             )
             run_script([script_to_run, httpbin.url])
 
-        os.environ["PYTEST_CURRENT_TEST"] = PYTEST_CURRENT_TEST
-
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
 
     assert (
-        reqs[list(reqs.keys())[0]]["initiator"].get("short_label")
-        == '    _ = requests.get(f"{base_url}/get")'
+        reqs[list(reqs.keys())[0]]["initiator"]["short_label"]
+        == "test_run_script_initiator"
     )
-    assert 'demo_run_script.py", line 8,' in reqs[list(reqs.keys())[0]][
-        "initiator"
-    ].get("long_label")
-    assert '_ = requests.get(f"{base_url}/get")' in reqs[list(reqs.keys())[0]][
-        "initiator"
-    ].get("long_label")
+    assert (
+        reqs[list(reqs.keys())[0]]["initiator"]["long_label"]
+        == "tests/test_mode_script.py::test_run_script_initiator"
+    )
+    assert (
+        '_ = requests.get(f"{base_url}/get")'
+        in reqs[list(reqs.keys())[0]]["initiator"]["short_stack"]
+    )

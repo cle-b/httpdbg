@@ -1,31 +1,35 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
+import traceback
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
-from httpdbg.initiator import get_initiator
+from httpdbg.initiator import httpdbg_initiator
 from httpdbg.records import HTTPRecord
 
 
 def set_hook_for_aiohttp_async(records, method):
     async def hook(*args, **kwargs):
+        initiator = None
         try:
-            return await method(*args, **kwargs)
+            with httpdbg_initiator(
+                records, traceback.extract_stack(), method, *args, **kwargs
+            ) as initiator:
+                ret = await method(*args, **kwargs)
+            return ret
         except Exception as ex:
             callargs = getcallargs(method, *args, **kwargs)
 
-            url = str(callargs.get("str_or_url", ""))
+            if "str_or_url" in callargs:
+                if initiator:
+                    record = HTTPRecord()
 
-            if url:
-                record = HTTPRecord()
+                    record.initiator = initiator
+                    record.url = str(callargs["str_or_url"])
+                    record.exception = ex
 
-                record.initiator = get_initiator(records._initiators)
-                record.url = url
-                record.exception = ex
-
-                records.requests[record.id] = record
-
+                    records.requests[record.id] = record
             raise
 
     return hook
@@ -37,8 +41,8 @@ def hook_aiohttp(records):
     try:
         import aiohttp
 
-        aiohttp.client.ClientSession._request = decorate(
-            records, aiohttp.client.ClientSession._request, set_hook_for_aiohttp_async
+        aiohttp.ClientSession._request = decorate(
+            records, aiohttp.ClientSession._request, set_hook_for_aiohttp_async
         )
 
         hooks = True
@@ -48,6 +52,4 @@ def hook_aiohttp(records):
     yield
 
     if hooks:
-        aiohttp.client.ClientSession._request = undecorate(
-            aiohttp.client.ClientSession._request
-        )
+        aiohttp.ClientSession._request = undecorate(aiohttp.ClientSession._request)

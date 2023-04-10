@@ -4,14 +4,16 @@ import inspect
 from httpdbg.utils import logger
 
 
-def getcallargs(method, *args, **kwargs):
+def getcallargs(original_method, *args, **kwargs):
     while hasattr(
-        method, "__httpdbg__"
+        original_method, "__httpdbg__"
     ):  # to retrieve the original method in case of nested hooks
-        method = method.__httpdbg__
-    callargs = inspect.signature(method).bind_partial(*args, **kwargs).arguments
+        original_method = original_method.__httpdbg__
+    callargs = (
+        inspect.signature(original_method).bind_partial(*args, **kwargs).arguments
+    )
     callargs.update(kwargs)
-    logger.debug(f"{method} - {[arg for arg in callargs]}")
+    logger.debug(f"{original_method} - {[arg for arg in callargs]}")
     return callargs
 
 

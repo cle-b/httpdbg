@@ -1,45 +1,61 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
+import traceback
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
-from httpdbg.initiator import get_initiator
+from httpdbg.initiator import httpdbg_initiator
 from httpdbg.records import HTTPRecord
 
 
-def _record_exception(records, exception, method, *args, **kwargs):
-    callargs = getcallargs(method, *args, **kwargs)
-    request = callargs.get("request")
-
-    if request:
-        if hasattr(request, "url"):
-            record = HTTPRecord()
-
-            record.initiator = get_initiator(records._initiators)
-            record.url = str(request.url)
-            record.exception = exception
-
-            records.requests[record.id] = record
-
-
-def set_hook_for_httpx(records, method):
-    def hook(*args, **kwargs):
+def set_hook_for_httpx_async(records, method):
+    async def hook(*args, **kwargs):
+        initiator = None
         try:
-            return method(*args, **kwargs)
+            with httpdbg_initiator(
+                records, traceback.extract_stack(), method, *args, **kwargs
+            ) as initiator:
+                ret = await method(*args, **kwargs)
+            return ret
         except Exception as ex:
-            _record_exception(records, ex, method, *args, **kwargs)
+            callargs = getcallargs(method, *args, **kwargs)
+
+            if "url" in callargs:
+                if initiator:
+                    record = HTTPRecord()
+
+                    record.initiator = initiator
+                    record.url = str(callargs["url"])
+                    record.exception = ex
+
+                    records.requests[record.id] = record
             raise
 
     return hook
 
 
-def set_hook_for_httpx_async(records, method):
-    async def hook(*args, **kwargs):
+def set_hook_for_httpx(records, method):
+    def hook(*args, **kwargs):
+        initiator = None
         try:
-            return await method(*args, **kwargs)
+            with httpdbg_initiator(
+                records, traceback.extract_stack(), method, *args, **kwargs
+            ) as initiator:
+                ret = method(*args, **kwargs)
+            return ret
         except Exception as ex:
-            _record_exception(records, ex, method, *args, **kwargs)
+            callargs = getcallargs(method, *args, **kwargs)
+
+            if "url" in callargs:
+                if initiator:
+                    record = HTTPRecord()
+
+                    record.initiator = initiator
+                    record.url = str(callargs["url"])
+                    record.exception = ex
+
+                    records.requests[record.id] = record
             raise
 
     return hook
@@ -51,12 +67,35 @@ def hook_httpx(records):
     try:
         import httpx
 
-        httpx._client.Client.send = decorate(
-            records, httpx._client.Client.send, set_hook_for_httpx
+        httpx.AsyncClient.get = decorate(
+            records, httpx.AsyncClient.get, set_hook_for_httpx_async
         )
-        httpx._client.AsyncClient.send = decorate(
-            records, httpx._client.AsyncClient.send, set_hook_for_httpx_async
+        httpx.AsyncClient.post = decorate(
+            records, httpx.AsyncClient.post, set_hook_for_httpx_async
         )
+        httpx.AsyncClient.patch = decorate(
+            records, httpx.AsyncClient.patch, set_hook_for_httpx_async
+        )
+        httpx.AsyncClient.put = decorate(
+            records, httpx.AsyncClient.put, set_hook_for_httpx_async
+        )
+        httpx.AsyncClient.delete = decorate(
+            records, httpx.AsyncClient.delete, set_hook_for_httpx_async
+        )
+        httpx.AsyncClient.head = decorate(
+            records, httpx.AsyncClient.head, set_hook_for_httpx_async
+        )
+        httpx.AsyncClient.options = decorate(
+            records, httpx.AsyncClient.options, set_hook_for_httpx_async
+        )
+
+        httpx.get = decorate(records, httpx.get, set_hook_for_httpx)
+        httpx.post = decorate(records, httpx.post, set_hook_for_httpx)
+        httpx.patch = decorate(records, httpx.patch, set_hook_for_httpx)
+        httpx.put = decorate(records, httpx.put, set_hook_for_httpx)
+        httpx.delete = decorate(records, httpx.delete, set_hook_for_httpx)
+        httpx.head = decorate(records, httpx.head, set_hook_for_httpx)
+        httpx.options = decorate(records, httpx.options, set_hook_for_httpx)
 
         hooks = True
     except ImportError:
@@ -65,5 +104,18 @@ def hook_httpx(records):
     yield
 
     if hooks:
-        httpx._client.Client.send = undecorate(httpx._client.Client.send)
-        httpx._client.AsyncClient.send = undecorate(httpx._client.AsyncClient.send)
+        httpx.AsyncClient.get = undecorate(httpx.AsyncClient.get)
+        httpx.AsyncClient.post = undecorate(httpx.AsyncClient.post)
+        httpx.AsyncClient.patch = undecorate(httpx.AsyncClient.patch)
+        httpx.AsyncClient.put = undecorate(httpx.AsyncClient.put)
+        httpx.AsyncClient.delete = undecorate(httpx.AsyncClient.delete)
+        httpx.AsyncClient.head = undecorate(httpx.AsyncClient.head)
+        httpx.AsyncClient.options = undecorate(httpx.AsyncClient.options)
+
+        httpx.get = undecorate(httpx.get)
+        httpx.post = undecorate(httpx.post)
+        httpx.patch = undecorate(httpx.patch)
+        httpx.put = undecorate(httpx.put)
+        httpx.delete = undecorate(httpx.delete)
+        httpx.head = undecorate(httpx.head)
+        httpx.options = undecorate(httpx.options)

@@ -22,20 +22,22 @@ def test_requests(httpbin_both):
     assert http_record.reason.upper() == "OK"
 
 
+@pytest.mark.initiator
 @pytest.mark.requests
-def test_requests_initiator(httpbin):
-    with httpdbg() as records:
-        requests.get(f"{httpbin.url}/get")
+def test_requests_initiator(httpbin, monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv("PYTEST_CURRENT_TEST")
+        with httpdbg() as records:
+            requests.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.initiator.short_label == "test_requests_initiator"
-    assert (
-        http_record.initiator.long_label
-        == "tests/test_hook_requests.py::test_requests_initiator"
+    assert http_record.initiator.short_label == 'requests.get(f"{httpbin.url}/get")'
+    assert http_record.initiator.long_label is None
+    assert 'requests.get(f"{httpbin.url}/get") <===' in "".join(
+        http_record.initiator.stack
     )
-    assert 'requests.get(f"{httpbin.url}/get")' in "".join(http_record.initiator.stack)
 
 
 @pytest.mark.requests
@@ -65,7 +67,6 @@ def test_requests_response(httpbin_both):
     assert http_record.method.upper() == "PUT"
     assert http_record.status_code == 200
 
-    print(http_record.response.headers)
     assert (
         HTTPDBGHeader("Content-Type", "application/json")
         in http_record.response.headers

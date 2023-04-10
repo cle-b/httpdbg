@@ -7,7 +7,6 @@ import ssl
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
-from httpdbg.initiator import get_initiator
 from httpdbg.records import HTTPRecord
 from httpdbg.utils import logger
 
@@ -36,7 +35,7 @@ def set_hook_for_socket_connect(records, method):
                 ex, (BlockingIOError, OSError)
             ):  # BlockingIOError for async, OSError for ipv6
                 record = HTTPRecord()
-                record.initiator = get_initiator(records._initiators)
+                record.initiator = records.get_initiator()
 
                 record.exception = ex
 
@@ -56,7 +55,7 @@ def set_hook_for_ssl_wrap_socket(records, method):
         except Exception as ex:
             record = HTTPRecord()
 
-            record.initiator = get_initiator(records._initiators)
+            record.initiator = records.get_initiator()
             record.exception = ex
 
             records.requests[record.id] = record
@@ -83,7 +82,7 @@ def set_hook_for_sslcontext_wrap_socket(records, method):
         except Exception as ex:
             record = HTTPRecord()
 
-            record.initiator = get_initiator(records._initiators)
+            record.initiator = records.get_initiator()
             record.exception = ex
 
             records.requests[record.id] = record
@@ -109,7 +108,7 @@ def set_hook_for_socket_wrap_bio(records, method):
             sslobject = method(self, *args, **kwargs)
         except Exception as ex:
             record = HTTPRecord()
-            record.initiator = get_initiator(records._initiators)
+            record.initiator = records.get_initiator()
 
             record.exception = ex
 
@@ -194,7 +193,7 @@ def set_hook_for_socket_sendall(records, method):
                 if http_detected:
                     logger.info("SENDALL - http detected")
                     socketdata.record = HTTPRecord()
-                    socketdata.record.initiator = get_initiator(records._initiators)
+                    socketdata.record.initiator = records.get_initiator()
                     socketdata.record.address = socketdata.address
                     socketdata.record.ssl = socketdata.ssl
                     socketdata.record.request.rawdata = socketdata.rawdata
@@ -235,7 +234,7 @@ def set_hook_for_socket_send(records, method):
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     socketdata.record = HTTPRecord()
-                    socketdata.record.initiator = get_initiator(records._initiators)
+                    socketdata.record.initiator = records.get_initiator()
                     socketdata.record.address = socketdata.address
                     socketdata.record.ssl = socketdata.ssl
                     socketdata.record.request.rawdata = socketdata.rawdata
@@ -292,7 +291,7 @@ def set_hook_for_sslobject_write(records, method):
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     socketdata.record = HTTPRecord()
-                    socketdata.record.initiator = get_initiator(records._initiators)
+                    socketdata.record.initiator = records.get_initiator()
                     socketdata.record.address = socketdata.address
                     socketdata.record.ssl = socketdata.ssl
                     socketdata.record.request.rawdata = socketdata.rawdata
