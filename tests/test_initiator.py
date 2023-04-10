@@ -74,3 +74,19 @@ def test__initiator_redirection_same_initiator(httpbin, monkeypatch):
     assert len(records) == 2
 
     assert records[0].initiator is records[1].initiator
+
+
+@pytest.mark.initiator
+def test_initiator_pytest(httpbin):
+    with httpdbg() as records:
+        requests.get(f"{httpbin.url}/get")
+
+    assert len(records) == 1
+
+    assert records[0].initiator.short_label == "test_initiator_pytest"
+    assert (
+        records[0].initiator.long_label
+        == "tests/test_initiator.py::test_initiator_pytest"
+    )
+    assert 'requests.get(f"{httpbin.url}/get")' in records[0].initiator.short_stack
+    assert 'requests.get(f"{httpbin.url}/get") <===' in records[0].initiator.stack[0]
