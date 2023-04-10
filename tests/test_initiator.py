@@ -19,7 +19,7 @@ def test_initiator_script(httpbin, monkeypatch):
     assert http_record.initiator.long_label is None
 
     assert (
-        """httpdbg/tests/test_initiator.py", line 13, in test_initiator_script
+        """test_initiator.py", line 13, in test_initiator_script
  13.             requests.get(f"{httpbin.url}/get")
 ----------
 requests.api.get(
@@ -31,7 +31,7 @@ requests.api.get(
     )
 
     assert (
-        """httpdbg/tests/test_initiator.py", line 13, 
+        """test_initiator.py", line 13, 
  9. def test_initiator_script(httpbin, monkeypatch):
  10.     with monkeypatch.context() as m:
  11.         m.delenv("PYTEST_CURRENT_TEST")
