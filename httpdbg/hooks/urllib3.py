@@ -1,29 +1,35 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
+import traceback
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
-from httpdbg.initiator import get_initiator
+from httpdbg.initiator import httpdbg_initiator
 from httpdbg.records import HTTPRecord
 
 
-def set_hook_for_urrlib3(records, method):
+def set_hook_for_urllib3(records, method):
     def hook(*args, **kwargs):
+        initiator = None
         try:
-            return method(*args, **kwargs)
+            with httpdbg_initiator(
+                records, traceback.extract_stack(), method, *args, **kwargs
+            ) as initiator:
+                ret = method(*args, **kwargs)
+            return ret
         except Exception as ex:
             callargs = getcallargs(method, *args, **kwargs)
-            url = callargs.get("url")
 
-            if url:
-                record = HTTPRecord()
+            if "url" in callargs:
+                if initiator:
+                    record = HTTPRecord()
 
-                record.initiator = get_initiator(records._initiators)
-                record.url = url
-                record.exception = ex
+                    record.initiator = initiator
+                    record.url = str(callargs["url"])
+                    record.exception = ex
 
-                records.requests[record.id] = record
+                    records.requests[record.id] = record
             raise
 
     return hook
@@ -36,7 +42,10 @@ def hook_urllib3(records):
         import urllib3
 
         urllib3.PoolManager.request = decorate(
-            records, urllib3.PoolManager.request, set_hook_for_urrlib3
+            records, urllib3.PoolManager.request, set_hook_for_urllib3
+        )
+        urllib3.HTTPConnectionPool.request = decorate(
+            records, urllib3.HTTPConnectionPool.request, set_hook_for_urllib3
         )
 
         hooks = True

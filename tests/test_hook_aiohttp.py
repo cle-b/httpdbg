@@ -38,26 +38,28 @@ async def test_aiohttp(httpbin_both):
     assert http_record.reason.upper() == "OK"
 
 
+@pytest.mark.initiator
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 @pytest.mark.xfail(
     platform.system().lower() == "windows",
     reason="Async HTTP requests not intercepted on Windows",
 )
-async def test_aiohttp_initiator(httpbin):
-    with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
-            await session.get(f"{httpbin.url}/get")
+async def test_aiohttp_initiator(httpbin, monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv("PYTEST_CURRENT_TEST")
+        with httpdbg() as records:
+            async with aiohttp.ClientSession() as session:
+                await session.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.initiator.short_label == "test_aiohttp_initiator"
     assert (
-        http_record.initiator.long_label
-        == "tests/test_hook_aiohttp.py::test_aiohttp_initiator"
+        http_record.initiator.short_label == 'await session.get(f"{httpbin.url}/get")'
     )
-    assert 'await session.get(f"{httpbin.url}/get")' in "".join(
+    assert http_record.initiator.long_label is None
+    assert 'await session.get(f"{httpbin.url}/get") <====' in "".join(
         http_record.initiator.stack
     )
 

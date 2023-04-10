@@ -15,10 +15,16 @@ async function refresh_resquests() {
     for (const [request_id, request] of Object.entries(global.requests)) {
         if (request.to_refresh) {
             var elt = document.getElementById("request-" + request.id);
+            request.title = request.url;
+            if (request.initiator.short_stack) {
+                request.title += "\n\n" + request.initiator.short_stack;
+            }
+            request.title += "\n\nclick to select -/- ctrl+click to compare to";
             var rendered = Mustache.render(template_request, request);
             if (!elt) {
                 var elt_initiator = document.getElementById("initiator-" + request.initiator.id);
                 if (!elt_initiator) {
+                    request.initiator.long_label = request.initiator.long_label || request.initiator.short_stack;
                     var rendered_initiator = Mustache.render(template_initiator, request);
                     table.insertAdjacentHTML("beforeend", rendered_initiator);
                     elt_initiator = document.getElementById("initiator-" + request.initiator.id);
@@ -93,7 +99,6 @@ function fill_content(request_id, name) {
     var data = global.requests[request_id].data;
 
     update_with_template("template_title", document.querySelector("#title > div[name='" + name + "']"), data);
-
 
     update_with_template("template_headers", document.querySelector("#headers > div[name='" + name + "']"), data);
 

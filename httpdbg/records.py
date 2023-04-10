@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
+import os
 import socket
 import ssl
 import time
+import traceback
 from urllib.parse import urlparse
 from typing import Dict, List, Tuple, Union
 
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
+from httpdbg.initiator import in_lib
+from httpdbg.initiator import compatible_path
 from httpdbg.initiator import Initiator
 from httpdbg.utils import get_new_uuid
 from httpdbg.utils import chunked_to_bytes
@@ -188,7 +192,7 @@ class HTTPRecord:
         self.id = get_new_uuid()
         self.address: Tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
-        self.initiator: Initiator = Initiator("", "", "", "")
+        self.initiator: Initiator = Initiator("", "", None, "", [])
         self.exception = None
         self.request = HTTPRecordRequest()
         self.response = HTTPRecordResponse()
@@ -277,6 +281,42 @@ class HTTPRecords:
 
     def __len__(self) -> int:
         return len(self.requests)
+
+    def get_initiator(self) -> Initiator:
+        envname = f"HTTPDBG_CURRENT_INITIATOR_{self.id}"
+
+        if envname in os.environ:
+            initiator = self._initiators[os.environ[envname]]
+        else:
+            fullstack = traceback.format_stack()
+            if compatible_path("httpdbg/mode_script.py") in "".join(
+                fullstack
+            ):  # TODO: find another way the detect the mode
+                stack: List[str] = []
+                for line in fullstack[6:]:
+                    if in_lib(line):
+                        break
+                    stack.append(line)
+                long_label = stack[-1]
+                short_label = long_label.split("\n")[1]
+                initiator = Initiator(
+                    get_new_uuid(), short_label, None, long_label, stack
+                )
+            else:
+                initiator = Initiator("console", "console", None, "", [])
+
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            long_label = " ".join(os.environ["PYTEST_CURRENT_TEST"].split(" ")[:-1])
+            short_label = long_label.split("::")[-1]
+            initiator = Initiator(
+                long_label,
+                short_label,
+                long_label,
+                initiator.short_stack,
+                initiator.stack,
+            )
+
+        return initiator
 
     def get_socket_data(self, obj, extra_sock=None, force_new=False, request=None):
         socketdata = None

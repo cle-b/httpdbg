@@ -1,27 +1,32 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
+import traceback
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
-from httpdbg.initiator import get_initiator
+from httpdbg.initiator import httpdbg_initiator
 from httpdbg.records import HTTPRecord
 
 
 def set_hook_for_requests(records, method):
     def hook(*args, **kwargs):
+        initiator = None
         try:
-            return method(*args, **kwargs)
+            with httpdbg_initiator(
+                records, traceback.extract_stack(), method, *args, **kwargs
+            ) as initiator:
+                ret = method(*args, **kwargs)
+            return ret
         except Exception as ex:
             callargs = getcallargs(method, *args, **kwargs)
-            request = callargs.get("request")
 
-            if request:
-                if hasattr(request, "url"):
+            if "url" in callargs:
+                if initiator:
                     record = HTTPRecord()
 
-                    record.initiator = get_initiator(records._initiators)
-                    record.url = str(request.url)
+                    record.initiator = initiator
+                    record.url = str(callargs["url"])
                     record.exception = ex
 
                     records.requests[record.id] = record
@@ -36,8 +41,40 @@ def hook_requests(records):
     try:
         import requests
 
-        requests.adapters.HTTPAdapter.send = decorate(
-            records, requests.adapters.HTTPAdapter.send, set_hook_for_requests
+        requests.get = decorate(records, requests.get, set_hook_for_requests)
+        requests.post = decorate(records, requests.post, set_hook_for_requests)
+        requests.patch = decorate(records, requests.patch, set_hook_for_requests)
+        requests.put = decorate(records, requests.put, set_hook_for_requests)
+        requests.delete = decorate(records, requests.delete, set_hook_for_requests)
+        requests.head = decorate(records, requests.head, set_hook_for_requests)
+        requests.options = decorate(records, requests.options, set_hook_for_requests)
+
+        requests.request = decorate(records, requests.request, set_hook_for_requests)
+
+        requests.Session.get = decorate(
+            records, requests.Session.get, set_hook_for_requests
+        )
+        requests.Session.post = decorate(
+            records, requests.Session.post, set_hook_for_requests
+        )
+        requests.Session.patch = decorate(
+            records, requests.Session.patch, set_hook_for_requests
+        )
+        requests.Session.put = decorate(
+            records, requests.Session.put, set_hook_for_requests
+        )
+        requests.Session.delete = decorate(
+            records, requests.Session.delete, set_hook_for_requests
+        )
+        requests.Session.head = decorate(
+            records, requests.Session.head, set_hook_for_requests
+        )
+        requests.Session.options = decorate(
+            records, requests.Session.options, set_hook_for_requests
+        )
+
+        requests.Session.request = decorate(
+            records, requests.Session.request, set_hook_for_requests
         )
 
         hooks = True
@@ -47,6 +84,22 @@ def hook_requests(records):
     yield
 
     if hooks:
-        requests.adapters.HTTPAdapter.send = undecorate(
-            requests.adapters.HTTPAdapter.send
-        )
+        requests.get = undecorate(requests.get)
+        requests.post = undecorate(requests.post)
+        requests.patch = undecorate(requests.patch)
+        requests.put = undecorate(requests.put)
+        requests.delete = undecorate(requests.delete)
+        requests.head = undecorate(requests.head)
+        requests.options = undecorate(requests.options)
+
+        requests.request = undecorate(requests.request)
+
+        requests.Session.get = undecorate(requests.Session.get)
+        requests.Session.post = undecorate(requests.Session.post)
+        requests.Session.patch = undecorate(requests.Session.patch)
+        requests.Session.put = undecorate(requests.Session.put)
+        requests.Session.delete = undecorate(requests.Session.delete)
+        requests.Session.head = undecorate(requests.Session.head)
+        requests.Session.options = undecorate(requests.Session.options)
+
+        requests.Session.request = undecorate(requests.Session.request)
