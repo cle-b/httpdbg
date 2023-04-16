@@ -1,4 +1,4 @@
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black) [![Build Status](https://github.com/cle-b/httpdbg/workflows/Build/badge.svg?branch=main)](https://github.com/cle-b/httpdbg/actions?query=workflow%3ABuild) [![PyPI version](https://badge.fury.io/py/httpdbg.svg)](https://badge.fury.io/py/httpdbg) [![Coverage Status](https://coveralls.io/repos/github/cle-b/httpdbg/badge.svg?branch=main)](https://coveralls.io/github/cle-b/httpdbg?branch=main)
+[![Build Status](https://github.com/cle-b/httpdbg/workflows/Build/badge.svg?branch=main)](https://github.com/cle-b/httpdbg/actions?query=workflow%3ABuild) [![PyPI version](https://badge.fury.io/py/httpdbg.svg)](https://badge.fury.io/py/httpdbg) [![Coverage Status](https://coveralls.io/repos/github/cle-b/httpdbg/badge.svg?branch=main)](https://coveralls.io/github/cle-b/httpdbg?branch=main)
 # httpdbg
 
 A very simple tool to debug HTTP(S) client requests.
