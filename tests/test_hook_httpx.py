@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import platform
 import sys
+import urllib.parse
 
 import httpx
 import pytest
@@ -148,17 +149,16 @@ def test_httpx_stream(httpbin):
 
 @pytest.mark.httpx
 def test_httpx_redirect(httpbin_both):
+    redirect_url = f"{httpbin_both.url}/redirect-to?{urllib.parse.urlencode({'url': httpbin_both.url})}/get"
     with httpdbg() as records:
         httpx.get(
-            f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get",
+            redirect_url,
             follow_redirects=True,
             verify=False,
         )
 
     assert len(records) == 2
-    assert (
-        records[0].url == f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get"
-    )
+    assert records[0].url == redirect_url
     assert records[1].url == f"{httpbin_both.url}/get"
 
 
