@@ -172,9 +172,10 @@ async def test_aiohttp_cookies(httpbin):
             await session.get(
                 f"{httpbin.url}/cookies/set/confiture/oignon",
                 cookies={"jam": "strawberry"},
+                allow_redirects=False,
             )
 
-    assert len(records) == 2
+    assert len(records) == 1
     http_record = records[0]
 
     assert HTTPDBGCookie("jam", "strawberry") in http_record.request.cookies
