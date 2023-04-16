@@ -268,10 +268,6 @@ def test_httpx_many_requests_session():
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    platform.system().lower() == "windows",
-    reason="Async HTTP requests not intercepted on Windows",
-)
 async def test_httpx_asyncclient(httpbin_both):
     with httpdbg() as records:
         async with httpx.AsyncClient(verify=False) as client:
@@ -289,10 +285,6 @@ async def test_httpx_asyncclient(httpbin_both):
 @pytest.mark.initiator
 @pytest.mark.httpx
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    platform.system().lower() == "windows",
-    reason="Async HTTP requests not intercepted on Windows",
-)
 async def test_httpx_initiator_asyncclient(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
@@ -312,10 +304,6 @@ async def test_httpx_initiator_asyncclient(httpbin, monkeypatch):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    platform.system().lower() == "windows",
-    reason="Async HTTP requests not intercepted on Windows",
-)
 async def test_httpx_request_asyncclient(httpbin_both):
     with httpdbg() as records:
         async with httpx.AsyncClient(verify=False) as client:
@@ -334,10 +322,6 @@ async def test_httpx_request_asyncclient(httpbin_both):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    platform.system().lower() == "windows",
-    reason="Async HTTP requests not intercepted on Windows",
-)
 async def test_httpx_response_asyncclient(httpbin_both):
     with httpdbg() as records:
         async with httpx.AsyncClient(verify=False) as client:
@@ -360,10 +344,6 @@ async def test_httpx_response_asyncclient(httpbin_both):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    platform.system().lower() == "windows",
-    reason="Async HTTP requests not intercepted on Windows",
-)
 async def test_httpx_cookies_asyncclient(httpbin):
     with httpdbg() as records:
         async with httpx.AsyncClient() as client:
@@ -385,10 +365,6 @@ async def test_httpx_cookies_asyncclient(httpbin):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    platform.system().lower() == "windows",
-    reason="Async HTTP requests not intercepted on Windows",
-)
 async def test_httpx_cookies_asyncclient_secure(httpbin_secure):
     with httpdbg() as records:
         async with httpx.AsyncClient(verify=False) as client:
@@ -412,10 +388,6 @@ async def test_httpx_cookies_asyncclient_secure(httpbin_secure):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    platform.system().lower() == "windows",
-    reason="Async HTTP requests not intercepted on Windows",
-)
 async def test_httpx_exception_asyncclient():
     url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
 
@@ -433,10 +405,6 @@ async def test_httpx_exception_asyncclient():
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    platform.system().lower() == "windows",
-    reason="Async HTTP requests not intercepted on Windows",
-)
 async def test_httpx_get_empty_request_content_asyncclient(httpbin_both):
     with httpdbg() as records:
         async with httpx.AsyncClient(verify=False) as client:
@@ -451,10 +419,6 @@ async def test_httpx_get_empty_request_content_asyncclient(httpbin_both):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    platform.system().lower() == "windows",
-    reason="Async HTTP requests not intercepted on Windows",
-)
 async def test_httpx_many_requests_session_asyncclient():
     with httpdbg() as records:
         async with httpx.AsyncClient() as session:

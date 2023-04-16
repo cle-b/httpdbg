@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import asyncio
+import asyncio.proactor_events
 import os
 import socket
 import ssl
@@ -348,6 +350,10 @@ class HTTPRecords:
                 except OSError:
                     # OSError: [WinError 10022] An invalid argument was supplied
                     pass
+            elif isinstance(obj, asyncio.proactor_events._ProactorSocketTransport):
+                # only for async HTTP requests (not HTTPS) on Windows
+                self._sockets[id(obj)] = SocketRawData(id(obj), ("", 0), False)
+                socketdata = self._sockets[id(obj)]
             else:
                 if extra_sock:
                     try:
