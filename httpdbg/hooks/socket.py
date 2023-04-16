@@ -2,8 +2,10 @@
 import asyncio
 import asyncio.proactor_events
 from contextlib import contextmanager
+import platform
 import socket
 import ssl
+import sys
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
@@ -383,16 +385,17 @@ def hook_socket(records):
     )
 
     # only for async HTTP requests (not HTTPS) on Windows
-    asyncio.proactor_events._ProactorReadPipeTransport._data_received = decorate(
-        records,
-        asyncio.proactor_events._ProactorReadPipeTransport._data_received,
-        set_hook_for_socket_recv_into,
-    )
-    asyncio.proactor_events._ProactorBaseWritePipeTransport.write = decorate(
-        records,
-        asyncio.proactor_events._ProactorBaseWritePipeTransport.write,
-        set_hook_for_socket_recv_into,
-    )
+    if (platform.system().lower() == "windows") and (sys.version_info > (3, 6)):
+        asyncio.proactor_events._ProactorReadPipeTransport._data_received = decorate(
+            records,
+            asyncio.proactor_events._ProactorReadPipeTransport._data_received,
+            set_hook_for_socket_recv_into,
+        )
+        asyncio.proactor_events._ProactorBaseWritePipeTransport.write = decorate(
+            records,
+            asyncio.proactor_events._ProactorBaseWritePipeTransport.write,
+            set_hook_for_socket_recv_into,
+        )
 
     yield
 
@@ -422,9 +425,10 @@ def hook_socket(records):
     )
 
     # only for async HTTP requests (not HTTPS) on Windows
-    asyncio.proactor_events._ProactorReadPipeTransport._data_received = undecorate(
-        asyncio.proactor_events._ProactorReadPipeTransport._data_received
-    )
-    asyncio.proactor_events._ProactorBaseWritePipeTransport.write = undecorate(
-        asyncio.proactor_events._ProactorBaseWritePipeTransport.write
-    )
+    if (platform.system().lower() == "windows") and (sys.version_info > (3, 6)):
+        asyncio.proactor_events._ProactorReadPipeTransport._data_received = undecorate(
+            asyncio.proactor_events._ProactorReadPipeTransport._data_received
+        )
+        asyncio.proactor_events._ProactorBaseWritePipeTransport.write = undecorate(
+            asyncio.proactor_events._ProactorBaseWritePipeTransport.write
+        )
