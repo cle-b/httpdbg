@@ -394,7 +394,7 @@ def hook_socket(records):
         asyncio.proactor_events._ProactorBaseWritePipeTransport.write = decorate(
             records,
             asyncio.proactor_events._ProactorBaseWritePipeTransport.write,
-            set_hook_for_socket_recv_into,
+            set_hook_for_socket_send,
         )
 
     yield
