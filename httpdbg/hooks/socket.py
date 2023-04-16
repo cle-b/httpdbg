@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import asyncio
+import asyncio.proactor_events
 from contextlib import contextmanager
+import platform
 import socket
 import ssl
+import sys
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
@@ -381,6 +384,19 @@ def hook_socket(records):
         set_hook_for_asyncio_create_connection,
     )
 
+    # only for async HTTP requests (not HTTPS) on Windows
+    if (platform.system().lower() == "windows") and (sys.version_info >= (3, 7)):
+        asyncio.proactor_events._ProactorReadPipeTransport._data_received = decorate(
+            records,
+            asyncio.proactor_events._ProactorReadPipeTransport._data_received,
+            set_hook_for_socket_recv_into,
+        )
+        asyncio.proactor_events._ProactorBaseWritePipeTransport.write = decorate(
+            records,
+            asyncio.proactor_events._ProactorBaseWritePipeTransport.write,
+            set_hook_for_socket_send,
+        )
+
     yield
 
     socket.socket.__init__ = undecorate(socket.socket.__init__)
@@ -407,3 +423,12 @@ def hook_socket(records):
     asyncio.BaseEventLoop.create_connection = undecorate(
         asyncio.BaseEventLoop.create_connection
     )
+
+    # only for async HTTP requests (not HTTPS) on Windows
+    if (platform.system().lower() == "windows") and (sys.version_info >= (3, 7)):
+        asyncio.proactor_events._ProactorReadPipeTransport._data_received = undecorate(
+            asyncio.proactor_events._ProactorReadPipeTransport._data_received
+        )
+        asyncio.proactor_events._ProactorBaseWritePipeTransport.write = undecorate(
+            asyncio.proactor_events._ProactorBaseWritePipeTransport.write
+        )
