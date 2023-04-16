@@ -385,7 +385,7 @@ def hook_socket(records):
     )
 
     # only for async HTTP requests (not HTTPS) on Windows
-    if (platform.system().lower() == "windows") and (sys.version_info > (3, 6)):
+    if (platform.system().lower() == "windows") and (sys.version_info >= (3, 7)):
         asyncio.proactor_events._ProactorReadPipeTransport._data_received = decorate(
             records,
             asyncio.proactor_events._ProactorReadPipeTransport._data_received,
@@ -425,7 +425,7 @@ def hook_socket(records):
     )
 
     # only for async HTTP requests (not HTTPS) on Windows
-    if (platform.system().lower() == "windows") and (sys.version_info > (3, 6)):
+    if (platform.system().lower() == "windows") and (sys.version_info >= (3, 7)):
         asyncio.proactor_events._ProactorReadPipeTransport._data_received = undecorate(
             asyncio.proactor_events._ProactorReadPipeTransport._data_received
         )
