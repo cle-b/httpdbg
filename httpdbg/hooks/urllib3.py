@@ -56,3 +56,6 @@ def hook_urllib3(records):
 
     if hooks:
         urllib3.PoolManager.request = undecorate(urllib3.PoolManager.request)
+        urllib3.HTTPConnectionPool.request = undecorate(
+            urllib3.HTTPConnectionPool.request
+        )
