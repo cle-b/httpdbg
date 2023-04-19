@@ -128,9 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-demo.py
-demo2.py
-
 # Visual Studio Code
 .vscode/*
 *.code-workspace
@@ -140,3 +137,6 @@ demo2.py
 
 # file for test
 bigfile
+
+# demo
+demo*.py

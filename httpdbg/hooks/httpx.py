@@ -88,6 +88,9 @@ def hook_httpx(records):
         httpx.AsyncClient.options = decorate(
             records, httpx.AsyncClient.options, set_hook_for_httpx_async
         )
+        httpx.AsyncClient.request = decorate(
+            records, httpx.AsyncClient.request, set_hook_for_httpx_async
+        )
 
         httpx.get = decorate(records, httpx.get, set_hook_for_httpx)
         httpx.post = decorate(records, httpx.post, set_hook_for_httpx)
@@ -96,6 +99,7 @@ def hook_httpx(records):
         httpx.delete = decorate(records, httpx.delete, set_hook_for_httpx)
         httpx.head = decorate(records, httpx.head, set_hook_for_httpx)
         httpx.options = decorate(records, httpx.options, set_hook_for_httpx)
+        httpx.request = decorate(records, httpx.request, set_hook_for_httpx)
 
         hooks = True
     except ImportError:
@@ -111,6 +115,7 @@ def hook_httpx(records):
         httpx.AsyncClient.delete = undecorate(httpx.AsyncClient.delete)
         httpx.AsyncClient.head = undecorate(httpx.AsyncClient.head)
         httpx.AsyncClient.options = undecorate(httpx.AsyncClient.options)
+        httpx.AsyncClient.request = undecorate(httpx.AsyncClient.request)
 
         httpx.get = undecorate(httpx.get)
         httpx.post = undecorate(httpx.post)
@@ -119,3 +124,4 @@ def hook_httpx(records):
         httpx.delete = undecorate(httpx.delete)
         httpx.head = undecorate(httpx.head)
         httpx.options = undecorate(httpx.options)
+        httpx.request = undecorate(httpx.request)
