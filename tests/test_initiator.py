@@ -121,7 +121,7 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
             fnc_in_subpackage(f"{httpbin.url}/get")
             fnc_in_init(f"{httpbin.url}/get")
             FakeClient().navigate(f"{httpbin.url}/get")
-            if sys.version_info < (3, 7):
+            if sys.version_info > (3, 6):
                 asyncio.run(fnc_async(f"{httpbin.url}/get"))
 
         # function in a package
@@ -145,7 +145,7 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
         )
 
         # async function in a package
-        if sys.version_info < (3, 7):
+        if sys.version_info > (3, 6):
             assert (
                 records[4].initiator.short_label
                 == 'asyncio.run(fnc_async(f"{httpbin.url}/get"))'
@@ -156,12 +156,12 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
             fnc_in_subpackage(f"{httpbin.url}/get")
             fnc_in_init(f"{httpbin.url}/get")
             FakeClient().navigate(f"{httpbin.url}/get")
-            if sys.version_info < (3, 7):
+            if sys.version_info > (3, 6):
                 asyncio.run(fnc_async(f"{httpbin.url}/get"))
 
         assert records[0].initiator.short_label == "requests.get(url)"
         assert records[1].initiator.short_label == "requests.get(url)  # subpackage"
         assert records[2].initiator.short_label == "requests.get(url)  # init"
         assert records[3].initiator.short_label == "requests.get(url)  # method"
-        if sys.version_info < (3, 7):
+        if sys.version_info > (3, 6):
             assert records[4].initiator.short_label == "await client.get(url)"
