@@ -24,7 +24,7 @@ def read_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
     )
 
     parser.add_argument(
-        "--initiator", "-i", action="append", help="add a new initiator"
+        "--initiator", "-i", action="append", help="add a new initiator (package)"
     )
 
     server_state = parser.add_mutually_exclusive_group()

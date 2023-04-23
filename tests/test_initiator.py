@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import asyncio
 import platform
 
 import pytest
@@ -25,8 +26,8 @@ def test_initiator_script(httpbin, monkeypatch):
     assert http_record.initiator.long_label is None
 
     assert (
-        """test_initiator.py", line 19, in test_initiator_script
- 19.             requests.get(f"{httpbin.url}/get")
+        """test_initiator.py", line 20, in test_initiator_script
+ 20.             requests.get(f"{httpbin.url}/get")
 ----------
 requests.api.get(
     url="""
@@ -37,19 +38,19 @@ requests.api.get(
     )
 
     assert (
-        """test_initiator.py", line 19, 
- 15. def test_initiator_script(httpbin, monkeypatch):
- 16.     with monkeypatch.context() as m:
- 17.         m.delenv("PYTEST_CURRENT_TEST")
- 18.         with httpdbg() as records:
- 19.             requests.get(f"{httpbin.url}/get") <====
- 20. 
- 21.     assert len(records) == 1
- 22.     http_record = records[0]
- 23. 
- 24.     assert http_record.initiator.short_label == \'requests.get(f"{httpbin.url}/get")\'
- 25.     assert http_record.initiator.long_label is None
- 26."""  # noqa W291
+        """test_initiator.py", line 20, 
+ 16. def test_initiator_script(httpbin, monkeypatch):
+ 17.     with monkeypatch.context() as m:
+ 18.         m.delenv("PYTEST_CURRENT_TEST")
+ 19.         with httpdbg() as records:
+ 20.             requests.get(f"{httpbin.url}/get") <====
+ 21. 
+ 22.     assert len(records) == 1
+ 23.     http_record = records[0]
+ 24. 
+ 25.     assert http_record.initiator.short_label == \'requests.get(f"{httpbin.url}/get")\'
+ 26.     assert http_record.initiator.long_label is None
+ 27."""  # noqa W291
         in http_record.initiator.stack[0]
     )
 
@@ -101,3 +102,61 @@ def test_initiator_pytest(httpbin):
     )
     assert 'requests.get(f"{httpbin.url}/get")' in records[0].initiator.short_stack
     assert 'requests.get(f"{httpbin.url}/get") <===' in records[0].initiator.stack[0]
+
+
+def test_initiator_add_package_fnc(httpbin, monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv("PYTEST_CURRENT_TEST")
+
+        # all cases must be tested in the same test
+        with httpdbg(initiators=["initiator_pck"]) as records:
+            from initiator_pck.initiator2.mod2 import fnc_in_subpackage
+            from initiator_pck.mod1 import fnc_in_package
+            from initiator_pck import fnc_async
+            from initiator_pck.initiator2.initiator3 import fnc_in_init
+            from initiator_pck.initiator2.mod2 import FakeClient
+
+            fnc_in_package(f"{httpbin.url}/get")
+            asyncio.run(fnc_async(f"{httpbin.url}/get"))
+            fnc_in_subpackage(f"{httpbin.url}/get")
+            fnc_in_init(f"{httpbin.url}/get")
+            FakeClient().navigate(f"{httpbin.url}/get")
+
+        # function in a package
+        assert (
+            records[0].initiator.short_label == 'fnc_in_package(f"{httpbin.url}/get")'
+        )
+
+        # async function in a package
+        assert (
+            records[1].initiator.short_label
+            == 'asyncio.run(fnc_async(f"{httpbin.url}/get"))'
+        )
+
+        # function in a sub package (no __init__)
+        assert (
+            records[2].initiator.short_label
+            == 'fnc_in_subpackage(f"{httpbin.url}/get")'
+        )
+
+        # function in a __init__.py file
+        assert records[3].initiator.short_label == 'fnc_in_init(f"{httpbin.url}/get")'
+
+        # method
+        assert (
+            records[4].initiator.short_label
+            == 'FakeClient().navigate(f"{httpbin.url}/get")'
+        )
+
+        with httpdbg() as records:
+            fnc_in_package(f"{httpbin.url}/get")
+            asyncio.run(fnc_async(f"{httpbin.url}/get"))
+            fnc_in_subpackage(f"{httpbin.url}/get")
+            fnc_in_init(f"{httpbin.url}/get")
+            FakeClient().navigate(f"{httpbin.url}/get")
+
+        assert records[0].initiator.short_label == "requests.get(url)"
+        assert records[1].initiator.short_label == "await client.get(url)"
+        assert records[2].initiator.short_label == "requests.get(url)  # subpackage"
+        assert records[3].initiator.short_label == "requests.get(url)  # init"
+        assert records[4].initiator.short_label == "requests.get(url)  # method"

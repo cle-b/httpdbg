@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
+import glob
 import importlib
 import inspect
-import pkgutil
+from pathlib import Path
 import traceback
 from typing import Generator
 from typing import List
@@ -49,6 +50,7 @@ def hook_generic(
         initiators = []
 
     for initiator in initiators:
+        logger.debug(f"HOOK_GENERIC add package - {initiator}")
         try:
             hooks += list_callables_from_package(records, initiator)
         except Exception as ex:
@@ -68,11 +70,18 @@ def list_callables_from_package(records, package):
 
     try:
         imported_package = importlib.import_module(package)
-        for p in pkgutil.walk_packages(imported_package.__path__):
-            if p.ispkg:
-                callables += list_callables_from_package(records, f"{package}.{p.name}")
-            else:
-                callables += list_callables_from_module(records, f"{package}.{p.name}")
+        for p in glob.glob(f"{imported_package.__path__[0]}/*"):
+            file_or_dir = Path(p)
+            if file_or_dir.is_file():
+                if file_or_dir.name.endswith(".py"):
+                    callables += list_callables_from_module(
+                        records, f"{package}.{file_or_dir.name[:-3]}"
+                    )
+            elif file_or_dir.is_dir():
+                if not file_or_dir.name.startswith("__"):  # __pycache__
+                    callables += list_callables_from_package(
+                        records, f"{package}.{file_or_dir.name}"
+                    )
     except ImportError:
         pass
 
@@ -86,7 +95,8 @@ def list_callables_from_module(records, module):
 
     for name in imported_module.__dict__.keys():
         # hook must be applied only on function/method defined in the current module (not imported)
-        if getattr(imported_module.__dict__[name], "__module__", None) == module:
+        from_module = getattr(imported_module.__dict__[name], "__module__", "")
+        if from_module and from_module.startswith(module):
             # a coroutine is a function so this condition must be checked first
             if inspect.iscoroutinefunction(imported_module.__dict__[name]):
                 imported_module.__dict__[name] = decorate(
@@ -116,12 +126,10 @@ def list_callables_from_class(records, imported_module, module, classname):
     callables = []
 
     for name in imported_module.__dict__[classname].__dict__.keys():
-        if (
-            getattr(
-                imported_module.__dict__[classname].__dict__[name], "__module__", None
-            )
-            == module
-        ):
+        from_module = getattr(
+            imported_module.__dict__[classname].__dict__[name], "__module__", ""
+        )
+        if from_module and from_module.startswith(module):
             if not name.startswith("__"):
                 if inspect.iscoroutinefunction(
                     imported_module.__dict__[classname].__dict__[name]
