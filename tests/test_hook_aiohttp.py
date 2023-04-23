@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import platform
 import sys
 
 import aiohttp
@@ -213,6 +214,10 @@ async def test_aiohttp_cookies_secure(httpbin_secure):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="flaky on Windows (sometimes only one request is recorded)",
+)
 async def test_aiohttp_redirect(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
