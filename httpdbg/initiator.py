@@ -82,9 +82,10 @@ def get_current_instruction(
 
     n_stack = -1
     framesummary = extracted_stack[-2]
-    if framesummary.name == "__aenter__":
-        n_stack = -2
-        framesummary = extracted_stack[-3]
+    if "asyncio" in framesummary.filename:
+        while "asyncio" in framesummary.filename:
+            n_stack -= 1
+            framesummary = extracted_stack[n_stack - 1]
 
     instruction = ""
     short_stack = f'File "{framesummary.filename}", line {framesummary.lineno}, in {framesummary.name}\n'

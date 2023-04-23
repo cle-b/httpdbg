@@ -6,11 +6,13 @@ import platform
 import socket
 import ssl
 import sys
+from typing import Generator
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
 from httpdbg.records import HTTPRecord
+from httpdbg.records import HTTPRecords
 from httpdbg.utils import logger
 
 
@@ -334,7 +336,7 @@ def set_hook_for_sslobject_read(records, method):
 
 
 @contextmanager
-def hook_socket(records):
+def hook_socket(records: HTTPRecords) -> Generator[None, None, None]:
     socket.socket.__init__ = decorate(
         records, socket.socket.__init__, set_hook_for_socket_init
     )
@@ -386,9 +388,9 @@ def hook_socket(records):
 
     # only for async HTTP requests (not HTTPS) on Windows
     if (platform.system().lower() == "windows") and (sys.version_info >= (3, 7)):
-        asyncio.proactor_events._ProactorReadPipeTransport._data_received = decorate(
+        asyncio.proactor_events._ProactorReadPipeTransport._data_received = decorate(  # type: ignore
             records,
-            asyncio.proactor_events._ProactorReadPipeTransport._data_received,
+            asyncio.proactor_events._ProactorReadPipeTransport._data_received,  # type: ignore
             set_hook_for_socket_recv_into,
         )
         asyncio.proactor_events._ProactorBaseWritePipeTransport.write = decorate(
@@ -426,8 +428,8 @@ def hook_socket(records):
 
     # only for async HTTP requests (not HTTPS) on Windows
     if (platform.system().lower() == "windows") and (sys.version_info >= (3, 7)):
-        asyncio.proactor_events._ProactorReadPipeTransport._data_received = undecorate(
-            asyncio.proactor_events._ProactorReadPipeTransport._data_received
+        asyncio.proactor_events._ProactorReadPipeTransport._data_received = undecorate(  # type: ignore
+            asyncio.proactor_events._ProactorReadPipeTransport._data_received  # type: ignore
         )
         asyncio.proactor_events._ProactorBaseWritePipeTransport.write = undecorate(
             asyncio.proactor_events._ProactorBaseWritePipeTransport.write
