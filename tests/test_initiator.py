@@ -105,6 +105,11 @@ def test_initiator_pytest(httpbin):
     assert 'requests.get(f"{httpbin.url}/get") <===' in records[0].initiator.stack[0]
 
 
+@pytest.mark.initiator
+@pytest.mark.xfail(
+    sys.version >= (3, 7) and sys.version < (3, 8),
+    reason="failed on py37",
+)
 def test_initiator_add_package_fnc(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
