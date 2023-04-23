@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import platform
+import sys
 
 import pytest
 import requests
@@ -26,8 +27,8 @@ def test_initiator_script(httpbin, monkeypatch):
     assert http_record.initiator.long_label is None
 
     assert (
-        """test_initiator.py", line 20, in test_initiator_script
- 20.             requests.get(f"{httpbin.url}/get")
+        """test_initiator.py", line 21, in test_initiator_script
+ 21.             requests.get(f"{httpbin.url}/get")
 ----------
 requests.api.get(
     url="""
@@ -38,19 +39,19 @@ requests.api.get(
     )
 
     assert (
-        """test_initiator.py", line 20, 
- 16. def test_initiator_script(httpbin, monkeypatch):
- 17.     with monkeypatch.context() as m:
- 18.         m.delenv("PYTEST_CURRENT_TEST")
- 19.         with httpdbg() as records:
- 20.             requests.get(f"{httpbin.url}/get") <====
- 21. 
- 22.     assert len(records) == 1
- 23.     http_record = records[0]
- 24. 
- 25.     assert http_record.initiator.short_label == \'requests.get(f"{httpbin.url}/get")\'
- 26.     assert http_record.initiator.long_label is None
- 27."""  # noqa W291
+        """test_initiator.py", line 21, 
+ 17. def test_initiator_script(httpbin, monkeypatch):
+ 18.     with monkeypatch.context() as m:
+ 19.         m.delenv("PYTEST_CURRENT_TEST")
+ 20.         with httpdbg() as records:
+ 21.             requests.get(f"{httpbin.url}/get") <====
+ 22. 
+ 23.     assert len(records) == 1
+ 24.     http_record = records[0]
+ 25. 
+ 26.     assert http_record.initiator.short_label == \'requests.get(f"{httpbin.url}/get")\'
+ 27.     assert http_record.initiator.long_label is None
+ 28."""  # noqa W291
         in http_record.initiator.stack[0]
     )
 
@@ -120,7 +121,7 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
             fnc_in_subpackage(f"{httpbin.url}/get")
             fnc_in_init(f"{httpbin.url}/get")
             FakeClient().navigate(f"{httpbin.url}/get")
-            if hasattr(asyncio, "run"):  # asyncio.run not available for python 3.6
+            if sys.version_info < (3, 7):
                 asyncio.run(fnc_async(f"{httpbin.url}/get"))
 
         # function in a package
@@ -144,7 +145,7 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
         )
 
         # async function in a package
-        if hasattr(asyncio, "run"):  # asyncio.run not available for python 3.6
+        if sys.version_info < (3, 7):
             assert (
                 records[4].initiator.short_label
                 == 'asyncio.run(fnc_async(f"{httpbin.url}/get"))'
@@ -155,12 +156,12 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
             fnc_in_subpackage(f"{httpbin.url}/get")
             fnc_in_init(f"{httpbin.url}/get")
             FakeClient().navigate(f"{httpbin.url}/get")
-            if hasattr(asyncio, "run"):  # asyncio.run not available for python 3.6
+            if sys.version_info < (3, 7):
                 asyncio.run(fnc_async(f"{httpbin.url}/get"))
 
         assert records[0].initiator.short_label == "requests.get(url)"
         assert records[1].initiator.short_label == "requests.get(url)  # subpackage"
         assert records[2].initiator.short_label == "requests.get(url)  # init"
         assert records[3].initiator.short_label == "requests.get(url)  # method"
-        if hasattr(asyncio, "run"):  # asyncio.run not available for python 3.6
+        if sys.version_info < (3, 7):
             assert records[4].initiator.short_label == "await client.get(url)"
