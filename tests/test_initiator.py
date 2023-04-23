@@ -117,46 +117,50 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
             from initiator_pck.initiator2.mod2 import FakeClient
 
             fnc_in_package(f"{httpbin.url}/get")
-            asyncio.run(fnc_async(f"{httpbin.url}/get"))
             fnc_in_subpackage(f"{httpbin.url}/get")
             fnc_in_init(f"{httpbin.url}/get")
             FakeClient().navigate(f"{httpbin.url}/get")
+            if hasattr(asyncio, "run"):  # asyncio.run not available for python 3.6
+                asyncio.run(fnc_async(f"{httpbin.url}/get"))
 
         # function in a package
         assert (
             records[0].initiator.short_label == 'fnc_in_package(f"{httpbin.url}/get")'
         )
 
-        # async function in a package
-        assert (
-            records[1].initiator.short_label
-            == 'asyncio.run(fnc_async(f"{httpbin.url}/get"))'
-        )
-
         # function in a sub package (no __init__)
         assert (
-            records[2].initiator.short_label
+            records[1].initiator.short_label
             == 'fnc_in_subpackage(f"{httpbin.url}/get")'
         )
 
         # function in a __init__.py file
-        assert records[3].initiator.short_label == 'fnc_in_init(f"{httpbin.url}/get")'
+        assert records[2].initiator.short_label == 'fnc_in_init(f"{httpbin.url}/get")'
 
         # method
         assert (
-            records[4].initiator.short_label
+            records[3].initiator.short_label
             == 'FakeClient().navigate(f"{httpbin.url}/get")'
         )
 
+        # async function in a package
+        if hasattr(asyncio, "run"):  # asyncio.run not available for python 3.6
+            assert (
+                records[4].initiator.short_label
+                == 'asyncio.run(fnc_async(f"{httpbin.url}/get"))'
+            )
+
         with httpdbg() as records:
             fnc_in_package(f"{httpbin.url}/get")
-            asyncio.run(fnc_async(f"{httpbin.url}/get"))
             fnc_in_subpackage(f"{httpbin.url}/get")
             fnc_in_init(f"{httpbin.url}/get")
             FakeClient().navigate(f"{httpbin.url}/get")
+            if hasattr(asyncio, "run"):  # asyncio.run not available for python 3.6
+                asyncio.run(fnc_async(f"{httpbin.url}/get"))
 
         assert records[0].initiator.short_label == "requests.get(url)"
-        assert records[1].initiator.short_label == "await client.get(url)"
-        assert records[2].initiator.short_label == "requests.get(url)  # subpackage"
-        assert records[3].initiator.short_label == "requests.get(url)  # init"
-        assert records[4].initiator.short_label == "requests.get(url)  # method"
+        assert records[1].initiator.short_label == "requests.get(url)  # subpackage"
+        assert records[2].initiator.short_label == "requests.get(url)  # init"
+        assert records[3].initiator.short_label == "requests.get(url)  # method"
+        if hasattr(asyncio, "run"):  # asyncio.run not available for python 3.6
+            assert records[4].initiator.short_label == "await client.get(url)"
