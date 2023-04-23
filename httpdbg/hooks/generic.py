@@ -70,7 +70,7 @@ def list_callables_from_package(records, package):
 
     try:
         imported_package = importlib.import_module(package)
-        for p in glob.glob(f"{imported_package.__path__[0]}/*"):
+        for p in glob.glob(f"{list(imported_package.__path__)[0]}/*"):
             file_or_dir = Path(p)
             if file_or_dir.is_file():
                 if file_or_dir.name.endswith(".py"):
