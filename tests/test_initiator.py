@@ -107,7 +107,7 @@ def test_initiator_pytest(httpbin):
 
 @pytest.mark.initiator
 @pytest.mark.xfail(
-    sys.version_info >= (3, 7) and sys.version_info < (3, 8),
+    sys.version_info < (3, 8),
     reason="failed on py37",
 )
 def test_initiator_add_package_fnc(httpbin, monkeypatch):
