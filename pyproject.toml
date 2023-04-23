@@ -39,4 +39,5 @@ version = {attr = "httpdbg.VERSION"}
 
 [tool.mypy]
 no_implicit_optional = false
+disable_error_code= ["method-assign",]
 files = ["httpdbg"]

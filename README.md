@@ -1,9 +1,11 @@
 [![Build Status](https://github.com/cle-b/httpdbg/workflows/Build/badge.svg?branch=main)](https://github.com/cle-b/httpdbg/actions?query=workflow%3ABuild) [![PyPI version](https://badge.fury.io/py/httpdbg.svg)](https://badge.fury.io/py/httpdbg) [![Coverage Status](https://coveralls.io/repos/github/cle-b/httpdbg/badge.svg?branch=main)](https://coveralls.io/github/cle-b/httpdbg?branch=main)
+
 # httpdbg
 
 A very simple tool to debug HTTP(S) client requests.
 
-![ui](ui.png)
+![](ui.png)
+
 ## installation 
 
 ```
@@ -59,15 +61,28 @@ For example, you can view which HTTP requests are performed by `pip` when you in
 pyhttpdbg -m pip install httpdbg --upgrade
 ```
 
+## Initiators
 
-## Supported libraries
+An initiator is the function/method that is at the origin of the HTTP requests. By default, we already support some packages but you can add your own initiators. 
 
-| library    | status      | 
-|------------|-------------|
-| requests   | supported   |
-| urllib3    | supported   |
-| httpx      | supported   |
-| aiohttp    | supported   |
+To add a new package in the list of initiators, you can use the `-i` command line argument:
+
+```sh
+pyhttpdbg -i api_client_pck --script my_script.py
+```
+
+You can use any package as an initiator, this is not limited to HTTP requests.
+
+### Already supported packages
+
+| packages       | status                              | 
+|----------------|-------------------------------------|
+| requests       | supported                           |
+| urllib3        | supported                           |
+| httpx          | supported                           |
+| aiohttp        | supported                           |
+| pytest         | supported                           |
+| _your_package_ | yes, with the arg _-i your_package_ |
 
 ## configuration
 
@@ -76,20 +91,19 @@ No configuration is necessary to start but some few settings are available for p
 ### command line
 
 ```
-usage: pyhttpdbg [-h] [--port PORT] [--version] [--keep-up | --force-quit]
+usage: pyhttpdbg [-h] [--port PORT] [--version] [--initiator INITIATOR] [--keep-up | --force-quit]
                  [--console | --module MODULE | --script SCRIPT]
 
 httdbg - a very simple tool to debug HTTP(S) client requests
 
 options:
   -h, --help            show this help message and exit
-  --version, -v         print the httpdbg version
-
   --port PORT, -p PORT  the web interface port
-  
+  --version, -v         print the httpdbg version
+  --initiator INITIATOR, -i INITIATOR
+                        add a new initiator (package)
   --keep-up, -k         keep the server up even if the requests have been read
   --force-quit, -q      stop the server even if the requests have not been read
-
   --console             run a python console (default)
   --module MODULE, -m MODULE
                         run library module as a script (the next args are passed to pytest as is)

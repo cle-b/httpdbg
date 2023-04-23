@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
 import traceback
+from typing import Generator
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
 from httpdbg.initiator import httpdbg_initiator
 from httpdbg.records import HTTPRecord
+from httpdbg.records import HTTPRecords
 
 
 def set_hook_for_aiohttp_async(records, method):
@@ -36,7 +38,7 @@ def set_hook_for_aiohttp_async(records, method):
 
 
 @contextmanager
-def hook_aiohttp(records):
+def hook_aiohttp(records: HTTPRecords) -> Generator[None, None, None]:
     hooks = False
     try:
         import aiohttp
