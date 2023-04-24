@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from contextlib import contextmanager
 import glob
 from http.server import BaseHTTPRequestHandler
 import json
@@ -8,7 +9,16 @@ import re
 from urllib.parse import urlparse, parse_qs
 
 from httpdbg import VERSION
+from httpdbg.utils import logger
 from httpdbg.webapp.api import RequestListPayload, RequestPayload
+
+
+@contextmanager
+def silently_catch_error():
+    try:
+        yield
+    except Exception as ex:
+        logger.info(f"HttpbgHTTPRequestHandler - silently_catch_error - {str(ex)}")
 
 
 class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -16,6 +26,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         self.records = records
         super().__init__(*args, **kwargs)
 
+    @silently_catch_error()
     def do_GET(self):
         url = urlparse(self.path)
 
