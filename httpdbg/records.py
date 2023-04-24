@@ -305,13 +305,13 @@ class HTTPRecords:
                     get_new_uuid(), short_label, None, long_label, stack
                 )
             else:
-                initiator = Initiator("console", "console", None, "", [])
+                initiator = Initiator(f"console{self.id}", "console", None, "", [])
 
         if "PYTEST_CURRENT_TEST" in os.environ:
             long_label = " ".join(os.environ["PYTEST_CURRENT_TEST"].split(" ")[:-1])
             short_label = long_label.split("::")[-1]
             initiator = Initiator(
-                long_label,
+                f"{long_label}{self.id}",
                 short_label,
                 long_label,
                 initiator.short_stack,
