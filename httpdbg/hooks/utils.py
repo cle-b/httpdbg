@@ -9,11 +9,22 @@ def getcallargs(original_method, *args, **kwargs):
         original_method, "__httpdbg__"
     ):  # to retrieve the original method in case of nested hooks
         original_method = original_method.__httpdbg__
-    callargs = (
-        inspect.signature(original_method).bind_partial(*args, **kwargs).arguments
-    )
+
+    try:
+        callargs = (
+            inspect.signature(original_method).bind_partial(*args, **kwargs).arguments
+        )
+    except Exception as ex:
+        logger.info(f"getcallargs - exception {str(ex)}")
+        # TypeError('too many positional arguments') may occur when using pytest (seems related to teardown_method)
+        callargs = {}
+        i = 0
+        for arg in args:
+            i += 1
+            callargs[f"_positional_argument{i}"] = arg
+
     callargs.update(kwargs)
-    logger.debug(f"{original_method} - {[arg for arg in callargs]}")
+    logger.info(f"getcallargs {original_method} - {[arg for arg in callargs]}")
     return callargs
 
 
