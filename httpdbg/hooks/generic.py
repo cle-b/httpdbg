@@ -50,11 +50,11 @@ def hook_generic(
         initiators = []
 
     for initiator in initiators:
-        logger.debug(f"HOOK_GENERIC add package - {initiator}")
+        logger.info(f"HOOK_GENERIC add package - {initiator}")
         try:
             hooks += list_callables_from_package(records, initiator)
         except Exception as ex:
-            logger.debug(f"HOOK_GENERIC exception - {str(ex)}")
+            logger.info(f"HOOK_GENERIC exception - {str(ex)}")
 
     yield
 
