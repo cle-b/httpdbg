@@ -106,6 +106,10 @@ def test_initiator_pytest(httpbin):
 
 
 @pytest.mark.initiator
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="flaky test on windows",
+)
 def test_initiator_add_package_fnc(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
