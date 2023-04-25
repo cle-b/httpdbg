@@ -130,6 +130,12 @@ def list_callables_from_class(records, imported_module, module, classname):
             imported_module.__dict__[classname].__dict__[name], "__module__", ""
         )
         if from_module and from_module.startswith(module):
+            if name == "teardown_method":
+                # An error occurs when executing the pytest module if a test class inherits from a class included in a
+                # package selected as initiator (ex: pyhttpdbg -i package_with_base_test_class -m pytest test_with_class.py).
+                # => TypeError: BaseTestClass.teardown_method() takes 1 positional argument but 2 were given
+                # To avoid it, we never add a hook on the "teardown_method" methods
+                continue
             if not name.startswith("__"):
                 if inspect.iscoroutinefunction(
                     imported_module.__dict__[classname].__dict__[name]
