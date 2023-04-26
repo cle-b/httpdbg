@@ -227,41 +227,41 @@ def test_requests_get_empty_request_content(httpbin_both):
 
 
 @pytest.mark.requests
-def test_requests_many_requests():
+def test_requests_many_requests(httpbin_both):
     with httpdbg() as records:
-        requests.get("https://httpbin.org/get")
-        requests.get("https://httpbin.org/get/abc")
-        requests.post("https://httpbin.org/post", data="abc")
-        requests.get("https://httpbin.org/get")
+        requests.get(f"{httpbin_both.url}/get", verify=False)
+        requests.get(f"{httpbin_both.url}/get/abc", verify=False)
+        requests.post(f"{httpbin_both.url}/post", data="abc", verify=False)
+        requests.get(f"{httpbin_both.url}/get", verify=False)
 
     assert len(records) == 4
 
-    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].url == f"{httpbin_both.url}/get"
     assert records[0].request.content == b""
-    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].url == f"{httpbin_both.url}/get/abc"
     assert records[1].request.content == b""
-    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].url == f"{httpbin_both.url}/post"
     assert records[2].request.content == b"abc"
-    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].url == f"{httpbin_both.url}/get"
     assert records[3].request.content == b""
 
 
 @pytest.mark.requests
-def test_requests_many_requests_session():
+def test_requests_many_requests_session(httpbin_both):
     with httpdbg() as records:
         with requests.Session() as session:
-            session.get("https://httpbin.org/get")
-            session.get("https://httpbin.org/get/abc")
-            session.post("https://httpbin.org/post", data="abc")
-            session.get("https://httpbin.org/get")
+            session.get(f"{httpbin_both.url}/get", verify=False)
+            session.get(f"{httpbin_both.url}/get/abc", verify=False)
+            session.post(f"{httpbin_both.url}/post", data="abc", verify=False)
+            session.get(f"{httpbin_both.url}/get", verify=False)
 
     assert len(records) == 4
 
-    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].url == f"{httpbin_both.url}/get"
     assert records[0].request.content == b""
-    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].url == f"{httpbin_both.url}/get/abc"
     assert records[1].request.content == b""
-    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].url == f"{httpbin_both.url}/post"
     assert records[2].request.content == b"abc"
-    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].url == f"{httpbin_both.url}/get"
     assert records[3].request.content == b""

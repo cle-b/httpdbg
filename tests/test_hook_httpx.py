@@ -226,43 +226,43 @@ def test_httpx_get_empty_request_content(httpbin_both):
 
 
 @pytest.mark.httpx
-def test_httpx_many_requests():
+def test_httpx_many_requests(httpbin_both):
     with httpdbg() as records:
-        httpx.get("https://httpbin.org/get")
-        httpx.get("https://httpbin.org/get/abc")
-        httpx.post("https://httpbin.org/post", data="abc")
-        httpx.get("https://httpbin.org/get")
+        httpx.get(f"{httpbin_both.url}/get", verify=False)
+        httpx.get(f"{httpbin_both.url}/get/abc", verify=False)
+        httpx.post(f"{httpbin_both.url}/post", data="abc", verify=False)
+        httpx.get(f"{httpbin_both.url}/get", verify=False)
 
     assert len(records) == 4
 
-    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].url == f"{httpbin_both.url}/get"
     assert records[0].request.content == b""
-    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].url == f"{httpbin_both.url}/get/abc"
     assert records[1].request.content == b""
-    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].url == f"{httpbin_both.url}/post"
     assert records[2].request.content == b"abc"
-    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].url == f"{httpbin_both.url}/get"
     assert records[3].request.content == b""
 
 
 @pytest.mark.httpx
-def test_httpx_many_requests_session():
+def test_httpx_many_requests_session(httpbin_both):
     with httpdbg() as records:
-        with httpx.Client() as session:
-            session.get("https://httpbin.org/get")
-            session.get("https://httpbin.org/get/abc")
-            session.post("https://httpbin.org/post", data="abc")
-            session.get("https://httpbin.org/get")
+        with httpx.Client(verify=False) as session:
+            session.get(f"{httpbin_both.url}/get")
+            session.get(f"{httpbin_both.url}/get/abc")
+            session.post(f"{httpbin_both.url}/post", data="abc")
+            session.get(f"{httpbin_both.url}/get")
 
     assert len(records) == 4
 
-    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].url == f"{httpbin_both.url}/get"
     assert records[0].request.content == b""
-    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].url == f"{httpbin_both.url}/get/abc"
     assert records[1].request.content == b""
-    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].url == f"{httpbin_both.url}/post"
     assert records[2].request.content == b"abc"
-    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].url == f"{httpbin_both.url}/get"
     assert records[3].request.content == b""
 
 
@@ -419,21 +419,21 @@ async def test_httpx_get_empty_request_content_asyncclient(httpbin_both):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
-async def test_httpx_many_requests_session_asyncclient():
+async def test_httpx_many_requests_session_asyncclient(httpbin_both):
     with httpdbg() as records:
-        async with httpx.AsyncClient() as session:
-            await session.get("https://httpbin.org/get")
-            await session.get("https://httpbin.org/get/abc")
-            await session.post("https://httpbin.org/post", data="abc")
-            await session.get("https://httpbin.org/get")
+        async with httpx.AsyncClient(verify=False) as session:
+            await session.get(f"{httpbin_both.url}/get")
+            await session.get(f"{httpbin_both.url}/get/abc")
+            await session.post(f"{httpbin_both.url}/post", data="abc")
+            await session.get(f"{httpbin_both.url}/get")
 
     assert len(records) == 4
 
-    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].url == f"{httpbin_both.url}/get"
     assert records[0].request.content == b""
-    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].url == f"{httpbin_both.url}/get/abc"
     assert records[1].request.content == b""
-    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].url == f"{httpbin_both.url}/post"
     assert records[2].request.content == b"abc"
-    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].url == f"{httpbin_both.url}/get"
     assert records[3].request.content == b""
