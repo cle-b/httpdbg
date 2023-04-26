@@ -288,21 +288,23 @@ async def test_aiohttp_get_empty_request_content_asyncclient(httpbin_both):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
-async def test_aiohttp_many_requests_session_asyncclient():
+async def test_aiohttp_many_requests_session_asyncclient(httpbin_both):
     with httpdbg() as records:
-        async with aiohttp.ClientSession() as session:
-            await session.get("https://httpbin.org/get")
-            await session.get("https://httpbin.org/get/abc")
-            await session.post("https://httpbin.org/post", data="abc")
-            await session.get("https://httpbin.org/get")
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(ssl=False)
+        ) as session:
+            await session.get(f"{httpbin_both.url}/get")
+            await session.get(f"{httpbin_both.url}/get/abc")
+            await session.post(f"{httpbin_both.url}/post", data="abc")
+            await session.get(f"{httpbin_both.url}/get")
 
     assert len(records) == 4
 
-    assert records[0].url == "https://httpbin.org/get"
+    assert records[0].url == f"{httpbin_both.url}/get"
     assert records[0].request.content == b""
-    assert records[1].url == "https://httpbin.org/get/abc"
+    assert records[1].url == f"{httpbin_both.url}/get/abc"
     assert records[1].request.content == b""
-    assert records[2].url == "https://httpbin.org/post"
+    assert records[2].url == f"{httpbin_both.url}/post"
     assert records[2].request.content == b"abc"
-    assert records[3].url == "https://httpbin.org/get"
+    assert records[3].url == f"{httpbin_both.url}/get"
     assert records[3].request.content == b""
