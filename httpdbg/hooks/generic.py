@@ -107,9 +107,7 @@ def list_callables_from_module(records, module):
                 callables.append(imported_module.__dict__[name])
 
             elif inspect.isfunction(imported_module.__dict__[name]):
-                if imported_module.__name__.endswith("conftest") and name.startswith(
-                    "pytest_"
-                ):
+                if name.startswith("pytest_"):
                     # An error occurs when executing the pytest module if a pytest hook is included in a package selected as initiator
                     # (ex: pyhttpdbg -i package_with_conftest_that_contains_pytest_hooks -m pytest test_hello.py).
                     # => TypeError: pytest_addoption() missing 1 required positional argument: 'parser'
