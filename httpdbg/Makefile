@@ -28,6 +28,8 @@ clean:
 	rm -rf __pycache__
 	rm -rf httpdbg.egg-info
 	rm -rf venv
+	rm -rf build
+	rm -rf dist
 
 ci:
 	python -m pip install pip --upgrade
