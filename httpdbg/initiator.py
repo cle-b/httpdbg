@@ -146,16 +146,14 @@ def extract_short_stack_from_file(
 
                 # copy the lines before
                 for i in range(
-                    max(0, lineno - 1 - before), min(lineno - 1, len(lines) - 1)
+                    max(0, lineno - 1 - before), min(lineno - 1, len(lines))
                 ):
                     line = lines[i]
                     short_stack += f" {i+1}. {line}\n"
 
                 # try to recompose the instruction if on multi-lines
                 end_of_instruction_found = False
-                for i in range(
-                    max(0, lineno - 1), min(lineno - 1 + after, len(lines) - 1)
-                ):
+                for i in range(max(0, lineno - 1), min(lineno - 1 + after, len(lines))):
                     line = lines[i]
                     if not end_of_instruction_found:
                         instruction += line.strip()
