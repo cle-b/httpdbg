@@ -10,6 +10,7 @@ from typing import Union
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.utils import get_new_uuid
+from httpdbg.utils import logger
 
 
 class Initiator(object):
@@ -78,46 +79,52 @@ def in_lib(line: str, packages: List[str] = None):
 def get_current_instruction(
     extracted_stack: traceback.StackSummary,
 ) -> Tuple[str, str, List[str]]:
+    instruction = ""
+    short_stack = ""
     stack = []
 
-    n_stack = -1
-    framesummary = extracted_stack[-2]
-    if "asyncio" in framesummary.filename:
-        while "asyncio" in framesummary.filename:
-            n_stack -= 1
-            framesummary = extracted_stack[n_stack - 1]
+    try:
+        n_stack = -1
+        framesummary = extracted_stack[-2]
+        if "asyncio" in framesummary.filename:
+            while "asyncio" in framesummary.filename:
+                n_stack -= 1
+                framesummary = extracted_stack[n_stack - 1]
 
-    instruction = ""
-    short_stack = f'File "{framesummary.filename}", line {framesummary.lineno}, in {framesummary.name}\n'
-    if os.path.exists(framesummary.filename) and framesummary.lineno is not None:
-        instruction, s_stack = extract_short_stack_from_file(
-            framesummary.filename, framesummary.lineno, 0, 8
+        short_stack = f'File "{framesummary.filename}", line {framesummary.lineno}, in {framesummary.name}\n'
+        if os.path.exists(framesummary.filename) and framesummary.lineno is not None:
+            instruction, s_stack = extract_short_stack_from_file(
+                framesummary.filename, framesummary.lineno, 0, 8
+            )
+            short_stack += s_stack
+
+            # stack
+            to_include = False
+            for i_stack in range(6, len(extracted_stack) + n_stack):
+                last_stack = i_stack == len(extracted_stack) + n_stack - 1
+                fs = extracted_stack[i_stack]
+                to_include = to_include or (
+                    ("/site-packages/" not in fs.filename)
+                    and ("importlib" not in fs.filename)
+                )  # remove the stack before to start the user part
+                if to_include:
+                    _, s_stack = extract_short_stack_from_file(
+                        fs.filename,
+                        fs.lineno if fs.lineno else 0,
+                        4 if last_stack else 0,
+                        8,
+                        not last_stack,
+                    )
+                    stack.append(f'File "{fs.filename}", line {fs.lineno}, \n{s_stack}')
+
+        else:
+            instruction = framesummary.line if framesummary.line else "console"
+            short_stack += f"{instruction}\n"
+            stack = []
+    except Exception as ex:
+        logger.info(
+            f"GET_CURRENT_INSTRUCTION [{str(extracted_stack)}] - error - {str(ex)}"
         )
-        short_stack += s_stack
-
-        # stack
-        to_include = False
-        for i_stack in range(6, len(extracted_stack) + n_stack):
-            last_stack = i_stack == len(extracted_stack) + n_stack - 1
-            fs = extracted_stack[i_stack]
-            to_include = to_include or (
-                ("/site-packages/" not in fs.filename)
-                and ("importlib" not in fs.filename)
-            )  # remove the stack before to start the user part
-            if to_include:
-                _, s_stack = extract_short_stack_from_file(
-                    fs.filename,
-                    fs.lineno if fs.lineno else 0,
-                    4 if last_stack else 0,
-                    8,
-                    not last_stack,
-                )
-                stack.append(f'File "{fs.filename}", line {fs.lineno}, \n{s_stack}')
-
-    else:
-        instruction = framesummary.line if framesummary.line else "console"
-        short_stack += f"{instruction}\n"
-        stack = []
 
     return instruction.replace("\n", " "), short_stack, stack
 
@@ -132,33 +139,42 @@ def extract_short_stack_from_file(
     instruction = ""
     short_stack = ""
 
-    if os.path.exists(filename):
-        with open(filename, "r") as src:
-            lines = src.read().splitlines()
+    try:
+        if os.path.exists(filename):
+            with open(filename, "r") as src:
+                lines = src.read().splitlines()
 
-            # copy the lines before
-            for i in range(lineno - 1 - before, lineno - 1):
-                line = lines[i]
-                short_stack += f" {i+1}. {line}\n"
+                # copy the lines before
+                for i in range(
+                    max(0, lineno - 1 - before), min(lineno - 1, len(lines) - 1)
+                ):
+                    line = lines[i]
+                    short_stack += f" {i+1}. {line}\n"
 
-            # try to recompose the instruction if on multi-lines
-            end_of_instruction_found = False
-            for i in range(max(0, lineno - 1), min(lineno - 1 + after, len(lines))):
-                line = lines[i]
-                if not end_of_instruction_found:
-                    instruction += line.strip()
-                short_stack += f" {i+1}. {line}{' <====' if (before>0 and i+1 == lineno) else ''}\n"
-                nb_parenthesis = 0
-                for c in instruction[instruction.find("(") :]:
-                    if c == "(":
-                        nb_parenthesis += 1
-                    if c == ")":
-                        nb_parenthesis -= 1
-                    if nb_parenthesis == 0:
-                        end_of_instruction_found = True
+                # try to recompose the instruction if on multi-lines
+                end_of_instruction_found = False
+                for i in range(
+                    max(0, lineno - 1), min(lineno - 1 + after, len(lines) - 1)
+                ):
+                    line = lines[i]
+                    if not end_of_instruction_found:
+                        instruction += line.strip()
+                    short_stack += f" {i+1}. {line}{' <====' if (before>0 and i+1 == lineno) else ''}\n"
+                    nb_parenthesis = 0
+                    for c in instruction[instruction.find("(") :]:
+                        if c == "(":
+                            nb_parenthesis += 1
+                        if c == ")":
+                            nb_parenthesis -= 1
+                        if nb_parenthesis == 0:
+                            end_of_instruction_found = True
+                            break
+                    if end_of_instruction_found and stop_if_instruction_ends:
                         break
-                if end_of_instruction_found and stop_if_instruction_ends:
-                    break
+    except Exception as ex:
+        logger.info(
+            f"EXTRACT_SHORT_STACK_FROM_FILE {filename} lineno={lineno} before={before} after={after}- error - {str(ex)}"
+        )
 
     return instruction, short_stack
 
@@ -170,6 +186,12 @@ def httpdbg_initiator(
     envname = f"HTTPDBG_CURRENT_INITIATOR_{records.id}"
 
     if not os.environ.get(envname):
+        # temporary set a fake initiator env variable to avoid a recursion error
+        #  RecursionError: maximum recursion depth exceeded while calling a Python object
+        # TL;DR When we construct the short_stack string, a recursion error occurs if there
+        # is an object from a class where a hooked method is called in __repr__ or __str__.
+        os.environ[envname] = "blabla"
+
         callargs = getcallargs(original_method, *args, **kwargs)
         instruction, short_stack, stack = get_current_instruction(extracted_stack)
 
