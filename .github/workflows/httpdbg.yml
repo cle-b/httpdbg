@@ -20,7 +20,7 @@ jobs:
         make check
     - name: Lint code for pytest-httpdbg
       run: |
-        cd ../pytest_httpdbg
+        cd pytest_httpdbg
         make check
 
   test:
@@ -69,7 +69,7 @@ jobs:
         make ci
     - name: Run tests for pytest-httpdbg
       run: |
-        cd ../pytest_httpdbg
+        cd pytest_httpdbg
         make ci
 
 
