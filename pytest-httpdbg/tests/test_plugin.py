@@ -69,7 +69,7 @@ def test_record_in_dir(pytester, tmp_path):
 
     assert len(list(logs_dir.iterdir())) == 2
 
-    filename = glob.glob("*test_get*", root_dir=logs_dir)[0]
+    filename = glob.glob(f"{logs_dir}/*test_get*")[0]
     with open(os.path.join(logs_dir, filename), "r") as f:
         log = f.read()
 
