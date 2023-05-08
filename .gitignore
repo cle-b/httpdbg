@@ -139,7 +139,7 @@ dmypy.json
 bigfile
 
 # demo
-demo*.py
+demo.py
 demopck/
 
 # logs pytest_plugin
