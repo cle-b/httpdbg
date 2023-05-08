@@ -45,6 +45,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.COVERALLS }}
     - name: Missing module detection
       run: |
+        cd httpdbg
         make cidetectsetuperror
 
   testospython:
