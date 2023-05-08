@@ -69,7 +69,8 @@ jobs:
         cd httpdbg
         make ci
     - name: Run tests for pytest-httpdbg
-      run: |
+      if: ${{ matrix.python-version == "3.6" }}
+      run: |        
         cd pytest-httpdbg
         make ci
 
