@@ -17,12 +17,9 @@ def parse_content_type(content_type: str) -> Tuple[str, Dict[str, str]]:
 
 
 def generate_preview(
-    path: str, filename: str, raw_data: bytes, content_type: str, content_encoding: str
+    raw_data: bytes, content_type: str, content_encoding: str
 ) -> Dict[str, Union[str, bool]]:
-    body: Dict[str, Union[str, bool]] = {
-        "path": path,
-        "filename": filename,
-    }
+    body: Dict[str, Union[str, bool]] = {}
 
     if content_encoding.lower() == "br":
         try:

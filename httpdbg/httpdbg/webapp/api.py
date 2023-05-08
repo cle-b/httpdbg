@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 from json import JSONEncoder
+from typing import Any
+from typing import Dict
 
 from httpdbg.records import HTTPRecords
 from httpdbg.records import HTTPRecord
-from httpdbg.webapp.preview import generate_preview
 
 
 class RequestPayload(JSONEncoder):
-    def default(self, req: HTTPRecord) -> dict:
-        payload = {
+    def default(self, req: HTTPRecord) -> Dict[str, Any]:
+        payload: Dict[str, Any] = {
             "id": req.id,
             "url": req.url,
             "netloc": req.netloc,
@@ -29,13 +30,11 @@ class RequestPayload(JSONEncoder):
         }
 
         if req.request.content:
-            payload["request"]["body"] = generate_preview(  # type: ignore
-                f"/request/{req.id}/up",
-                "upload",
-                req.request.content,
-                req.request.get_header("Content-Type"),
-                req.request.get_header("Content-Encoding"),
-            )
+            payload["request"]["body"] = {
+                "path": f"/request/{req.id}/up",
+                "filename": "upload",
+            }
+            payload["request"]["body"].update(req.request.preview)
 
         payload["response"] = {
             "headers": [header.to_json() for header in req.response.headers],
@@ -43,13 +42,11 @@ class RequestPayload(JSONEncoder):
         }
 
         if req.response.content:
-            payload["response"]["body"] = generate_preview(  # type: ignore
-                f"/request/{req.id}/down",
-                "download",
-                req.response.content,
-                req.response.get_header("Content-Type"),
-                req.response.get_header("Content-Encoding"),
-            )
+            payload["response"]["body"] = {
+                "path": f"/request/{req.id}/down",
+                "filename": "download",
+            }
+            payload["response"]["body"].update(req.response.preview)
 
         if req.exception is not None:
             payload["exception"] = {

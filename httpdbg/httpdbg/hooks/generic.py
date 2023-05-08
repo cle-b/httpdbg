@@ -59,6 +59,13 @@ def hook_generic(
         logger.info(f"HOOK_GENERIC add initiator - {initiator}")
         hooks += list_callables_from_package(records, initiator)
 
+    try:
+        logger.info(
+            f"HOOK_GENERIC add initiator - hooks - {[hook.__httpdbg__.__name__ for hook in hooks]}"
+        )
+    except Exception:
+        pass
+
     yield
 
     if hooks:
@@ -75,18 +82,19 @@ def list_callables_from_package(records: HTTPRecords, package: str) -> List[Any]
         callables += list_callables_from_module(records, package)
 
         imported_package = importlib.import_module(package)
-        for p in glob.glob(f"{list(imported_package.__path__)[0]}/*"):
-            file_or_dir = Path(p)
-            if file_or_dir.is_file():
-                if file_or_dir.name.endswith(".py"):
-                    callables += list_callables_from_module(
-                        records, f"{package}.{file_or_dir.name[:-3]}"
-                    )
-            elif file_or_dir.is_dir():
-                if not file_or_dir.name.startswith("__"):  # __pycache__
-                    callables += list_callables_from_package(
-                        records, f"{package}.{file_or_dir.name}"
-                    )
+        if hasattr(imported_package, "__path__"):
+            for p in glob.glob(f"{list(imported_package.__path__)[0]}/*"):
+                file_or_dir = Path(p)
+                if file_or_dir.is_file():
+                    if file_or_dir.name.endswith(".py"):
+                        callables += list_callables_from_module(
+                            records, f"{package}.{file_or_dir.name[:-3]}"
+                        )
+                elif file_or_dir.is_dir():
+                    if not file_or_dir.name.startswith("__"):  # __pycache__
+                        callables += list_callables_from_package(
+                            records, f"{package}.{file_or_dir.name}"
+                        )
     except Exception as ex:
         logger.info(f"LIST_CALLABLES_FROM_PACKAGE {package} - error - {str(ex)}")
 

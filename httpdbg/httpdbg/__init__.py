@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from httpdbg.hooks.all import httpdbg
-from httpdbg.utils import logger
+from httpdbg.records import HTTPRecords
 
-VERSION = "0.11.5"
 
-__all__ = ["httpdbg", "logger"]
+VERSION = "0.12.0"
+
+__all__ = ["httpdbg", "HTTPRecords"]
