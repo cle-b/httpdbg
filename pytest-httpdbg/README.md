@@ -40,3 +40,32 @@ To add a new package in the list of initiators, you can use the `http-initiator`
 
 You can use any package as an initiator, this is not limited to HTTP requests.
 
+## test report
+
+One log file in markdown format is created per test.
+
+### pytest-html
+
+You can copy the following code in your top-level `conftest.py` to include the logs into your pytest-html report.
+
+```python
+import pytest
+
+from pytest_httpdbg import httpdbg_record_filename
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    pytest_html = item.config.pluginmanager.getplugin("html")
+    outcome = yield
+    report = outcome.get_result()    
+    extra = getattr(report, "extra", [])
+
+    if report.when == "teardown":
+        if httpdbg_record_filename in item.stash:
+            extra.append(
+                pytest_html.extras.url(
+                    item.stash[httpdbg_record_filename], name="HTTPDBG"
+                )
+            )
+        report.extra = extra
+```
