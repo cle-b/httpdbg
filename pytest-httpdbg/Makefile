@@ -28,7 +28,7 @@ ci:
 	python -m pip install pip --upgrade
 	pip install -r requirements-dev.txt
 	pip install .
-	python -m pytest -v -m tests/
+	python -m pytest -v tests/
 
 
 ciall:
