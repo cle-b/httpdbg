@@ -141,3 +141,6 @@ bigfile
 # demo
 demo*.py
 demopck/
+
+# logs pytest_plugin
+**/logs/*
