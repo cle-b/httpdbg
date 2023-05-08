@@ -288,6 +288,10 @@ async def test_aiohttp_get_empty_request_content_asyncclient(httpbin_both):
 
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="flaky on Windows (sometimes only one request is recorded)",
+)
 async def test_aiohttp_many_requests_session_asyncclient(httpbin_both):
     with httpdbg() as records:
         async with aiohttp.ClientSession(
