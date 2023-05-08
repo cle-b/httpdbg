@@ -1,4 +1,4 @@
-.PHONY: setup format lint check test clean ci ciall cidetectsetuperror
+.PHONY: setup format lint check test clean ci 
 
 setup:
 	pip install -e .
@@ -26,16 +26,7 @@ clean:
 
 ci:
 	python -m pip install pip --upgrade
+	python -m pip install setuptools wheel --upgrade
 	pip install -r requirements-dev.txt
 	pip install .
 	python -m pytest -v tests/
-
-
-ciall:
-	python -m pip install pip --upgrade
-	pip install -r requirements-dev.txt
-	pip install .
-
-cidetectsetuperror:
-	cd tests/ && python -m pytest -v ./ && cd ..
-

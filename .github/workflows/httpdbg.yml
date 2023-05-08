@@ -89,6 +89,7 @@ jobs:
       run: |
         cd httpdbg
         python -m pip install --upgrade pip
+        python -m pip install --upgrade setuptools wheel        
         python -m pip install build --user
     - name: Build a binary wheel and a source tarball
       run: |
@@ -115,6 +116,7 @@ jobs:
       run: |
         cd pytest-httpdbg
         python -m pip install --upgrade pip
+        python -m pip install --upgrade setuptools wheel
         python -m pip install build --user
     - name: Build a binary wheel and a source tarball
       run: |

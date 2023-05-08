@@ -33,6 +33,7 @@ clean:
 
 ci:
 	python -m pip install pip --upgrade
+	python -m pip install setuptools wheel --upgrade
 	pip install -r requirements-dev.txt
 	pip install .
 	python -m pytest -v -m "not ui" tests/ --ignore=tests/ui/
@@ -51,6 +52,7 @@ testall:
 
 ciall:
 	python -m pip install pip --upgrade
+	python -m pip install setuptools wheel --upgrade
 	pip install -r requirements-dev.txt
 	pip install -r requirements-dev-ui.txt
 	pip install .
