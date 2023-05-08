@@ -106,7 +106,7 @@ def test_with_initiator(pytester, tmp_path):
 
     assert len(list(logs_dir.iterdir())) == 1
 
-    filename = glob.glob("*test_with_initiator_fake*", root_dir=logs_dir)[0]
+    filename = glob.glob(f"{logs_dir}/*test_with_initiator_fake*")[0]
     with open(os.path.join(logs_dir, filename), "r") as f:
         log = f.read()
 
@@ -138,7 +138,7 @@ def test_without_initiator(pytester, tmp_path):
 
     assert len(list(logs_dir.iterdir())) == 1
 
-    filename = glob.glob("*test_without_initiator_fake*", root_dir=logs_dir)[0]
+    filename = glob.glob(f"{logs_dir}/*test_without_initiator_fake*")[0]
     with open(os.path.join(logs_dir, filename), "r") as f:
         log = f.read()
 
