@@ -1,19 +1,19 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "httpdbg"
+name = "pytest-httpdbg"
 authors = [
     {name = "cle-b", email = "cle@tictac.pm"},
 ]
-description="A very simple tool to debug HTTP(S) client requests"
+description="A pytest plugin to record HTTP(S) requests with stack trace"
 readme="README.md"
 urls = {repository = "https://github.com/cle-b/httpdbg"}
 requires-python = ">=3.6"
 license = {text = "Apache-2.0"}
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Environment :: Web Environment",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
@@ -21,23 +21,17 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Software Development :: Testing",
-    "Topic :: Utilities",
+    "Framework :: Pytest"
 ]
 dynamic = ["version"]
-
-[project.scripts]
-pyhttpdbg = "httpdbg.__main__:pyhttpdbg_entry_point"
+dependencies = [
+  "httpdbg >= 0.12.0",
+  "pytest >= 7.0.0"
+]
 
 [tool.setuptools]
-packages = ["httpdbg", "httpdbg.hooks", "httpdbg.webapp"]
-
-[tool.setuptools.package-data]
-httpdbg = ["webapp/static/*", "webapp/static/icons/*"]
+packages = ["pytest_httpdbg"]
 
 [tool.setuptools.dynamic]
-version = {attr = "httpdbg.VERSION"}
+version = {attr = "pytest_httpdbg.VERSION"}
 
-[tool.mypy]
-no_implicit_optional = false
-disable_error_code= ["method-assign",]
-files = ["httpdbg"]

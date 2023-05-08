@@ -1,4 +1,4 @@
-name: Build
+name: httpdbg
 
 on: [push]
 
@@ -13,9 +13,14 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
-    - name: Lint code
+    - name: Lint code for httpdbg
       run: |
+        cd httpdbg
         make setup
+        make check
+    - name: Lint code for pytest-httpdbg
+      run: |
+        cd pytest-httpdbg
         make check
 
   test:
@@ -31,6 +36,7 @@ jobs:
         python-version: "3.10"
     - name: Run all tests + code coverage
       run: |
+        cd httpdbg
         pip install coveralls
         make selenium
         make ciall
@@ -39,6 +45,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.COVERALLS }}
     - name: Missing module detection
       run: |
+        cd httpdbg
         make cidetectsetuperror
 
   testospython:
@@ -57,12 +64,19 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Run tests
+    - name: Run tests for httpdbg
       run: |
+        cd httpdbg
+        make ci
+    - name: Run tests for pytest-httpdbg
+      if: ${{ matrix.python-version != '3.6' }}
+      run: |        
+        cd pytest-httpdbg
         make ci
 
-  deploy:
-    name: Deploy on Pypi
+
+  deployhttpdbg:
+    name: Deploy on PyPI for httpdbg
     needs: testospython
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -74,10 +88,41 @@ jobs:
         python-version: 3.8
     - name: Install pypa/build
       run: |
+        cd httpdbg
         python -m pip install --upgrade pip
+        python -m pip install --upgrade setuptools wheel        
         python -m pip install build --user
     - name: Build a binary wheel and a source tarball
       run: |
+        cd httpdbg
+        python -m build --sdist --wheel --outdir dist/
+    - name: Publish package on Pypi
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
+  deploypytesthttpdbg:
+    name: Deploy on PyPI for pytest-httpdbg
+    needs: deployhttpdbg
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.8
+    - name: Install pypa/build
+      run: |
+        cd pytest-httpdbg
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade setuptools wheel
+        python -m pip install build --user
+    - name: Build a binary wheel and a source tarball
+      run: |
+        cd pytest-httpdbg
         python -m build --sdist --wheel --outdir dist/
     - name: Publish package on Pypi
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')

@@ -14,6 +14,7 @@ from httpdbg.utils import HTTPDBGHeader
 from httpdbg.initiator import in_lib
 from httpdbg.initiator import compatible_path
 from httpdbg.initiator import Initiator
+from httpdbg.preview import generate_preview
 from httpdbg.utils import get_new_uuid
 from httpdbg.utils import chunked_to_bytes
 from httpdbg.utils import list_cookies_headers_request_simple_cookies
@@ -117,6 +118,14 @@ class HTTPRecordReqResp(object):
     def __setattr__(self, name, value):
         self.__dict__[name] = value
         self.__dict__["last_update"] = int(time.time() * 1000)
+
+    @property
+    def preview(self):
+        return generate_preview(
+            self.content,
+            self.get_header("Content-Type"),
+            self.get_header("Content-Encoding"),
+        )
 
 
 class HTTPRecordRequest(HTTPRecordReqResp):
@@ -268,6 +277,9 @@ class HTTPRecord:
 
 class HTTPRecords:
     def __init__(self) -> None:
+        self.reset()
+
+    def reset(self) -> None:
         self.id = get_new_uuid()
         self.requests: Dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
@@ -307,7 +319,9 @@ class HTTPRecords:
             else:
                 initiator = Initiator(f"console{self.id}", "console", None, "", [])
 
-        if "PYTEST_CURRENT_TEST" in os.environ:
+        if ("PYTEST_CURRENT_TEST" in os.environ) and (
+            "HTTPDBG_PYTEST_PLUGIN" not in os.environ
+        ):
             long_label = " ".join(os.environ["PYTEST_CURRENT_TEST"].split(" ")[:-1])
             short_label = long_label.split("::")[-1]
             initiator = Initiator(
