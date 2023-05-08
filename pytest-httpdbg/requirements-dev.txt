@@ -1,0 +1,11 @@
+flake8
+black
+pytest>7
+requests
+build
+Jinja2<3.1
+Werkzeug<2.1
+flask>2
+pytest-httpbin
+pytest-html
+pytest-xdist
