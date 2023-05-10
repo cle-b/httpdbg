@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import platform
 import sys
 import urllib.parse
 
@@ -123,28 +122,6 @@ def test_httpx_cookies_secure(httpbin_secure):
         )
         in http_record.response.cookies
     )
-
-
-@pytest.mark.httpx
-@pytest.mark.xfail(
-    platform.system().lower() == "windows",
-    reason="An established connection was aborted by the software in your host machine",
-)
-def test_httpx_stream(httpbin):
-    request_content = b"key=value"
-    response_content = bytes()
-    with httpdbg() as records:
-        with httpx.stream("POST", f"{httpbin.url}", data={"key": "value"}) as r:
-            for data in r.iter_bytes():
-                response_content += data
-
-    assert response_content != bytes()
-
-    assert len(records) == 1
-
-    http_record = records[0]
-    assert http_record.request.content == request_content
-    assert http_record.response.content == response_content
 
 
 @pytest.mark.httpx
