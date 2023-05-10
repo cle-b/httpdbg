@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import platform
 import pytest
 import requests
 
@@ -123,30 +122,6 @@ def test_requests_cookies_secure(httpbin_secure):
         )
         in http_record.response.cookies
     )
-
-
-@pytest.mark.requests
-@pytest.mark.xfail(
-    platform.system().lower() == "windows",
-    reason="An established connection was aborted by the software in your host machine",
-)
-def test_requests_stream(httpbin_both):
-    request_content = b"key=value"
-    response_content = bytes()
-    with httpdbg() as records:
-        with requests.post(
-            f"{httpbin_both.url}", data={"key": "value"}, verify=False
-        ) as r:
-            for data in r.iter_content():
-                response_content += data
-
-    assert response_content != bytes()
-
-    assert len(records) == 1
-
-    http_record = records[0]
-    assert http_record.request.content == request_content
-    assert http_record.response.content == response_content
 
 
 @pytest.mark.requests

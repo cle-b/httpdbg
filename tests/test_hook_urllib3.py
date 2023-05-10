@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from packaging import version
+import pkg_resources
+
 import pytest
 import urllib3
 
@@ -201,3 +204,28 @@ def test_urllib3_get_empty_request_content(httpbin_both):
 
     assert http_record.url == f"{httpbin_both.url}/get"
     assert http_record.request.content == b""
+
+
+@pytest.mark.initiator
+@pytest.mark.urllib3
+@pytest.mark.skipif(
+    version.parse(pkg_resources.get_distribution("urllib3").version)
+    < version.parse("2.0.0"),
+    reason="only urllib3 v2",
+)
+def test_urllib3_v2_request(httpbin, monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv("PYTEST_CURRENT_TEST")
+        with httpdbg() as records:
+            urllib3.request("GET", f"{httpbin.url}/get")
+
+    assert len(records) == 1
+
+    assert (
+        records[0].initiator.short_label
+        == 'urllib3.request("GET", f"{httpbin.url}/get")'
+    )
+    assert records[0].initiator.long_label is None
+    assert 'urllib3.request("GET", f"{httpbin.url}/get") <===' in "".join(
+        records[0].initiator.stack
+    )

@@ -43,12 +43,17 @@ def hook_urllib3(records: HTTPRecords) -> Generator[None, None, None]:
     try:
         import urllib3
 
-        urllib3.PoolManager.request = decorate(
-            records, urllib3.PoolManager.request, set_hook_for_urllib3
-        )
-        urllib3.HTTPConnectionPool.request = decorate(
-            records, urllib3.HTTPConnectionPool.request, set_hook_for_urllib3
-        )
+        # v1
+        if hasattr(urllib3, "PoolManager"):
+            urllib3.PoolManager.request = decorate(
+                records, urllib3.PoolManager.request, set_hook_for_urllib3
+            )
+        if hasattr(urllib3, "HTTPConnectionPool"):
+            urllib3.HTTPConnectionPool.request = decorate(
+                records, urllib3.HTTPConnectionPool.request, set_hook_for_urllib3
+            )
+        if hasattr(urllib3, "request"):
+            urllib3.request = decorate(records, urllib3.request, set_hook_for_urllib3)
 
         hooks = True
     except ImportError:
@@ -57,7 +62,12 @@ def hook_urllib3(records: HTTPRecords) -> Generator[None, None, None]:
     yield
 
     if hooks:
-        urllib3.PoolManager.request = undecorate(urllib3.PoolManager.request)
-        urllib3.HTTPConnectionPool.request = undecorate(
-            urllib3.HTTPConnectionPool.request
-        )
+        # v1
+        if hasattr(urllib3, "PoolManager"):
+            urllib3.PoolManager.request = undecorate(urllib3.PoolManager.request)
+        if hasattr(urllib3, "HTTPConnectionPool"):
+            urllib3.HTTPConnectionPool.request = undecorate(
+                urllib3.HTTPConnectionPool.request
+            )
+        if hasattr(urllib3, "request"):
+            urllib3.request = undecorate(urllib3.request)
