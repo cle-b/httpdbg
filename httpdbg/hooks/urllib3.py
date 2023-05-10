@@ -70,5 +70,6 @@ def hook_urllib3(records: HTTPRecords) -> Generator[None, None, None]:
             urllib3.HTTPConnectionPool.request = undecorate(
                 urllib3.HTTPConnectionPool.request
             )
+        # v2
         if hasattr(urllib3, "request"):
             urllib3.request = undecorate(urllib3.request)
