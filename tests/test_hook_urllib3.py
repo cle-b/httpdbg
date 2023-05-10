@@ -31,7 +31,7 @@ def test_urllib3_initiator(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
         with httpdbg() as records:
-            with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            with urllib3.PoolManager() as http:
                 http.request("GET", f"{httpbin.url}/get")
             with urllib3.HTTPConnectionPool(f"{httpbin.url[7:]}") as http:
                 http.request("GET", "/get")
@@ -43,6 +43,31 @@ def test_urllib3_initiator(httpbin, monkeypatch):
     )
     assert records[0].initiator.long_label is None
     assert 'http.request("GET", f"{httpbin.url}/get") <===' in "".join(
+        records[0].initiator.stack
+    )
+
+    assert records[1].initiator.short_label == 'http.request("GET", "/get")'
+    assert records[1].initiator.long_label is None
+    assert 'http.request("GET", "/get") <===' in "".join(records[1].initiator.stack)
+
+@pytest.mark.initiator
+@pytest.mark.urllib3
+def test_urllib3_initiator_secure(httpbin_secure, monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv("PYTEST_CURRENT_TEST")
+        with httpdbg() as records:
+            with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+                http.request("GET", f"{httpbin_secure.url}/get")
+            with urllib3.HTTPSConnectionPool(f"{httpbin_secure.url[8:]}", cert_reqs="CERT_NONE") as http:
+                http.request("GET", "/get")
+
+    assert len(records) == 2
+
+    assert (
+        records[0].initiator.short_label == 'http.request("GET", f"{httpbin_secure.url}/get")'
+    )
+    assert records[0].initiator.long_label is None
+    assert 'http.request("GET", f"{httpbin_secure.url}/get") <===' in "".join(
         records[0].initiator.stack
     )
 
