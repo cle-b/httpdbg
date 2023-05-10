@@ -52,6 +52,7 @@ def hook_urllib3(records: HTTPRecords) -> Generator[None, None, None]:
             urllib3.HTTPConnectionPool.request = decorate(
                 records, urllib3.HTTPConnectionPool.request, set_hook_for_urllib3
             )
+        # v2
         if hasattr(urllib3, "request"):
             urllib3.request = decorate(records, urllib3.request, set_hook_for_urllib3)
 
