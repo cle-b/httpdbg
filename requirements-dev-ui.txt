@@ -1,4 +1,4 @@
-pytest-asyncio<0.21.0
+pytest-asyncio
 selenium<4
 niobium
-pytest-selenium
+pytest-selenium<4
