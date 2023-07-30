@@ -50,7 +50,7 @@ class HTTPDBGCookie(object):
         return {"name": self.name, "value": self.value, "attributes": self.attributes}
 
     def __eq__(self, other) -> bool:
-        if type(other) == HTTPDBGCookie:
+        if type(other) is HTTPDBGCookie:
             return (
                 (self.name == other.name)
                 and (self.value == other.value)
@@ -78,7 +78,7 @@ class HTTPDBGHeader(object):
         return {"name": self.name, "value": self.value}
 
     def __eq__(self, other) -> bool:
-        if type(other) == HTTPDBGHeader:
+        if type(other) is HTTPDBGHeader:
             return (self.name == other.name) and (self.value == other.value)
         else:
             return False

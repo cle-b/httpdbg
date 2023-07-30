@@ -29,7 +29,7 @@ class Initiator(object):
         self.stack = stack
 
     def __eq__(self, other) -> bool:
-        if type(other) == Initiator:
+        if type(other) is Initiator:
             return (
                 self.short_label == other.short_label
                 and self.long_label == other.long_label
