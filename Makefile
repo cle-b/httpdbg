@@ -1,6 +1,7 @@
 .PHONY: setup format lint typing check test allpytest clean ci coverage selenium testui testall ciall cidetectsetuperror
 
 setup:
+	python -m pip install pip --upgrade
 	pip install -e .
 	pip install -r requirements-dev.txt
 	pip install -r requirements-dev-ui.txt

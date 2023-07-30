@@ -6,4 +6,4 @@ Thanks to all the contributors of the following librairies / resources:
 * [mustache.js - Logic-less {{mustache}} templates with JavaScript](https://github.com/janl/mustache.js)
 
 ## Icons:
-* [UXWing - Free Vector icons for Website and Mobile App](https://github.com/UXWing/vector-icons)
+* [UXWing - Free Vector icons for Website and Mobile App](https://uxwing.com)

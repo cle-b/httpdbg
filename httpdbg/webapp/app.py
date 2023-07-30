@@ -85,7 +85,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
                         os.path.realpath(base_path) + "/static/icons/*.svg"
                     ):
                         icon_path = icon.replace(os.path.realpath(base_path) + "/", "")
-                        icons += f"<link rel='preload' href='{icon_path}-+-$**HTTPDBG_VERSION**$' as='image' type='image/svg+xml' />\n"
+                        icons += f"    <link rel='preload' href='{icon_path}-+-$**HTTPDBG_VERSION**$' as='image' type='image/svg+xml' />\n"
 
                     filecontent = filecontent.replace(
                         b"$**PRELOAD_ICONS**$", icons.encode("utf-8")
