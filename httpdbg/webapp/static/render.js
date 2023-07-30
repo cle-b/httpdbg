@@ -64,6 +64,23 @@ function unselect_request(request_id) {
     }
 }
 
+function shortcut_request(event, request_id) {
+    var key_pressed = event.key.toLowerCase()
+    // select the request
+    if ((key_pressed === "s") || (key_pressed === "enter")) {
+        show_request(request_id);
+    }
+    // compare the request to the one already selected
+    if (key_pressed === "c") {
+        if ((document.getElementsByClassName("active-row").length > 0)) {
+            compare_to_request(request_id);
+        } else {
+            // if no request is already selected, just select the new one
+            show_request(request_id);
+        }
+    }
+}
+
 function remove_class(classname) {
     var elts = document.getElementsByClassName(classname);
     [].forEach.call(elts, function (el) {
@@ -153,6 +170,31 @@ function opentab(btn, tabname) {
     document.getElementById(tabname).style.display = "block";
     btn.className += " active";
 }
+
+function opentab_headers() {
+    opentab(document.getElementById("btn-tab-headers"), "tabHeaders");
+}
+
+function opentab_cookies() {
+    opentab(document.getElementById("btn-tab-cookies"), "tabCookies");
+}
+
+function opentab_request() {
+    opentab(document.getElementById("btn-tab-request"), "tabRequest");
+}
+
+function opentab_response() {
+    opentab(document.getElementById("btn-tab-response"), "tabResponse");
+}
+
+function opentab_exception() {
+    opentab(document.getElementById("btn-tab-exception"), "tabException");
+}
+
+function opentab_stack() {
+    opentab(document.getElementById("btn-tab-stack"), "tabStack");
+}
+
 
 async function disable_link_if_server_disconnected() {
     var sheet = document.getElementById("serverstatuscss").sheet;

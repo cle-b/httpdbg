@@ -29,16 +29,22 @@
     <header>
         <nav id="navbar">
             <div class="menu-left">
-                <button id="trash" onclick="clean(true)">
-                    <img class="icon" src="static/icons/recycle-bin-line-icon.svg-+-$**HTTPDBG_VERSION**$" />
+                <button id="trash" type="button" onclick="clean(true)">
+                    <img class="icon" src="static/icons/recycle-bin-line-icon.svg-+-$**HTTPDBG_VERSION**$"
+                        alt="clean the requests list" />
                 </button>
                 <input type="checkbox" id="onlynew" name="cleannew" checked>
-                <label for="clean">force clean for new session</label>
+                <label for="onlynew">force clean for new session</label>
             </div>
             <div class="menu-right">
                 httpdbg
-                <button id="config" onclick="config()">
-                    <img class="icon" src="static/icons/engine-gears-icon.svg-+-$**HTTPDBG_VERSION**$" />
+                <button onclick="config()" title="open configuration">
+                    <img class="icon" src="static/icons/engine-gears-icon.svg-+-$**HTTPDBG_VERSION**$"
+                        alt="open configuration" />
+                </button>
+                <button onclick="help()" title="open help">
+                    <img class="icon" src="static/icons/question-mark-round-line-icon.svg-+-$**HTTPDBG_VERSION**$"
+                        alt="open help" />
                 </button>
             </div>
         </nav>
@@ -65,6 +71,37 @@
         <br>
     </div>
 
+    <div id="help">
+        <h4>Help</h4>
+
+        <h5>Shorcuts</h5>
+        <ul>
+            <li>Press <kbd>O</kbd> <kbd>C</kbd> to open the configuration panel.</li>
+            <li>Press <kbd>O</kbd> <kbd>H</kbd> to open this help.</li>
+        </ul>
+
+        <h5>List of requests</h5>
+        Use <kbd>Tab</kbd> to browser the list of requests.
+        <ul>
+            <li>Press <kbd>Enter</kbd> or <kbd>S</kbd> to select a request.</li>
+            <li>Press <kbd>C</kbd> to compare this request to the select one.</li>
+        </ul>
+
+        <h5>Request panel</h5>
+        <ul>
+            <li>Press <kbd>R</kbd> <kbd>H</kbd> to open the headers tab.</li>
+            <li>Press <kbd>R</kbd> <kbd>C</kbd> to open the cookies tab.</li>
+            <li>Press <kbd>R</kbd> <kbd>P</kbd> to open the request tab.</li>
+            <li>Press <kbd>R</kbd> <kbd>T</kbd> to open the response tab.</li>
+            <li>Press <kbd>R</kbd> <kbd>E</kbd> to open the exception tab.</li>
+            <li>Press <kbd>R</kbd> <kbd>S</kbd> to open the stack tab.</li>
+        </ul>
+
+        <h4>About</h4>
+        httpdbg v$**HTTPDBG_VERSION**$ - <a href="https://pypi.org/project/httpdbg/">PyPI</a> <a
+            href="https://github.com/cle-b/httpdbg">Source code</a>
+    </div>
+
     <div class="grid-container">
 
         <div class="grid-column grid-column-left">
@@ -78,9 +115,13 @@
                         <th class="method" title="method"></th>
                         <th class="url">
                             url
-                            <img class="icon" src="static/icons/filter-outline-icon.svg-+-$**HTTPDBG_VERSION**$" />
-                            <input type="text" value="" id="filter-url" onkeyup="update_filter_url()"
-                                oncut="update_filter_url()" onpaste="update_filter_url()"
+                            <img class="icon" src="static/icons/filter-outline-icon.svg-+-$**HTTPDBG_VERSION**$"
+                                alt="filter for url" />
+                            <label for="filter-url" class="visuallyhidden">
+                                filter for url
+                            </label>
+                            <input type="text" value="" id="filter-url" title="filter for url"
+                                onkeyup="update_filter_url()" oncut="update_filter_url()" onpaste="update_filter_url()"
                                 onchange="update_filter_url()">
                         </th>
                     </tr>
@@ -100,11 +141,14 @@
                     <tr id="request-{{id}}"
                         data-filter-url="{{url}}"
                         onclick="select_request(arguments[0], '{{id}}')"
+                        onkeypress="shortcut_request(event, '{{id}}')"
                         class="request"
-                        data-qa-request="{{id}}">
+                        data-qa-request="{{id}}"
+                        tabindex="{{tabindex}}">
                         <td class="pin" onclick="event.stopPropagation();">
+                            <label for="pin{{id}}" class="visuallyhidden"pin request</label>
                             <input class="pin-checkbox" type="checkbox" id="pin{{id}}" onclick="pin_request('{{id}}',this.checked)" {{pin}}>
-                            <label class="pin-icon" for="pin{{id}}"><img class="icon" src="static/icons/push-pin-green-icon.svg-+-$**HTTPDBG_VERSION**$"/></label>
+                            <label class="pin-icon" for="pin{{id}}"><img class="icon" src="static/icons/push-pin-green-icon.svg-+-$**HTTPDBG_VERSION**$" alt="click to pin"/></label>
                         </td>
                         <td class="status"><span title="{{reason}}" data-qa-request-status>{{{status_code_view}}}</span></td>
                         <td class="method"><span title="{{verb}}" data-qa-request-method>{{verb}}</span></td>
@@ -125,17 +169,16 @@
                         <th>
                             <div class="tab">
                                 <button id="btn-tab-headers" class="tablinks"
-                                    onclick="opentab(event.currentTarget, 'tabHeaders')">headers</button>
+                                    onclick="opentab_headers()">headers</button>
                                 <button id="btn-tab-cookies" class="tablinks"
-                                    onclick="opentab(event.currentTarget, 'tabCookies')">cookies</button>
+                                    onclick="opentab_cookies()">cookies</button>
                                 <button id="btn-tab-request" class="tablinks"
-                                    onclick="opentab(event.currentTarget, 'tabRequest')">request</button>
+                                    onclick="opentab_request()">request</button>
                                 <button id="btn-tab-response" class="tablinks"
-                                    onclick="opentab(event.currentTarget, 'tabResponse')">response</button>
+                                    onclick="opentab_response()">response</button>
                                 <button id="btn-tab-exception" class="tablinks"
-                                    onclick="opentab(event.currentTarget, 'tabException')">exception</button>
-                                <button id="btn-tab-stack" class="tablinks"
-                                    onclick="opentab(event.currentTarget, 'tabStack')">stack</button>
+                                    onclick="opentab_exception()">exception</button>
+                                <button id="btn-tab-stack" class="tablinks" onclick="opentab_stack()">stack</button>
                             </div>
                         </th>
                     </tr>
@@ -304,7 +347,7 @@
         update_filter_url();
         pol_new_data();
         enable_refresh();
-        opentab(document.getElementById("btn-tab-headers"), "tabHeaders");
+        opentab_headers();
     </script>
 </body>
 

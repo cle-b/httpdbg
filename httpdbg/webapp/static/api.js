@@ -3,7 +3,8 @@
 const global = {
     "k7": null,
     "requests": {},
-    "connected": false
+    "connected": false,
+    "tabindex": 100
 }
 
 function save_request(request_id, request) {
@@ -12,16 +13,20 @@ function save_request(request_id, request) {
     if (request.pin == undefined) {
         request.pin = "";
     }
+    if (request.tabindex == undefined) {
+        global.tabindex += 1;
+        request.tabindex = global.tabindex;
+    }
     global.requests[request_id] = request;
     if (global.requests[request_id].in_progress) {
-        global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" />';
+        global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" alt="loading"/>';
     } else {
         switch (global.requests[request_id].status_code) {
             case 0:
-                global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$/" />';
+                global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="loading"/>';
                 break;
             case -1:
-                global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/math-multiplication-icon.svg-+-$**HTTPDBG_VERSION**$/" />';
+                global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/math-multiplication-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="load failed"/>';
                 break;
             default:
                 global.requests[request_id].status_code_view = global.requests[request_id].status_code;
