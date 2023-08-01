@@ -291,3 +291,37 @@ function hide_elts(selector, value) {
         el.hidden = value;
     });
 }
+
+function select_first_request() {
+    var requests = document.getElementsByClassName("request");
+
+    if (requests.length > 0) {
+        requests[0].click();
+    }
+}
+
+function select_last_request() {
+    var requests = document.getElementsByClassName("request");
+
+    if (requests.length > 0) {
+        requests[requests.length - 1].click();
+        requests[requests.length - 1].scrollIntoView();
+    }
+}
+
+function select_next_request() {
+    var request = document.querySelector(".active-row ~ .request");
+
+    if (request == undefined) {
+        // maybe there are some requests under another initiator
+        var next_initiator = document.querySelector(".active-row").parentElement.nextElementSibling;        
+
+        if (next_initiator != undefined) {
+            request = next_initiator.querySelector(".request");
+        }
+    }
+
+    if (request != undefined) {
+        request.click();
+    }
+}

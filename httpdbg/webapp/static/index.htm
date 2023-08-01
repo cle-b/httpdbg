@@ -81,10 +81,10 @@
         </ul>
 
         <h5>List of requests</h5>
-        Use <kbd>Tab</kbd> to browser the list of requests.
         <ul>
-            <li>Press <kbd>Enter</kbd> or <kbd>S</kbd> to select a request.</li>
-            <li>Press <kbd>C</kbd> to compare this request to the select one.</li>
+            <li>Press <kbd>L</kbd> <kbd>F</kbd> to select the first request.</li>
+            <li>Press <kbd>L</kbd> <kbd>N</kbd> to select the next request.</li>
+            <li>Press <kbd>L</kbd> <kbd>L</kbd> to select the last request.</li>
         </ul>
 
         <h5>Request panel</h5>
@@ -143,8 +143,7 @@
                         onclick="select_request(arguments[0], '{{id}}')"
                         onkeypress="shortcut_request(event, '{{id}}')"
                         class="request"
-                        data-qa-request="{{id}}"
-                        tabindex="{{tabindex}}">
+                        data-qa-request="{{id}}">
                         <td class="pin" onclick="event.stopPropagation();">
                             <label for="pin{{id}}" class="visuallyhidden"pin request</label>
                             <input class="pin-checkbox" type="checkbox" id="pin{{id}}" onclick="pin_request('{{id}}',this.checked)" {{pin}}>
