@@ -22,7 +22,7 @@ function wait_for(ms) {
 }
 
 // use keys sequences as shortcut
-var keys_history= "";
+var keys_history = "";
 window.addEventListener('keydown', (event) => {
 
     if (document.activeElement) {
@@ -65,6 +65,18 @@ window.addEventListener('keydown', (event) => {
 
     if (keys_history.endsWith("oh")) {
         help();
+    }
+
+    if (keys_history.endsWith("lf")) {
+        select_first_request();
+    }
+
+    if (keys_history.endsWith("ll")) {        
+        select_last_request();
+    }
+
+    if (keys_history.endsWith("ln")) {
+        select_next_request();
     }
 
     keys_history = keys_history.substr(-8, 8)

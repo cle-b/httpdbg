@@ -3,8 +3,7 @@
 const global = {
     "k7": null,
     "requests": {},
-    "connected": false,
-    "tabindex": 100
+    "connected": false
 }
 
 function save_request(request_id, request) {
@@ -12,10 +11,6 @@ function save_request(request_id, request) {
     request.to_refresh = true;
     if (request.pin == undefined) {
         request.pin = "";
-    }
-    if (request.tabindex == undefined) {
-        global.tabindex += 1;
-        request.tabindex = global.tabindex;
     }
     global.requests[request_id] = request;
     if (global.requests[request_id].in_progress) {
