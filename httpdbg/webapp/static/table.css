@@ -70,6 +70,10 @@
     padding: 6px !important;
 }
 
+.initiator-header {
+    display: none;
+}
+
 .request {
     display: none;
 }
@@ -100,4 +104,8 @@
     width: 50%;
     border-width: 0px;
     padding: 1px 2px;
+}
+
+.icon-filter {
+    filter: grayscale(100%);
 }

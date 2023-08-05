@@ -8,11 +8,22 @@ function update_filter_url() {
     }
 
     var value = document.getElementById("filter-url").value;
-    if (value == "") {
-        new_rule = '[data-filter-url] {display: table-row;}'
-    } else {
-        var new_rule = '[data-filter-url*="' + value + '"] {display: table-row;}'
-    }
 
-    sheet.insertRule(new_rule);
+    if (value == "") {
+        // if there is no filter, all rows are visible
+        sheet.insertRule("[data-filter-url] {display: table-row;}");
+        sheet.insertRule(".initiator-header {display: table-row-group;}");
+    } else {
+        // if there is a filter, only the requests that match the filter are visible
+        sheet.insertRule("[data-filter-url*='" + value + "'] {display: table-row;}");
+        if (CSS.supports("selector(:has(*))")) {
+            // an initiator row is visible only if it contains at least one visible request
+            sheet.insertRule(".initiator-header:has([data-filter-url*='" + value + "']) {display: table-row-group;}");
+            // if there is a filter and no request visible, the filter icon is red
+            sheet.insertRule(".requests-table:not(:has([data-filter-url*='" + value + "'])):has(tbody) .icon-filter {filter: grayscale(0%) !important;}");
+        } else {
+            // in case :has is not supported, the initiator rows are always visible
+            sheet.insertRule(".initiator-header {display: table-row-group;}");
+        }
+    }
 }
