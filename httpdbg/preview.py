@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-import json
-import urllib
 from typing import Tuple, Dict, Union
-from xml.dom import minidom
 
 
 def parse_content_type(content_type: str) -> Tuple[str, Dict[str, str]]:
@@ -20,6 +17,8 @@ def generate_preview(
     raw_data: bytes, content_type: str, content_encoding: str
 ) -> Dict[str, Union[str, bool]]:
     body: Dict[str, Union[str, bool]] = {}
+
+    body["content_type"] = content_type
 
     if content_encoding.lower() == "br":
         try:
@@ -50,39 +49,5 @@ def generate_preview(
                 )
             except Exception:
                 pass
-
-        if body.get("text"):
-            if isinstance(body["text"], str):
-                # json
-                try:
-                    body["parsed"] = json.dumps(
-                        json.loads(body["text"]), sort_keys=True, indent=4
-                    )
-                except Exception:
-                    # xml, ...
-                    try:
-                        lines = minidom.parseString(body["text"]).toprettyxml(
-                            indent="   "
-                        )
-                        body["parsed"] = "\n".join(
-                            [line for line in lines.split("\n") if line.strip() != ""]
-                        )
-                    except Exception:
-                        # query string
-                        try:
-                            if (
-                                parse_content_type(content_type)[0]
-                                == "application/x-www-form-urlencoded"
-                            ):
-                                qs = []
-                                for key, value in urllib.parse.parse_qsl(
-                                    body["text"], strict_parsing=True
-                                ):
-                                    if value:
-                                        qs.append(f"{key}={value}")
-                                if qs:
-                                    body["parsed"] = "\n\n".join(qs)
-                        except Exception:
-                            pass
 
     return body
