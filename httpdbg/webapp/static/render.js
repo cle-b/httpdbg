@@ -127,6 +127,12 @@ function fill_content(request_id, name) {
 
     if (request.body && request.body.text) {
         request.body.raw_text = "global.requests['" + request_id + "'].data.request.body.text";
+
+        const parsed_text = parse_raw_text(request.body.text, request.body.content_type);
+        if (parsed_text) {
+            request.body.parsed = parsed_text;
+        }
+
         if (request.body.parsed) {
             request.body.parsed_text = "global.requests['" + request_id + "'].data.request.body.parsed";
         }
@@ -140,6 +146,12 @@ function fill_content(request_id, name) {
 
     if (response.body && response.body.text) {
         response.body.raw_text = "global.requests['" + request_id + "'].data.response.body.text";
+
+        const parsed_text = parse_raw_text(response.body.text, response.body.content_type);
+        if (parsed_text) {
+            response.body.parsed = parsed_text;
+        }
+
         if (response.body.parsed) {
             response.body.parsed_text = "global.requests['" + request_id + "'].data.response.body.parsed";
         }
@@ -314,7 +326,7 @@ function select_next_request() {
 
     if (request == undefined) {
         // maybe there are some requests under another initiator
-        var next_initiator = document.querySelector(".active-row").parentElement.nextElementSibling;        
+        var next_initiator = document.querySelector(".active-row").parentElement.nextElementSibling;
 
         if (next_initiator != undefined) {
             request = next_initiator.querySelector(".request");
@@ -324,4 +336,34 @@ function select_next_request() {
     if (request != undefined) {
         request.click();
     }
+}
+
+function parse_raw_text(raw_text, content_type) {
+    var parsed_text="";
+
+    if (content_type.toLowerCase().includes("json")) {
+        try {
+            parsed_text = JSON.stringify(JSON.parse(raw_text), null, "    ");
+        } catch {
+            return;
+        }
+    } else if (content_type.toLowerCase().includes("x-www-form-urlencoded")) {
+        try {
+            var params = new URLSearchParams(raw_text);
+
+            for (const key of params.keys()) {
+                params.getAll(key).forEach((value) => {
+                    try {
+                        parsed_text += key + ": " + JSON.stringify(JSON.parse(value), null, "    ") + "\n";
+                    } catch {
+                        parsed_text += key + ": " + value + "\n";
+                    }
+                });
+            }
+        } catch {
+            return;
+        }
+    }
+
+    return parsed_text;
 }
