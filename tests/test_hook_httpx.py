@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import sys
 import urllib.parse
 
@@ -67,7 +68,7 @@ def test_httpx_request(httpbin_both):
 @pytest.mark.httpx
 def test_httpx_response(httpbin_both):
     with httpdbg() as records:
-        httpx.put(f"{httpbin_both.url}/put?azerty", content="def", verify=False)
+        httpx.put(f"{httpbin_both.url}/put?azerty=33", content="def", verify=False)
 
     assert len(records) == 1
     http_record = records[0]
@@ -80,9 +81,8 @@ def test_httpx_response(httpbin_both):
         in http_record.response.headers
     )
     assert http_record.response.cookies == []
-    assert b'"args":{"azerty":""}' in http_record.response.content
-    assert b'"data":"def"' in http_record.response.content
-
+    assert json.loads(http_record.response.content).get("args", {}).get("azerty") == "33"
+    assert json.loads(http_record.response.content).get("data") == "def"
 
 @pytest.mark.httpx
 def test_httpx_cookies(httpbin):
@@ -302,7 +302,7 @@ async def test_httpx_request_asyncclient(httpbin_both):
 async def test_httpx_response_asyncclient(httpbin_both):
     with httpdbg() as records:
         async with httpx.AsyncClient(verify=False) as client:
-            await client.put(f"{httpbin_both.url}/put?azerty", content="def")
+            await client.put(f"{httpbin_both.url}/put?azerty=33", content="def")
 
     assert len(records) == 1
     http_record = records[0]
@@ -315,8 +315,8 @@ async def test_httpx_response_asyncclient(httpbin_both):
         in http_record.response.headers
     )
     assert http_record.response.cookies == []
-    assert b'"args":{"azerty":""}' in http_record.response.content
-    assert b'"data":"def"' in http_record.response.content
+    assert json.loads(http_record.response.content).get("args", {}).get("azerty") == "33"
+    assert json.loads(http_record.response.content).get("data") == "def"
 
 
 @pytest.mark.httpx

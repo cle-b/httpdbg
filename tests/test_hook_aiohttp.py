@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import platform
 import sys
 
@@ -144,7 +145,7 @@ async def test_aiohttp_response(httpbin_both):
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
             async with session.put(
-                f"{httpbin_both.url}/put?azerty", data="def"
+                f"{httpbin_both.url}/put?azerty=33", data="def"
             ) as resp:
                 await resp.json()
 
@@ -159,8 +160,8 @@ async def test_aiohttp_response(httpbin_both):
         in http_record.response.headers
     )
     assert http_record.response.cookies == []
-    assert b'"args":{"azerty":""}' in http_record.response.content
-    assert b'"data":"def"' in http_record.response.content
+    assert json.loads(http_record.response.content).get("args", {}).get("azerty") == "33"
+    assert json.loads(http_record.response.content).get("data") == "def"
 
 
 @pytest.mark.aiohttp

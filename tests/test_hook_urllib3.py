@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 from packaging import version
 import pkg_resources
 
@@ -108,7 +109,7 @@ def test_urllib3_response(httpbin_both):
         with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
             http.request(
                 "PUT",
-                f"{httpbin_both.url}/put?azerty",
+                f"{httpbin_both.url}/put?azerty=33",
                 body="def",
                 headers={"Content-Length": "3"},
             )
@@ -124,8 +125,8 @@ def test_urllib3_response(httpbin_both):
         in http_record.response.headers
     )
     assert http_record.response.cookies == []
-    assert b'"args":{"azerty":""}' in http_record.response.content
-    assert b'"data":"def"' in http_record.response.content
+    assert json.loads(http_record.response.content).get("args", {}).get("azerty") == "33"
+    assert json.loads(http_record.response.content).get("data") == "def"
 
 
 @pytest.mark.urllib3

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+
 import pytest
 import requests
 
@@ -58,7 +60,7 @@ def test_requests_request(httpbin_both):
 @pytest.mark.requests
 def test_requests_response(httpbin_both):
     with httpdbg() as records:
-        requests.put(f"{httpbin_both.url}/put?azerty", data="def", verify=False)
+        requests.put(f"{httpbin_both.url}/put?azerty=33", data="def", verify=False)
 
     assert len(records) == 1
     http_record = records[0]
@@ -71,8 +73,8 @@ def test_requests_response(httpbin_both):
         in http_record.response.headers
     )
     assert http_record.response.cookies == []
-    assert b'"args":{"azerty":""}' in http_record.response.content
-    assert b'"data":"def"' in http_record.response.content
+    assert json.loads(http_record.response.content).get("args", {}).get("azerty") == "33"
+    assert json.loads(http_record.response.content).get("data") == "def"
 
 
 @pytest.mark.requests
