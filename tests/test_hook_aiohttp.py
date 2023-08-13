@@ -160,7 +160,9 @@ async def test_aiohttp_response(httpbin_both):
         in http_record.response.headers
     )
     assert http_record.response.cookies == []
-    assert json.loads(http_record.response.content).get("args", {}).get("azerty") == "33"
+    assert (
+        json.loads(http_record.response.content).get("args", {}).get("azerty") == "33"
+    )
     assert json.loads(http_record.response.content).get("data") == "def"
 
 
