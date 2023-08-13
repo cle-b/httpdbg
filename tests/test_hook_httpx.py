@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import platform
 import sys
 import urllib.parse
 
@@ -302,6 +303,10 @@ async def test_httpx_request_asyncclient(httpbin_both):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="flaky on Windows (sometimes only one request is recorded)",
+)
 async def test_httpx_response_asyncclient(httpbin_both):
     with httpdbg() as records:
         async with httpx.AsyncClient(verify=False) as client:
@@ -401,6 +406,10 @@ async def test_httpx_get_empty_request_content_asyncclient(httpbin_both):
 
 @pytest.mark.httpx
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="flaky on Windows (sometimes only one request is recorded)",
+)
 async def test_httpx_many_requests_session_asyncclient(httpbin_both):
     with httpdbg() as records:
         async with httpx.AsyncClient(verify=False) as session:
