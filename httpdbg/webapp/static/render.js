@@ -15,11 +15,13 @@ async function refresh_resquests() {
     for (const [request_id, request] of Object.entries(global.requests)) {
         if (request.to_refresh) {
             var elt = document.getElementById("request-" + request.id);
+
             request.title = request.url;
             if (request.initiator.short_stack) {
                 request.title += "\n\n" + request.initiator.short_stack;
             }
             request.title += "\n\nclick to select -/- ctrl+click to compare to";
+
             var rendered = Mustache.render(template_request, request);
             if (!elt) {
                 var elt_initiator = document.getElementById("initiator-" + request.initiator.id);
@@ -33,6 +35,7 @@ async function refresh_resquests() {
             } else {
                 elt.innerHTML = rendered;
             };
+
             request.to_refresh = false;
         }
     };
@@ -113,20 +116,20 @@ function show_request(request_id) {
 
 function fill_content(request_id, name) {
 
-    var data = global.requests[request_id].data;
+    var req = global.requests[request_id];
 
-    update_with_template("template_title", document.querySelector("#title > div[name='" + name + "']"), data);
+    update_with_template("template_title", document.querySelector("#title > div[name='" + name + "']"), req);
 
-    update_with_template("template_headers", document.querySelector("#headers > div[name='" + name + "']"), data);
+    update_with_template("template_headers", document.querySelector("#headers > div[name='" + name + "']"), req);
 
-    update_with_template("template_cookies", document.querySelector("#cookies > div[name='" + name + "']"), data);
+    update_with_template("template_cookies", document.querySelector("#cookies > div[name='" + name + "']"), req);
 
-    var request = data.request ? data.request : {
-        "body": null
+    var request = req.request ? req.request : {
+        "body": null,
     };
 
     if (request.body && request.body.text) {
-        request.body.raw_text = "global.requests['" + request_id + "'].data.request.body.text";
+        request.body.raw_text = "global.requests['" + request_id + "'].request.body.text";
 
         const parsed_text = parse_raw_text(request.body.text, request.body.content_type);
         if (parsed_text) {
@@ -134,18 +137,18 @@ function fill_content(request_id, name) {
         }
 
         if (request.body.parsed) {
-            request.body.parsed_text = "global.requests['" + request_id + "'].data.request.body.parsed";
+            request.body.parsed_text = "global.requests['" + request_id + "'].request.body.parsed";
         }
     };
 
     update_with_template("template_body", document.querySelector("#body_sent > div[name='" + name + "']"), request);
 
-    var response = data.response ? data.response : {
+    var response = req.response ? req.response : {
         "body": null
     };
 
     if (response.body && response.body.text) {
-        response.body.raw_text = "global.requests['" + request_id + "'].data.response.body.text";
+        response.body.raw_text = "global.requests['" + request_id + "'].response.body.text";
 
         const parsed_text = parse_raw_text(response.body.text, response.body.content_type);
         if (parsed_text) {
@@ -153,15 +156,15 @@ function fill_content(request_id, name) {
         }
 
         if (response.body.parsed) {
-            response.body.parsed_text = "global.requests['" + request_id + "'].data.response.body.parsed";
+            response.body.parsed_text = "global.requests['" + request_id + "'].response.body.parsed";
         }
     };
 
     update_with_template("template_body", document.querySelector("#body_received > div[name='" + name + "']"), response);
 
-    update_with_template("template_exception", document.querySelector("#exception > div[name='" + name + "']"), data);
+    update_with_template("template_exception", document.querySelector("#exception > div[name='" + name + "']"), req);
 
-    update_with_template("template_stack", document.querySelector("#stack > div[name='" + name + "']"), data);
+    update_with_template("template_stack", document.querySelector("#stack > div[name='" + name + "']"), req);
 }
 
 
@@ -339,7 +342,7 @@ function select_next_request() {
 }
 
 function parse_raw_text(raw_text, content_type) {
-    var parsed_text="";
+    var parsed_text = "";
 
     if (content_type.toLowerCase().includes("json")) {
         try {
@@ -366,4 +369,8 @@ function parse_raw_text(raw_text, content_type) {
     }
 
     return parsed_text;
+}
+
+function prepare_for_filter(txt) {
+    return encodeURI(txt.replace(/\s+/g, '').toLowerCase());
 }

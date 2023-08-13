@@ -115,7 +115,8 @@
                         <th class="method" title="method"></th>
                         <th class="url">
                             url
-                            <img class="icon icon-filter" src="static/icons/filter-outline-icon.svg-+-$**HTTPDBG_VERSION**$"
+                            <img class="icon icon-filter"
+                                src="static/icons/filter-outline-icon.svg-+-$**HTTPDBG_VERSION**$"
                                 alt="filter for url" />
                             <label for="filter-url" class="visuallyhidden">
                                 filter for url
@@ -140,6 +141,8 @@
                 <script id="template_request" type="x-tmpl-mustache">
                     <tr id="request-{{id}}"
                         data-filter-url="{{url}}"
+                        data-filter-request="{{request.for_filter}}"
+                        data-filter-response="{{response.for_filter}}"
                         onclick="select_request(arguments[0], '{{id}}')"
                         onkeypress="shortcut_request(event, '{{id}}')"
                         class="request"

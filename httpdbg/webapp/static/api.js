@@ -28,6 +28,12 @@ function save_request(request_id, request) {
                 break;
         }
     }
+    global.requests[request_id].request = global.requests[request_id].request || {
+        "for_filter": ""
+    }
+    global.requests[request_id].response = global.requests[request_id].response || {
+        "for_filter": ""
+    }
 
     if (!request.pin) {
         get_request(request_id);
@@ -82,7 +88,31 @@ async function get_request(request_id) {
         .then(data => {
             global.connected = true;
 
-            global.requests[request_id]["data"] = data;
+            global.requests[request_id].request = data.request;
+            if (data.request.body && data.request.body.text) {
+                global.requests[request_id].request.for_filter = prepare_for_filter(
+                    parse_raw_text(
+                        data.request.body.text,
+                        data.request.body.content_type
+                    ) || data.request.body.text
+                );
+            } else {
+                global.requests[request_id].request.for_filter = "";
+            }
+
+            global.requests[request_id].response = data.response;
+            if (data.response.body && data.response.body.text) {
+                global.requests[request_id].response.for_filter = prepare_for_filter(
+                    parse_raw_text(
+                        data.response.body.text,
+                        data.response.body.content_type
+                    ) || data.response.body.text
+                );
+            } else {
+                global.requests[request_id].response.for_filter = "";
+            }
+
+            global.requests[request_id].to_refresh = true;
 
             global.requests[request_id].loaded = true;
         })
