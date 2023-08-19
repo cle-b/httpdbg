@@ -112,6 +112,9 @@ async function get_request(request_id) {
                 global.requests[request_id].response.for_filter = "";
             }
 
+            // the full stack is not present in request summary
+            global.requests[request_id].initiator = data.initiator;            
+
             global.requests[request_id].to_refresh = true;
 
             global.requests[request_id].loaded = true;

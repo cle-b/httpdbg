@@ -366,6 +366,14 @@ function parse_raw_text(raw_text, content_type) {
         } catch {
             return;
         }
+    } else {
+        // we try to parse the content using the JSON format because it happens the content type is JSON
+        // but the header doesn't contain "json"
+        try {
+            parsed_text = JSON.stringify(JSON.parse(raw_text), null, "    ");
+        } catch {
+            return;
+        }
     }
 
     return parsed_text;
