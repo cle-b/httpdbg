@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
+from typing import Generator
 import glob
 import os
 import pickle
@@ -11,7 +12,7 @@ from httpdbg.records import HTTPRecords
 
 
 @contextmanager
-def watcher_external(records: HTTPRecords) -> HTTPRecords:
+def watcher_external(records: HTTPRecords) -> Generator[HTTPRecords, None, None]:
     try:
         if "HTTPDBG_SUBPROCESS_DIR" not in os.environ:
             with tempfile.TemporaryDirectory(
