@@ -2,7 +2,6 @@
 import json
 import platform
 import sys
-import urllib.parse
 
 import httpx
 import pytest
