@@ -33,22 +33,22 @@ def pyhttpdbg(params, subparams, test_mode=False):
             else:
                 run_console(test_mode)
 
-            if not (params.force_quit or test_mode):
-                print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
+        if not (params.force_quit or test_mode):
+            print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
 
-                if params.keep_up:
-                    input("Press enter to quit")
-                else:
-                    # we keep the server up until all the requests have been loaded in the web interface
-                    print(
-                        "Waiting until all the requests have been loaded in the web interface."
-                    )
-                    print("Press Ctrl+C to quit.")
-                    try:
-                        while records.unread:
-                            time.sleep(0.5)
-                    except KeyboardInterrupt:  # pragma: no cover
-                        pass
+            if params.keep_up:
+                input("Press enter to quit")
+            else:
+                # we keep the server up until all the requests have been loaded in the web interface
+                print(
+                    "Waiting until all the requests have been loaded in the web interface."
+                )
+                print("Press Ctrl+C to quit.")
+                try:
+                    while records.unread:
+                        time.sleep(0.5)
+                except KeyboardInterrupt:  # pragma: no cover
+                    pass
 
 
 def pyhttpdbg_entry_point(test_mode=False):
