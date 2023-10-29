@@ -136,7 +136,7 @@ def test_httpx_redirect(httpbin_both):
             redirect_url,
             follow_redirects=True,
             verify=False,
-            params={"url": f"{httpbin_both.url}/get"}
+            params={"url": f"{httpbin_both.url}/get"},
         )
 
     assert len(records) == 2
