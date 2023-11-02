@@ -157,7 +157,7 @@ def extract_short_stack_from_file(
                     line = lines[i]
                     if not end_of_instruction_found:
                         instruction += line.strip()
-                    short_stack += f" {i+1}. {line}{' <====' if (before>0 and i+1 == lineno) else ''}\n"
+                    short_stack += f" {i+1}. {line}{' <====' if (before > 0 and i + 1 == lineno) else ''}\n"
                     nb_parenthesis = 0
                     for c in instruction[instruction.find("(") :]:
                         if c == "(":

@@ -353,7 +353,11 @@ def hook_socket(records: HTTPRecords) -> Generator[None, None, None]:
     )
     socket.socket.send = decorate(records, socket.socket.send, set_hook_for_socket_send)
 
-    ssl.wrap_socket = decorate(records, ssl.wrap_socket, set_hook_for_ssl_wrap_socket)
+    if (sys.version_info.major == 3) and (sys.version_info.minor < 12):
+        ssl.wrap_socket = decorate(
+            records, ssl.wrap_socket, set_hook_for_ssl_wrap_socket
+        )
+
     ssl.SSLContext.wrap_socket = decorate(
         records, ssl.SSLContext.wrap_socket, set_hook_for_sslcontext_wrap_socket
     )
@@ -409,7 +413,9 @@ def hook_socket(records: HTTPRecords) -> Generator[None, None, None]:
     socket.socket.sendall = undecorate(socket.socket.sendall)
     socket.socket.send = undecorate(socket.socket.send)
 
-    ssl.wrap_socket = undecorate(ssl.wrap_socket)
+    if (sys.version_info.major == 3) and (sys.version_info.minor < 12):
+        ssl.wrap_socket = undecorate(ssl.wrap_socket)
+
     ssl.SSLContext.wrap_socket = undecorate(ssl.SSLContext.wrap_socket)
     ssl.SSLContext.wrap_bio = undecorate(ssl.SSLContext.wrap_bio)
 
