@@ -47,7 +47,11 @@ You can trace all the HTTP requests performed during your tests
 pyhttpdbg -m pytest [arg1 --arg2 ...]
 ```
 
-*note: the HTTP(S) requests are not recorded if the tests are executed in parallel using plugin like `xdist`*.
+If you use the `pytest-xdist` plugin to execute your tests in parallel, then you must install the `pytest-httpdbg` plugin if you want to trace the requests done by the pytest workers.
+
+```
+pip install httpdbg[pytest]
+```
 
 ### module
 

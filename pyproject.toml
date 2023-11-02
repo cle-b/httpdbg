@@ -41,3 +41,6 @@ version = {attr = "httpdbg.VERSION"}
 no_implicit_optional = false
 disable_error_code= ["method-assign",]
 files = ["httpdbg"]
+
+[project.optional-dependencies]
+pytest = ["pytest-httpdbg>=0.3.0"]
