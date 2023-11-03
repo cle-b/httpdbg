@@ -4,14 +4,14 @@ import json
 import pytest
 import requests
 
-from httpdbg.hooks.all import httpdbg
+from httpdbg.hooks.all import httprecord
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
 
 
 @pytest.mark.requests
 def test_requests(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         requests.get(f"{httpbin_both.url}/get", verify=False)
 
     assert len(records) == 1
@@ -28,7 +28,7 @@ def test_requests(httpbin_both):
 def test_requests_initiator(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
-        with httpdbg() as records:
+        with httprecord() as records:
             requests.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
@@ -43,7 +43,7 @@ def test_requests_initiator(httpbin, monkeypatch):
 
 @pytest.mark.requests
 def test_requests_request(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         requests.post(f"{httpbin_both.url}/post", data="abc", verify=False)
 
     assert len(records) == 1
@@ -59,7 +59,7 @@ def test_requests_request(httpbin_both):
 
 @pytest.mark.requests
 def test_requests_response(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         requests.put(f"{httpbin_both.url}/put?azerty=33", data="def", verify=False)
 
     assert len(records) == 1
@@ -81,7 +81,7 @@ def test_requests_response(httpbin_both):
 
 @pytest.mark.requests
 def test_requests_cookies(httpbin):
-    with httpdbg() as records:
+    with httprecord() as records:
         requests.get(
             f"{httpbin.url}/cookies/set/confiture/oignon",
             cookies={"jam": "strawberry"},
@@ -107,7 +107,7 @@ def test_requests_cookies(httpbin):
 
 @pytest.mark.requests
 def test_requests_cookies_secure(httpbin_secure):
-    with httpdbg() as records:
+    with httprecord() as records:
         requests.get(
             f"{httpbin_secure.url}/cookies/set/confiture/oignon",
             cookies={"jam": "strawberry"},
@@ -130,7 +130,7 @@ def test_requests_cookies_secure(httpbin_secure):
 
 @pytest.mark.requests
 def test_requests_redirect(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         requests.get(
             f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get", verify=False
         )
@@ -144,7 +144,7 @@ def test_requests_redirect(httpbin_both):
 
 @pytest.mark.requests
 def test_requests_not_found(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         requests.get(f"{httpbin_both.url}/404", verify=False)
 
     assert len(records) == 1
@@ -158,7 +158,7 @@ def test_requests_not_found(httpbin_both):
 
 @pytest.mark.requests
 def test_requests_session(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         with requests.Session() as session:
             session.get(f"{httpbin_both.url}/get", verify=False)
             session.post(f"{httpbin_both.url}/post", data="azerty", verify=False)
@@ -182,7 +182,7 @@ def test_requests_session(httpbin_both):
 def test_requests_exception():
     url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
 
-    with httpdbg() as records:
+    with httprecord() as records:
         with pytest.raises(requests.exceptions.ConnectionError):
             requests.get(url_with_unknown_host)
 
@@ -195,7 +195,7 @@ def test_requests_exception():
 
 @pytest.mark.requests
 def test_requests_get_empty_request_content(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         requests.get(f"{httpbin_both.url}/get", verify=False)
 
     assert len(records) == 1
@@ -207,7 +207,7 @@ def test_requests_get_empty_request_content(httpbin_both):
 
 @pytest.mark.requests
 def test_requests_many_requests(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         requests.get(f"{httpbin_both.url}/get", verify=False)
         requests.get(f"{httpbin_both.url}/get/abc", verify=False)
         requests.post(f"{httpbin_both.url}/post", data="abc", verify=False)
@@ -227,7 +227,7 @@ def test_requests_many_requests(httpbin_both):
 
 @pytest.mark.requests
 def test_requests_many_requests_session(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         with requests.Session() as session:
             session.get(f"{httpbin_both.url}/get", verify=False)
             session.get(f"{httpbin_both.url}/get/abc", verify=False)

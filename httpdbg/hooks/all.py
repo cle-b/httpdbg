@@ -15,7 +15,7 @@ from httpdbg.records import HTTPRecords
 
 
 @contextmanager
-def httpdbg(
+def httprecord(
     records: HTTPRecords = None, initiators: Union[List[str], None] = None
 ) -> Generator[HTTPRecords, None, None]:
     if records is None:

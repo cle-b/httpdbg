@@ -43,4 +43,4 @@ disable_error_code= ["method-assign",]
 files = ["httpdbg"]
 
 [project.optional-dependencies]
-pytest = ["pytest-httpdbg>=0.3.0"]
+pytest = ["pytest-httpdbg>=0.3.1"]

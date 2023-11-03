@@ -4,7 +4,7 @@ import random
 import pytest
 import requests
 
-from httpdbg.hooks.all import httpdbg
+from httpdbg.hooks.all import httprecord
 from httpdbg.server import httpdbg_srv
 from web.ui import HttpdbgWebUI
 
@@ -12,7 +12,7 @@ from web.ui import HttpdbgWebUI
 @pytest.fixture()
 def records(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
-        with httpdbg(records):
+        with httprecord(records):
             for n in range(2, random.randint(5, 8)):
                 requests.get(httpbin.url + f"/get?n={n}")
 

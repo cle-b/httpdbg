@@ -8,12 +8,12 @@ import urllib3
 
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
-from httpdbg.hooks.all import httpdbg
+from httpdbg.hooks.all import httprecord
 
 
 @pytest.mark.urllib3
 def test_urllib3(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
             http.request("GET", f"{httpbin_both.url}/get")
 
@@ -31,7 +31,7 @@ def test_urllib3(httpbin_both):
 def test_urllib3_initiator(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
-        with httpdbg() as records:
+        with httprecord() as records:
             with urllib3.PoolManager() as http:
                 http.request("GET", f"{httpbin.url}/get")
             with urllib3.HTTPConnectionPool(f"{httpbin.url[7:]}") as http:
@@ -57,7 +57,7 @@ def test_urllib3_initiator(httpbin, monkeypatch):
 def test_urllib3_initiator_secure(httpbin_secure, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
-        with httpdbg() as records:
+        with httprecord() as records:
             with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
                 http.request("GET", f"{httpbin_secure.url}/get")
             with urllib3.HTTPSConnectionPool(
@@ -83,7 +83,7 @@ def test_urllib3_initiator_secure(httpbin_secure, monkeypatch):
 
 @pytest.mark.urllib3
 def test_urllib3_request(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
             http.request(
                 "POST",
@@ -105,7 +105,7 @@ def test_urllib3_request(httpbin_both):
 
 @pytest.mark.urllib3
 def test_urllib3_response(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
             http.request(
                 "PUT",
@@ -133,7 +133,7 @@ def test_urllib3_response(httpbin_both):
 
 @pytest.mark.urllib3
 def test_urllib3_cookies(httpbin):
-    with httpdbg() as records:
+    with httprecord() as records:
         with urllib3.PoolManager() as http:
             http.request(
                 "GET",
@@ -157,7 +157,7 @@ def test_urllib3_cookies(httpbin):
 
 @pytest.mark.urllib3
 def test_urllib3_cookies_secure(httpbin_secure):
-    with httpdbg() as records:
+    with httprecord() as records:
         with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
             http.request(
                 "GET",
@@ -181,7 +181,7 @@ def test_urllib3_cookies_secure(httpbin_secure):
 
 @pytest.mark.urllib3
 def test_urllib3_redirect(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
             http.request(
                 "GET", f"{httpbin_both.url}/redirect-to?url={httpbin_both.url}/get"
@@ -196,7 +196,7 @@ def test_urllib3_redirect(httpbin_both):
 
 @pytest.mark.urllib3
 def test_urllib3_not_found(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
             http.request("GET", f"{httpbin_both.url}/404")
 
@@ -213,7 +213,7 @@ def test_urllib3_not_found(httpbin_both):
 def test_urllib3_exception():
     url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
 
-    with httpdbg() as records:
+    with httprecord() as records:
         with pytest.raises(urllib3.exceptions.MaxRetryError):
             with urllib3.PoolManager() as http:
                 http.request("GET", url_with_unknown_host)
@@ -227,7 +227,7 @@ def test_urllib3_exception():
 
 @pytest.mark.urllib3
 def test_urllib3_get_empty_request_content(httpbin_both):
-    with httpdbg() as records:
+    with httprecord() as records:
         with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
             http.request("GET", f"{httpbin_both.url}/get")
 
@@ -248,7 +248,7 @@ def test_urllib3_get_empty_request_content(httpbin_both):
 def test_urllib3_v2_request(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
-        with httpdbg() as records:
+        with httprecord() as records:
             urllib3.request("GET", f"{httpbin.url}/get")
 
     assert len(records) == 1
