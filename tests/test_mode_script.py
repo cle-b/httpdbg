@@ -6,7 +6,7 @@ import requests
 
 from httpdbg.mode_script import run_script
 from httpdbg.__main__ import pyhttpdbg_entry_point
-from httpdbg.hooks.all import httprecords
+from httpdbg.hooks.all import httprecord
 from httpdbg.server import httpdbg_srv
 
 
@@ -25,7 +25,7 @@ def test_run_script_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
 @pytest.mark.script
 def test_run_script(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
-        with httprecords(records):
+        with httprecord(records):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
             )
@@ -43,7 +43,7 @@ def test_run_script(httpbin, httpdbg_port):
 @pytest.mark.script
 def test_run_script_with_exception(httpbin, httpdbg_port, capsys):
     with httpdbg_srv(httpdbg_port) as records:
-        with httprecords(records):
+        with httprecord(records):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
             )
@@ -75,7 +75,7 @@ def test_run_script_not_a_python_script(httpbin, capsys):
 @pytest.mark.script
 def test_run_script_initiator(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
-        with httprecords(records):
+        with httprecord(records):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
             )

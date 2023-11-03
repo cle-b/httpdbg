@@ -8,7 +8,7 @@ import pytest
 
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
-from httpdbg.hooks.all import httprecords
+from httpdbg.hooks.all import httprecord
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -19,7 +19,7 @@ def skip_incompatible_python():
 
 @pytest.mark.httpx
 def test_httpx(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         httpx.get(f"{httpbin_both.url}/get", verify=False)
 
     assert len(records) == 1
@@ -36,7 +36,7 @@ def test_httpx(httpbin_both):
 def test_httpx_initiator(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
-        with httprecords() as records:
+        with httprecord() as records:
             httpx.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
@@ -51,7 +51,7 @@ def test_httpx_initiator(httpbin, monkeypatch):
 
 @pytest.mark.httpx
 def test_httpx_request(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         httpx.post(f"{httpbin_both.url}/post", content="abc", verify=False)
 
     assert len(records) == 1
@@ -67,7 +67,7 @@ def test_httpx_request(httpbin_both):
 
 @pytest.mark.httpx
 def test_httpx_response(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         httpx.put(f"{httpbin_both.url}/put?azerty=33", content="def", verify=False)
 
     assert len(records) == 1
@@ -89,7 +89,7 @@ def test_httpx_response(httpbin_both):
 
 @pytest.mark.httpx
 def test_httpx_cookies(httpbin):
-    with httprecords() as records:
+    with httprecord() as records:
         httpx.get(
             f"{httpbin.url}/cookies/set/confiture/oignon", cookies={"jam": "strawberry"}
         )
@@ -107,7 +107,7 @@ def test_httpx_cookies(httpbin):
 
 @pytest.mark.httpx
 def test_httpx_cookies_secure(httpbin_secure):
-    with httprecords() as records:
+    with httprecord() as records:
         httpx.get(
             f"{httpbin_secure.url}/cookies/set/confiture/oignon",
             cookies={"jam": "strawberry"},
@@ -130,7 +130,7 @@ def test_httpx_cookies_secure(httpbin_secure):
 @pytest.mark.httpx
 def test_httpx_redirect(httpbin_both):
     redirect_url = f"{httpbin_both.url}/redirect-to"
-    with httprecords() as records:
+    with httprecord() as records:
         httpx.get(
             redirect_url,
             follow_redirects=True,
@@ -145,7 +145,7 @@ def test_httpx_redirect(httpbin_both):
 
 @pytest.mark.httpx
 def test_httpx_not_found(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         httpx.get(f"{httpbin_both.url}/404", verify=False)
 
     assert len(records) == 1
@@ -159,7 +159,7 @@ def test_httpx_not_found(httpbin_both):
 
 @pytest.mark.httpx
 def test_httpx_client(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         with httpx.Client(verify=False) as client:
             client.get(f"{httpbin_both.url}/get")
             client.post(f"{httpbin_both.url}/post", content="azerty")
@@ -183,7 +183,7 @@ def test_httpx_client(httpbin_both):
 def test_httpx_exception():
     url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
 
-    with httprecords() as records:
+    with httprecord() as records:
         with pytest.raises(httpx.ConnectError):
             httpx.get(url_with_unknown_host)
 
@@ -196,7 +196,7 @@ def test_httpx_exception():
 
 @pytest.mark.httpx
 def test_httpx_get_empty_request_content(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         httpx.get(f"{httpbin_both.url}/get", verify=False)
 
     assert len(records) == 1
@@ -208,7 +208,7 @@ def test_httpx_get_empty_request_content(httpbin_both):
 
 @pytest.mark.httpx
 def test_httpx_many_requests(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         httpx.get(f"{httpbin_both.url}/get", verify=False)
         httpx.get(f"{httpbin_both.url}/get/abc", verify=False)
         httpx.post(f"{httpbin_both.url}/post", data="abc", verify=False)
@@ -228,7 +228,7 @@ def test_httpx_many_requests(httpbin_both):
 
 @pytest.mark.httpx
 def test_httpx_many_requests_session(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         with httpx.Client(verify=False) as session:
             session.get(f"{httpbin_both.url}/get")
             session.get(f"{httpbin_both.url}/get/abc")
@@ -250,7 +250,7 @@ def test_httpx_many_requests_session(httpbin_both):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 async def test_httpx_asyncclient(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         async with httpx.AsyncClient(verify=False) as client:
             await client.get(f"{httpbin_both.url}/get")
 
@@ -269,7 +269,7 @@ async def test_httpx_asyncclient(httpbin_both):
 async def test_httpx_initiator_asyncclient(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
-        with httprecords() as records:
+        with httprecord() as records:
             async with httpx.AsyncClient() as client:
                 await client.get(f"{httpbin.url}/get")
 
@@ -286,7 +286,7 @@ async def test_httpx_initiator_asyncclient(httpbin, monkeypatch):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 async def test_httpx_request_asyncclient(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         async with httpx.AsyncClient(verify=False) as client:
             await client.post(f"{httpbin_both.url}/post", content="abc")
 
@@ -308,7 +308,7 @@ async def test_httpx_request_asyncclient(httpbin_both):
     reason="flaky on Windows (sometimes only one request is recorded)",
 )
 async def test_httpx_response_asyncclient(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         async with httpx.AsyncClient(verify=False) as client:
             await client.put(f"{httpbin_both.url}/put?azerty=33", content="def")
 
@@ -332,7 +332,7 @@ async def test_httpx_response_asyncclient(httpbin_both):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 async def test_httpx_cookies_asyncclient(httpbin):
-    with httprecords() as records:
+    with httprecord() as records:
         async with httpx.AsyncClient() as client:
             await client.get(
                 f"{httpbin.url}/cookies/set/confiture/oignon",
@@ -353,7 +353,7 @@ async def test_httpx_cookies_asyncclient(httpbin):
 @pytest.mark.httpx
 @pytest.mark.asyncio
 async def test_httpx_cookies_asyncclient_secure(httpbin_secure):
-    with httprecords() as records:
+    with httprecord() as records:
         async with httpx.AsyncClient(verify=False) as client:
             await client.get(
                 f"{httpbin_secure.url}/cookies/set/confiture/oignon",
@@ -378,7 +378,7 @@ async def test_httpx_cookies_asyncclient_secure(httpbin_secure):
 async def test_httpx_exception_asyncclient():
     url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
 
-    with httprecords() as records:
+    with httprecord() as records:
         with pytest.raises(httpx.ConnectError):
             async with httpx.AsyncClient() as client:
                 await client.get(url_with_unknown_host)
@@ -393,7 +393,7 @@ async def test_httpx_exception_asyncclient():
 @pytest.mark.httpx
 @pytest.mark.asyncio
 async def test_httpx_get_empty_request_content_asyncclient(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         async with httpx.AsyncClient(verify=False) as client:
             await client.get(f"{httpbin_both.url}/get")
 
@@ -411,7 +411,7 @@ async def test_httpx_get_empty_request_content_asyncclient(httpbin_both):
     reason="flaky on Windows (sometimes only one request is recorded)",
 )
 async def test_httpx_many_requests_session_asyncclient(httpbin_both):
-    with httprecords() as records:
+    with httprecord() as records:
         async with httpx.AsyncClient(verify=False) as session:
             await session.get(f"{httpbin_both.url}/get")
             await session.get(f"{httpbin_both.url}/get/abc")

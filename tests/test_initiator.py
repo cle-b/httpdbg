@@ -6,7 +6,7 @@ import sys
 import pytest
 import requests
 
-from httpdbg.hooks.all import httprecords
+from httpdbg.hooks.all import httprecord
 
 
 @pytest.mark.xfail(
@@ -17,7 +17,7 @@ from httpdbg.hooks.all import httprecords
 def test_initiator_script(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
-        with httprecords() as records:
+        with httprecord() as records:
             requests.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
@@ -43,7 +43,7 @@ requests.api.get(
  17. def test_initiator_script(httpbin, monkeypatch):
  18.     with monkeypatch.context() as m:
  19.         m.delenv("PYTEST_CURRENT_TEST")
- 20.         with httprecords() as records:
+ 20.         with httprecord() as records:
  21.             requests.get(f"{httpbin.url}/get") <====
  22. 
  23.     assert len(records) == 1
@@ -60,7 +60,7 @@ requests.api.get(
 def test_initiator_same_line_different_initiators(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
-        with httprecords() as records:
+        with httprecord() as records:
             for i in range(2):
                 requests.get(f"{httpbin.url}/get")
 
@@ -75,7 +75,7 @@ def test_initiator_same_line_different_initiators(httpbin, monkeypatch):
 def test_initiator_redirection_same_initiator(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
-        with httprecords() as records:
+        with httprecord() as records:
             requests.get(
                 f"{httpbin.url}/redirect-to?url={httpbin.url}/get", verify=False
             )
@@ -91,7 +91,7 @@ def test_initiator_redirection_same_initiator(httpbin, monkeypatch):
     reason="problem with stack view in windows",
 )
 def test_initiator_pytest(httpbin):
-    with httprecords() as records:
+    with httprecord() as records:
         requests.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
@@ -115,7 +115,7 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
         m.delenv("PYTEST_CURRENT_TEST")
 
         # all cases must be tested in the same test
-        with httprecords(initiators=["initiator_pck"]) as records:
+        with httprecord(initiators=["initiator_pck"]) as records:
             from initiator_pck.initiator2.mod2 import fnc_in_subpackage
             from initiator_pck.mod1 import fnc_in_package
             from initiator_pck import fnc_async
@@ -156,7 +156,7 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
                 == 'asyncio.run(fnc_async(f"{httpbin.url}/get"))'
             )
 
-        with httprecords() as records:
+        with httprecord() as records:
             fnc_in_package(f"{httpbin.url}/get")
             fnc_in_subpackage(f"{httpbin.url}/get")
             fnc_in_init(f"{httpbin.url}/get")

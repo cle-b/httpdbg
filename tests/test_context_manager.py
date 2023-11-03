@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from httpdbg import httprecords
+from httpdbg import httprecord
 
 import pytest
 import requests
@@ -10,7 +10,7 @@ import requests
 def test_context_manager(httpbin):
     requests.get(httpbin.url + "/get")
 
-    with httprecords() as records:
+    with httprecord() as records:
         requests.get(httpbin.url + "/get")
 
     assert len(records.requests) == 1
@@ -21,14 +21,14 @@ def test_context_manager(httpbin):
 def test_context_manager_two_calls(httpbin):
     requests.get(httpbin.url + "/get")
 
-    with httprecords() as records:
+    with httprecord() as records:
         requests.get(httpbin.url + "/get")
 
     assert len(records.requests) == 1
     for _, req in records.requests.items():
         assert req.method.lower() == "get"
 
-    with httprecords() as records2:
+    with httprecord() as records2:
         requests.post(httpbin.url + "/post")
 
     assert len(records2.requests) == 1
@@ -40,12 +40,12 @@ def test_context_manager_two_calls(httpbin):
 def test_context_manager_reentrant(httpbin):
     requests.get(httpbin.url + "/get")
 
-    with httprecords() as records1:
+    with httprecord() as records1:
         requests.get(httpbin.url + "/get/a1")
-        with httprecords() as records2:
+        with httprecord() as records2:
             requests.get(httpbin.url + "/get/b1")
             requests.get(httpbin.url + "/get/b2")
-            with httprecords() as records3:
+            with httprecord() as records3:
                 requests.get(httpbin.url + "/get/c1")
         requests.get(httpbin.url + "/get/a2")
 

@@ -4,7 +4,7 @@ import time
 
 from httpdbg import VERSION
 from httpdbg.args import read_args
-from httpdbg.hooks.all import httprecords
+from httpdbg.hooks.all import httprecord
 from httpdbg.server import httpdbg_srv
 from httpdbg.mode_console import run_console
 from httpdbg.mode_module import run_module
@@ -25,7 +25,7 @@ def pyhttpdbg(params, subparams, test_mode=False):
     sys.path.insert(0, "")  # to mimic the default python command behavior
 
     with httpdbg_srv(params.port) as records:
-        with httprecords(records, params.initiator):
+        with httprecord(records, params.initiator):
             if params.module:
                 run_module(subparams)
             elif params.script:
