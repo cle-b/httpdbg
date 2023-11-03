@@ -8,7 +8,7 @@ import pytest
 
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
-from httpdbg.hooks.all import httpdbg
+from httpdbg.hooks.all import httprecords
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -20,7 +20,7 @@ def skip_incompatible_python():
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 async def test_aiohttp(httpbin_both):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
@@ -41,7 +41,7 @@ async def test_aiohttp(httpbin_both):
 async def test_aiohttp_initiator(httpbin, monkeypatch):
     with monkeypatch.context() as m:
         m.delenv("PYTEST_CURRENT_TEST")
-        with httpdbg() as records:
+        with httprecords() as records:
             async with aiohttp.ClientSession() as session:
                 await session.get(f"{httpbin.url}/get")
 
@@ -60,7 +60,7 @@ async def test_aiohttp_initiator(httpbin, monkeypatch):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 async def test_aiohttp_request_post_bytes(httpbin_both):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
@@ -80,7 +80,7 @@ async def test_aiohttp_request_post_bytes(httpbin_both):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 async def test_aiohttp_request_post_str(httpbin_both):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
@@ -100,7 +100,7 @@ async def test_aiohttp_request_post_str(httpbin_both):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 async def test_aiohttp_request_post_json(httpbin_both):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
@@ -120,7 +120,7 @@ async def test_aiohttp_request_post_json(httpbin_both):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 async def test_aiohttp_request_post_form(httpbin_both):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
@@ -140,7 +140,7 @@ async def test_aiohttp_request_post_form(httpbin_both):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 async def test_aiohttp_response(httpbin_both):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
@@ -169,7 +169,7 @@ async def test_aiohttp_response(httpbin_both):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 async def test_aiohttp_cookies(httpbin):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
@@ -193,7 +193,7 @@ async def test_aiohttp_cookies(httpbin):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 async def test_aiohttp_cookies_secure(httpbin_secure):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
@@ -222,7 +222,7 @@ async def test_aiohttp_cookies_secure(httpbin_secure):
     reason="flaky on Windows (sometimes only one request is recorded)",
 )
 async def test_aiohttp_redirect(httpbin_both):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
@@ -240,7 +240,7 @@ async def test_aiohttp_redirect(httpbin_both):
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 async def test_aiohttp_not_found(httpbin_both):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
@@ -259,7 +259,7 @@ async def test_aiohttp_not_found(httpbin_both):
 async def test_aiohttp_exception_asyncclient():
     url_with_unknown_host = "http://f.q.d.1234.n.t.n.e/hello?a=b"
 
-    with httpdbg() as records:
+    with httprecords() as records:
         with pytest.raises(aiohttp.client_exceptions.ClientConnectorError):
             async with aiohttp.ClientSession() as session:
                 await session.get(url_with_unknown_host)
@@ -276,7 +276,7 @@ async def test_aiohttp_exception_asyncclient():
 @pytest.mark.aiohttp
 @pytest.mark.asyncio
 async def test_aiohttp_get_empty_request_content_asyncclient(httpbin_both):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
@@ -296,7 +296,7 @@ async def test_aiohttp_get_empty_request_content_asyncclient(httpbin_both):
     reason="flaky on Windows (sometimes only one request is recorded)",
 )
 async def test_aiohttp_many_requests_session_asyncclient(httpbin_both):
-    with httpdbg() as records:
+    with httprecords() as records:
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:

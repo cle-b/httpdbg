@@ -4,7 +4,7 @@ import requests
 
 from httpdbg.mode_console import run_console, console_exit
 from httpdbg.__main__ import pyhttpdbg_entry_point
-from httpdbg.hooks.all import httpdbg
+from httpdbg.hooks.all import httprecords
 from httpdbg.server import httpdbg_srv
 
 
@@ -35,7 +35,7 @@ def test_run_console_from_pyhttpdbg_entry_point_default(
 
 def test_run_console(httpbin, httpdbg_port):
     with httpdbg_srv(httpdbg_port) as records:
-        with httpdbg(records):
+        with httprecords(records):
             new_console = run_console(test_mode=True)
             new_console.push("import requests")
             new_console.push(f"requests.get('{httpbin.url}/get')")
