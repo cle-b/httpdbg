@@ -134,3 +134,7 @@ All the requests recorded are available on the web interface.
 The requests:
  * are still available in the web page even if the python process stopped (except if you force quit before the requests have been loaded by the web page).
  * are automatically cleaned if a new execution is detected.
+
+## documentation
+
+A complete documentation is available [here](https://httpdbg-docs.readthedocs.io).
