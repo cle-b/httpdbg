@@ -137,4 +137,4 @@ The requests:
 
 ## documentation
 
-A complete documentation is available [here](https://httpdbg-docs.readthedocs.io).
+https://httpdbg-docs.readthedocs.io
