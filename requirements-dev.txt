@@ -11,7 +11,7 @@ requests
 httpx
 pytest-asyncio
 aiohttp; python_version < '3.12'
-aiohttp==3.9.0b0; python_version == '3.12'
+aiohttp>=3.9.0; python_version == '3.12'
 build
 mypy
 types-requests
