@@ -9,7 +9,6 @@ authors = [
 ]
 description="A very simple tool to debug HTTP(S) client requests"
 readme="README.md"
-urls = {repository = "https://github.com/cle-b/httpdbg"}
 requires-python = ">=3.6"
 license = {text = "Apache-2.0"}
 classifiers = [
@@ -44,3 +43,7 @@ files = ["httpdbg"]
 
 [project.optional-dependencies]
 pytest = ["pytest-httpdbg>=0.3.1"]
+
+[project.urls]
+Source = "https://github.com/cle-b/httpdbg/"
+Documentation = "https://httpdbg-docs.readthedocs.io/"
