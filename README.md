@@ -4,7 +4,7 @@
 
 To use it, execute your program using the `pyhttpdbg` command instead of `python` and that's it. Open a browser to `http://localhost:4909` to view the requests:
 
-![](ui.png)
+![](https://github.com/cle-b/httpdbg/blob/main/ui.png?raw=true)
 
 Full documentation => [https://httpdbg-docs.readthedocs.io/](https://httpdbg-docs.readthedocs.io/en/latest/)
 
