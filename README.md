@@ -1,8 +1,12 @@
 # httpdbg
 
-A very simple tool to debug HTTP(S) client requests.
+`httpdbg` is a tool for Python developers to easily debug the HTTP(S) client requests in a Python program.
+
+To use it, execute your program using the `pyhttpdbg` command instead of `python` and that's it. Open a browser to `http://localhost:4909` to view the requests:
 
 ![](ui.png)
+
+Full documentation => [https://httpdbg-docs.readthedocs.io/](https://httpdbg-docs.readthedocs.io/en/latest/)
 
 ## installation 
 
@@ -14,9 +18,9 @@ pip install httpdbg
 
 ### interactive console
 
-Open an interactive console using the following command: `pyhttpdbg`
+Open an interactive console using the command `pyhttpdbg`.
 
-```
+```console
 (venv) dev@host:~/dir$ pyhttpdbg 
 .... - - .--. -.. -... --. .... - - .--. -.. -... --. .... - - .--. -.. -... --.
   httpdbg - HTTP(S) requests available at http://localhost:4909/
@@ -35,7 +39,7 @@ You can inspect the HTTP requests directly in your web browser at http://localho
 
 You can trace all the HTTP requests performed by a script
 
-```sh
+```console
 pyhttpdbg --script filename.py [arg1 --arg2 ...]
 ```
 
@@ -43,13 +47,13 @@ pyhttpdbg --script filename.py [arg1 --arg2 ...]
 
 You can trace all the HTTP requests performed during your tests
 
-```sh
+```console
 pyhttpdbg -m pytest [arg1 --arg2 ...]
 ```
 
 If you use the `pytest-xdist` plugin to execute your tests in parallel, then you must install the `pytest-httpdbg` plugin if you want to trace the requests done by the pytest workers.
 
-```
+```console
 pip install httpdbg[pytest]
 ```
 
@@ -59,8 +63,8 @@ You can trace all the HTTP requests performed by a library module run as a scrip
 
 For example, you can view which HTTP requests are performed by `pip` when you install a package.
 
-```sh
-pyhttpdbg -m pip install httpdbg --upgrade
+```console
+pyhttpdbg -m pip install hookdns --upgrade
 ```
 
 ## Initiators
@@ -69,7 +73,7 @@ An initiator is the function/method that is at the origin of the HTTP requests. 
 
 To add a new package in the list of initiators, you can use the `-i` command line argument:
 
-```sh
+```console
 pyhttpdbg -i api_client_pck --script my_script.py
 ```
 
@@ -92,7 +96,7 @@ No configuration is necessary to start but some few settings are available for p
 
 ### command line
 
-```
+```console
 usage: pyhttpdbg [-h] [--port PORT] [--version] [--initiator INITIATOR] [--keep-up | --force-quit]
                  [--console | --module MODULE | --script SCRIPT]
 
