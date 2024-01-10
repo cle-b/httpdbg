@@ -46,4 +46,4 @@ pytest = ["pytest-httpdbg>=0.3.1"]
 
 [project.urls]
 Source = "https://github.com/cle-b/httpdbg/"
-Documentation = "https://httpdbg-docs.readthedocs.io/"
+Documentation = "https://httpdbg.readthedocs.io/"

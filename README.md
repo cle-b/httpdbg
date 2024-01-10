@@ -6,7 +6,7 @@ To use it, execute your program using the `pyhttpdbg` command instead of `python
 
 ![](https://github.com/cle-b/httpdbg/blob/main/ui.png?raw=true)
 
-Full documentation => [https://httpdbg-docs.readthedocs.io/](https://httpdbg-docs.readthedocs.io/en/latest/)
+Full documentation => [https://httpdbg.readthedocs.io/](https://httpdbg.readthedocs.io/en/latest/)
 
 ## installation 
 
@@ -141,4 +141,4 @@ The requests:
 
 ## documentation
 
-https://httpdbg-docs.readthedocs.io
+https://httpdbg.readthedocs.io
