@@ -15,6 +15,6 @@ def run_script(argv: List[str]) -> None:
     except AttributeError:
         exit("script mode - error - the first argument shall be a python file")
     try:
-        spec.loader.exec_module(module)
+        spec.loader.exec_module(module)  # type: ignore
     except Exception:
         traceback.print_exc()
