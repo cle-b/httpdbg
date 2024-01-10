@@ -14,6 +14,6 @@ aiohttp; python_version < '3.12'
 aiohttp>=3.9.0; python_version == '3.12'
 build
 mypy
-types-requests
+types-requests<2.31.0.7
 types-urllib3
 setuptools
