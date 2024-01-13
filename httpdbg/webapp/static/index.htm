@@ -55,13 +55,33 @@
 
         <form id="configform" onsubmit="return false;">
 
-            <input type="checkbox" id="curl" name="hn" onchange="load_config_from_form(true)">
-            <label for="curl">Hide the netloc in the url</label>
+            <div class="grid-container-configuration">
+                <div>
+                    <fieldset>
+                        <legend>list of requests</legend>
 
-            <br>
+                        <input type="checkbox" id="curl" name="hn" onchange="load_config_from_form(true)">
+                        <label for="curl">Hide the netloc in the url</label>
 
-            <input type="checkbox" id="cinitiator" name="hi" onchange="load_config_from_form(true)">
-            <label for="cinitiator">Hide the initiator rows</label>
+                        <br>
+
+                        <input type="checkbox" id="cinitiator" name="hi" onchange="load_config_from_form(true)">
+                        <label for="cinitiator">Hide the initiator rows</label>
+                    </fieldset>
+                </div>
+                <div>
+                    <fieldset>
+                        <legend>request's details</legend>
+                        <input type="checkbox" id="cwrap" name="wl" onchange="load_config_from_form(true)">
+                        <label for="cwrap">Wrap lines</label>
+
+                        <br>
+
+                        <input type="checkbox" id="craw" name="rd" onchange="load_config_from_form(true)">
+                        <label for="craw">Raw data</label>
+                    </fieldset>
+                </div>
+            </div>
 
             <br>
 
@@ -283,9 +303,9 @@
                                             <button title="copy to clipboard" onclick="navigator.clipboard.writeText({{body.raw_text}});"><img class="icon" src="static/icons/files-papers-outline-icon.svg-+-$**HTTPDBG_VERSION**$"/></button>
                                             {{/body.raw_text}}
             
-                                            <label><input type="checkbox" onclick='show_wrap_lines(this.parentNode.parentNode.querySelector(".previewcode"));'>Wrap lines</label>
+                                            <label><input type="checkbox" name="ckwraptext" onclick='show_wrap_lines(this.parentNode.parentNode.querySelector(".previewcode"));'>Wrap lines</label>
                                             {{#body.parsed}}
-                                                <label><input type="checkbox" onclick='show_raw_data(this.parentNode.parentNode.querySelector(".previewcode"), this.checked, {{body.raw_text}}, {{body.parsed_text}});'>Raw data</label>
+                                                <label><input type="checkbox" name="ckrawdata" onclick='show_raw_data(this.parentNode.parentNode.querySelector(".previewcode"), this.checked, {{body.raw_text}}, {{body.parsed_text}});'>Raw data</label>
                                                 <pre class="previewcode">{{body.parsed}}</pre>
                                             {{/body.parsed}}                                    
                                             {{^body.parsed}}

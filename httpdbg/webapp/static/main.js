@@ -13,6 +13,18 @@ let httpdbgApp = {
             "param": "hn",
             "css": ".netloc {display: none;}",
             "value": false
+        },
+        "details_wrap_default": {
+            "checkbox": "cwrap",
+            "param": "wl",
+            "elt_name": "ckwraptext",
+            "value": false
+        },
+        "details_raw_default": {
+            "checkbox": "craw",
+            "param": "rd",
+            "elt_name": "ckrawdata",
+            "value": false
         }
     }
 }
@@ -71,7 +83,7 @@ window.addEventListener('keydown', (event) => {
         select_first_request();
     }
 
-    if (keys_history.endsWith("ll")) {        
+    if (keys_history.endsWith("ll")) {
         select_last_request();
     }
 

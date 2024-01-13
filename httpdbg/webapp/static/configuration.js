@@ -8,11 +8,21 @@ function config() {
     }
 }
 
-function apply_config_rule(a_config, sheet) {
+function apply_config_rule_css(a_config, sheet) {
     document.getElementById(a_config.checkbox).checked = a_config.value;
     if (a_config.value) {
         sheet.insertRule(a_config.css);
     }
+}
+
+function apply_config_rule_click(a_config) {
+    document.getElementById(a_config.checkbox).checked = a_config.value;
+    document.getElementsByName(a_config.elt_name).forEach(element => {
+        if (element.checked != a_config.value) {
+            element.click();
+        }
+    });
+
 }
 
 function apply_config() {
@@ -22,8 +32,11 @@ function apply_config() {
         sheet.deleteRule(0);
     }
 
-    apply_config_rule(httpdbgApp.config.hide_netloc, sheet);
-    apply_config_rule(httpdbgApp.config.hide_initiator, sheet);
+    apply_config_rule_css(httpdbgApp.config.hide_netloc, sheet);
+    apply_config_rule_css(httpdbgApp.config.hide_initiator, sheet);
+
+    apply_config_rule_click(httpdbgApp.config.details_wrap_default);
+    apply_config_rule_click(httpdbgApp.config.details_raw_default);
 }
 
 function load_config_rule_from_url(a_config, params) {
@@ -35,6 +48,8 @@ function load_config_from_url(apply) {
 
     load_config_rule_from_url(httpdbgApp.config.hide_netloc, params);
     load_config_rule_from_url(httpdbgApp.config.hide_initiator, params);
+    load_config_rule_from_url(httpdbgApp.config.details_wrap_default, params);
+    load_config_rule_from_url(httpdbgApp.config.details_raw_default, params);
 
     if (apply) {
         apply_config();
@@ -50,6 +65,8 @@ function load_config_from_form(apply) {
 
     load_config_rule_from_form(httpdbgApp.config.hide_netloc);
     load_config_rule_from_form(httpdbgApp.config.hide_initiator);
+    load_config_rule_from_form(httpdbgApp.config.details_wrap_default);
+    load_config_rule_from_form(httpdbgApp.config.details_raw_default);
 
     if (apply) {
         apply_config();
