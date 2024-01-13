@@ -165,6 +165,8 @@ function fill_content(request_id, name) {
     update_with_template("template_exception", document.querySelector("#exception > div[name='" + name + "']"), req);
 
     update_with_template("template_stack", document.querySelector("#stack > div[name='" + name + "']"), req);
+
+    apply_config();
 }
 
 

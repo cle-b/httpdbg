@@ -16,3 +16,11 @@
     width: 50vw;
     resize: horizontal;
 }
+
+
+.grid-container-configuration {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+
+}
