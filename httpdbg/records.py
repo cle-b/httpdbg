@@ -317,7 +317,9 @@ class HTTPRecords:
                     get_new_uuid(), short_label, None, long_label, stack
                 )
             else:
-                initiator = Initiator(f"console{self.id}", "console", None, "", [])
+                initiator = Initiator(
+                    f"unknown-{get_new_uuid()}", "unknown", None, "", []
+                )
 
         if ("PYTEST_CURRENT_TEST" in os.environ) and (
             "HTTPDBG_PYTEST_PLUGIN" not in os.environ
