@@ -303,23 +303,14 @@ class HTTPRecords:
             initiator = self._initiators[os.environ[envname]]
         else:
             fullstack = traceback.format_stack()
-            if compatible_path("httpdbg/mode_script.py") in "".join(
-                fullstack
-            ):  # TODO: find another way the detect the mode
-                stack: List[str] = []
-                for line in fullstack[6:]:
-                    if in_lib(line):
-                        break
-                    stack.append(line)
-                long_label = stack[-1]
-                short_label = long_label.split("\n")[1]
-                initiator = Initiator(
-                    get_new_uuid(), short_label, None, long_label, stack
-                )
-            else:
-                initiator = Initiator(
-                    f"unknown-{get_new_uuid()}", "unknown", None, "", []
-                )
+            stack: List[str] = []
+            for line in fullstack[6:]:
+                if in_lib(line):
+                    break
+                stack.append(line)
+            long_label = stack[-1]
+            short_label = long_label.split("\n")[1]
+            initiator = Initiator(get_new_uuid(), short_label, None, long_label, stack)
 
         if ("PYTEST_CURRENT_TEST" in os.environ) and (
             "HTTPDBG_PYTEST_PLUGIN" not in os.environ
