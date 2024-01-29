@@ -12,7 +12,6 @@ from typing import Dict, List, Tuple, Union
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
 from httpdbg.initiator import in_lib
-from httpdbg.initiator import compatible_path
 from httpdbg.initiator import Initiator
 from httpdbg.preview import generate_preview
 from httpdbg.utils import get_new_uuid
