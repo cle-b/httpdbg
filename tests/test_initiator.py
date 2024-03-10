@@ -49,11 +49,7 @@ requests.api.get(
  21.             requests.get(f"{httpbin.url}/get") <====
  22. 
  23.     assert len(records) == 1
- 24.     http_record = records[0]
- 25. 
- 26.     assert http_record.initiator.short_label == \'requests.get(f"{httpbin.url}/get")\'
- 27.     assert http_record.initiator.long_label is None
- 28."""  # noqa W291
+ 24."""  # noqa W291
         in initiator.stack[0]
     )
 
@@ -68,9 +64,15 @@ def test_initiator_same_line_different_initiators(httpbin, monkeypatch):
 
     assert len(records) == 2
 
-    assert records[0].initiator is not records[1].initiator
-    assert records[0].initiator.id != records[1].initiator.id
-    assert records[0].initiator == records[1].initiator
+    assert records[0].initiator != records[1].initiator
+    assert (
+        records.initiators[records[0].initiator].id
+        != records.initiators[records[1].initiator].id
+    )
+    assert (
+        records.initiators[records[0].initiator].stack
+        == records.initiators[records[1].initiator].stack
+    )
 
 
 @pytest.mark.initiator
@@ -84,7 +86,7 @@ def test_initiator_redirection_same_initiator(httpbin, monkeypatch):
 
     assert len(records) == 2
 
-    assert records[0].initiator is records[1].initiator
+    assert records[0].initiator == records[1].initiator
 
 
 @pytest.mark.initiator
@@ -98,13 +100,21 @@ def test_initiator_pytest(httpbin):
 
     assert len(records) == 1
 
-    assert records[0].initiator.short_label == "test_initiator_pytest"
     assert (
-        records[0].initiator.long_label
+        records.initiators[records[0].initiator].short_label == "test_initiator_pytest"
+    )
+    assert (
+        records.initiators[records[0].initiator].long_label
         == "tests/test_initiator.py::test_initiator_pytest"
     )
-    assert 'requests.get(f"{httpbin.url}/get")' in records[0].initiator.short_stack
-    assert 'requests.get(f"{httpbin.url}/get") <===' in records[0].initiator.stack[0]
+    assert (
+        'requests.get(f"{httpbin.url}/get")'
+        in records.initiators[records[0].initiator].short_stack
+    )
+    assert (
+        'requests.get(f"{httpbin.url}/get") <==='
+        in records.initiators[records[0].initiator].stack[0]
+    )
 
 
 @pytest.mark.initiator
@@ -133,28 +143,32 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
 
         # function in a package
         assert (
-            records[0].initiator.short_label == 'fnc_in_package(f"{httpbin.url}/get")'
+            records.initiators[records[0].initiator].short_label
+            == 'fnc_in_package(f"{httpbin.url}/get")'
         )
 
         # function in a sub package (no __init__)
         assert (
-            records[1].initiator.short_label
+            records.initiators[records[1].initiator].short_label
             == 'fnc_in_subpackage(f"{httpbin.url}/get")'
         )
 
         # function in a __init__.py file
-        assert records[2].initiator.short_label == 'fnc_in_init(f"{httpbin.url}/get")'
+        assert (
+            records.initiators[records[2].initiator].short_label
+            == 'fnc_in_init(f"{httpbin.url}/get")'
+        )
 
         # method
         assert (
-            records[3].initiator.short_label
+            records.initiators[records[3].initiator].short_label
             == 'FakeClient().navigate(f"{httpbin.url}/get")'
         )
 
         # async function in a package
         if sys.version_info >= (3, 7):
             assert (
-                records[4].initiator.short_label
+                records.initiators[records[4].initiator].short_label
                 == 'asyncio.run(fnc_async(f"{httpbin.url}/get"))'
             )
 
@@ -166,9 +180,23 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
             if sys.version_info >= (3, 7):
                 asyncio.run(fnc_async(f"{httpbin.url}/get"))
 
-        assert records[0].initiator.short_label == "requests.get(url)"
-        assert records[1].initiator.short_label == "requests.get(url)  # subpackage"
-        assert records[2].initiator.short_label == "requests.get(url)  # init"
-        assert records[3].initiator.short_label == "requests.get(url)  # method"
+        assert (
+            records.initiators[records[0].initiator].short_label == "requests.get(url)"
+        )
+        assert (
+            records.initiators[records[1].initiator].short_label
+            == "requests.get(url)  # subpackage"
+        )
+        assert (
+            records.initiators[records[2].initiator].short_label
+            == "requests.get(url)  # init"
+        )
+        assert (
+            records.initiators[records[3].initiator].short_label
+            == "requests.get(url)  # method"
+        )
         if sys.version_info >= (3, 7):
-            assert records[4].initiator.short_label == "await client.get(url)"
+            assert (
+                records.initiators[records[4].initiator].short_label
+                == "await client.get(url)"
+            )

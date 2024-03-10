@@ -85,9 +85,6 @@ def test_run_script_initiator(httpbin, httpdbg_port, monkeypatch):
 
             ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
-    with open("abc.txt", "wb") as f:
-        f.write(ret.content)
-
     reqs = ret.json()["requests"]
     initiators = ret.json()["initiators"]
 
