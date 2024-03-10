@@ -202,7 +202,7 @@ class HTTPRecord:
         self.id = get_new_uuid()
         self.address: Tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
-        self.initiator: str = None
+        self.initiator: Union[str, None] = None
         self.exception = None
         self.request: HTTPRecordRequest = HTTPRecordRequest()
         self.response: HTTPRecordResponse = HTTPRecordResponse()
@@ -296,7 +296,7 @@ class HTTPRecords:
     def __len__(self) -> int:
         return len(self.requests)
 
-    def get_initiator(self) -> Initiator:
+    def get_initiator(self) -> str:
         envname = f"HTTPDBG_CURRENT_INITIATOR_{self.id}"
 
         if envname in os.environ:
