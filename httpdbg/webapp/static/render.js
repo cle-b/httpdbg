@@ -1,37 +1,51 @@
 "use strict";
 
-var k7_id = null;
+function insert_into_requests_list(httpdbg, elt_id, rendered) {
+    var table_body = document.getElementById("requests-list-body");
+    var inserted = false;
 
-async function refresh_resquests() {
-    var table = document.getElementById("requests-list");
+    var previous_elt = get_previous_elt(httpdbg, elt_id);
+    if (previous_elt) {
+        if (document.getElementById(previous_elt)) {
+            document.getElementById(previous_elt).insertAdjacentHTML("afterend", rendered);
+            inserted = true;
+        }
+    }
+
+    if (!inserted) {
+        table_body.insertAdjacentHTML("beforeend", rendered);
+    }
+}
+
+async function refresh_resquests(httpdbg) {
+    // var table_body = document.getElementById("requests-list-body");
     var template_request = document.getElementById("template_request").innerHTML;
     var template_initiator = document.getElementById("template_initiator").innerHTML;
 
-    if (global.k7 != k7_id) {
-        clean();
-    };
-    k7_id = global.k7;
+    for (const [initiator_id, initiator] of Object.entries(httpdbg.initiators)) {
+        if (initiator.to_refresh) {
 
-    for (const [request_id, request] of Object.entries(global.requests)) {
+            var rendered = Mustache.render(template_initiator, initiator);
+
+            insert_into_requests_list(httpdbg, "initiator-" + initiator.id, rendered);
+
+            initiator.to_refresh = false;
+        }
+    }
+
+    for (const [request_id, request] of Object.entries(httpdbg.requests)) {
         if (request.to_refresh) {
-            var elt = document.getElementById("request-" + request.id);
-
             request.title = request.url;
-            if (request.initiator.short_stack) {
-                request.title += "\n\n" + request.initiator.short_stack;
+            if (httpdbg.initiators[request.initiator].short_stack) {
+                request.title += "\n\n" + httpdbg.initiators[request.initiator].short_stack;
             }
             request.title += "\n\nclick to select -/- ctrl+click to compare to";
 
             var rendered = Mustache.render(template_request, request);
+
+            var elt = document.getElementById("request-" + request.id);
             if (!elt) {
-                var elt_initiator = document.getElementById("initiator-" + request.initiator.id);
-                if (!elt_initiator) {
-                    request.initiator.long_label = request.initiator.long_label || request.initiator.short_stack;
-                    var rendered_initiator = Mustache.render(template_initiator, request);
-                    table.insertAdjacentHTML("beforeend", rendered_initiator);
-                    elt_initiator = document.getElementById("initiator-" + request.initiator.id);
-                };
-                elt_initiator.insertAdjacentHTML("beforeend", rendered);
+                insert_into_requests_list(httpdbg, "request-" + request.id, rendered);
             } else {
                 elt.innerHTML = rendered;
             };
@@ -116,7 +130,7 @@ function show_request(request_id) {
 
 function fill_content(request_id, name) {
 
-    var req = global.requests[request_id];
+    var req = httpdbg_global.requests[request_id];
 
     update_with_template("template_title", document.querySelector("#title > div[name='" + name + "']"), req);
 
@@ -129,7 +143,7 @@ function fill_content(request_id, name) {
     };
 
     if (request.body && request.body.text) {
-        request.body.raw_text = "global.requests['" + request_id + "'].request.body.text";
+        request.body.raw_text = "httpdbg_global.requests['" + request_id + "'].request.body.text";
 
         const parsed_text = parse_raw_text(request.body.text, request.body.content_type);
         if (parsed_text) {
@@ -137,7 +151,7 @@ function fill_content(request_id, name) {
         }
 
         if (request.body.parsed) {
-            request.body.parsed_text = "global.requests['" + request_id + "'].request.body.parsed";
+            request.body.parsed_text = "httpdbg_global.requests['" + request_id + "'].request.body.parsed";
         }
     };
 
@@ -148,7 +162,7 @@ function fill_content(request_id, name) {
     };
 
     if (response.body && response.body.text) {
-        response.body.raw_text = "global.requests['" + request_id + "'].response.body.text";
+        response.body.raw_text = "httpdbg_global.requests['" + request_id + "'].response.body.text";
 
         const parsed_text = parse_raw_text(response.body.text, response.body.content_type);
         if (parsed_text) {
@@ -156,7 +170,7 @@ function fill_content(request_id, name) {
         }
 
         if (response.body.parsed) {
-            response.body.parsed_text = "global.requests['" + request_id + "'].response.body.parsed";
+            response.body.parsed_text = "httpdbg_global.requests['" + request_id + "'].response.body.parsed";
         }
     };
 
@@ -164,7 +178,7 @@ function fill_content(request_id, name) {
 
     update_with_template("template_exception", document.querySelector("#exception > div[name='" + name + "']"), req);
 
-    update_with_template("template_stack", document.querySelector("#stack > div[name='" + name + "']"), req);
+    update_with_template("template_stack", document.querySelector("#stack > div[name='" + name + "']"), httpdbg_global.initiators[req.initiator]);
 
     apply_config();
 }
@@ -213,14 +227,14 @@ function opentab_stack() {
 }
 
 
-async function disable_link_if_server_disconnected() {
+async function disable_link_if_server_disconnected(httpdbg) {
     var sheet = document.getElementById("serverstatuscss").sheet;
 
     while (sheet.cssRules.length > 0) {
         sheet.deleteRule(0);
     }
 
-    if (global.connected) {
+    if (httpdbg.connected) {
         sheet.insertRule(".need-server {}");
         sheet.insertRule(".need-server-info {display: none;}");
     } else {
@@ -235,17 +249,6 @@ async function disable_link_if_server_disconnected() {
              color: var(--link-server-disconnected);\
              opacity: 0.5;\
          }");
-    }
-}
-
-async function enable_refresh() {
-
-    while (true) {
-        await Promise.all([
-            disable_link_if_server_disconnected(),
-            refresh_resquests(),
-            wait_for(500),
-        ]);
     }
 }
 
@@ -269,30 +272,36 @@ function clean(force_clean = false) {
     var onlynew = document.getElementById("onlynew");
     if (onlynew.checked || force_clean) {
 
-        var initiators = document.getElementsByName("initiator");
-        while (initiators.length > 0) {
-            initiators[0].remove();
-        }
 
-        empty_content("[name='request']", "select a request to view details");
+        // empty the initiators list and the order
+        var tmpinitiators = httpdbg_global.initiators;
+        httpdbg_global.initiators = {};
+        httpdbg_global.order = [];
 
-        empty_content("[name='compareto']", "");
-        hide_elts(".comparison", true);
-
+        // rempty the requests list and einject the pinned requests
         var tmprequests = {};
-
-        for (const [request_id, request] of Object.entries(global.requests)) {
+        for (const [request_id, request] of Object.entries(httpdbg_global.requests)) {
             if (request.pin == "checked") {
-                tmprequests[request_id] = request
+                tmprequests[request_id] = request;
             }
         };
 
-        global.requests = {};
+        httpdbg_global.requests = {};
 
         for (const [request_id, request] of Object.entries(tmprequests)) {
-            save_request(request_id, request);
+            save_request(httpdbg_global, request_id, request);
+            save_initiator(httpdbg_global, request.initiator, tmpinitiators[request.initiator]);
         };
     }
+
+    // reset the UI
+    var requests_list_body = document.getElementById("requests-list-body");
+    requests_list_body.replaceChildren();
+
+    empty_content("[name='request']", "select a request to view details");
+
+    empty_content("[name='compareto']", "");
+    hide_elts(".comparison", true);
 }
 
 function empty_content(selector, value) {

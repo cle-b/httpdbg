@@ -202,11 +202,12 @@ class HTTPRecord:
         self.id = get_new_uuid()
         self.address: Tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
-        self.initiator: Initiator = Initiator("", "", None, "", [])
+        self.initiator: str = None
         self.exception = None
-        self.request = HTTPRecordRequest()
-        self.response = HTTPRecordResponse()
+        self.request: HTTPRecordRequest = HTTPRecordRequest()
+        self.response: HTTPRecordResponse = HTTPRecordResponse()
         self.ssl = None
+        self.tbegin: float = time.time()
 
     @property
     def url(self) -> str:
@@ -282,7 +283,7 @@ class HTTPRecords:
         self.id = get_new_uuid()
         self.requests: Dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
-        self._initiators: Dict[str, Initiator] = {}
+        self.initiators: Dict[str, Initiator] = {}
         self._sockets: Dict[str, SocketRawData] = {}
 
     @property
@@ -299,7 +300,7 @@ class HTTPRecords:
         envname = f"HTTPDBG_CURRENT_INITIATOR_{self.id}"
 
         if envname in os.environ:
-            initiator = self._initiators[os.environ[envname]]
+            initiator = self.initiators[os.environ[envname]]
         else:
             fullstack = traceback.format_stack()
             stack: List[str] = []
@@ -324,7 +325,9 @@ class HTTPRecords:
                 initiator.stack,
             )
 
-        return initiator
+        self.initiators[initiator.id] = initiator
+
+        return initiator.id
 
     def get_socket_data(self, obj, extra_sock=None, force_new=False, request=None):
         socketdata = None

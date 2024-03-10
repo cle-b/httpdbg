@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 import os
 import platform
+import time
 import traceback
 from typing import Generator
 from typing import List
@@ -27,6 +28,7 @@ class Initiator(object):
         self.long_label = long_label
         self.short_stack = short_stack
         self.stack = stack
+        self.tbegin: float = time.time()
 
     def __eq__(self, other) -> bool:
         if type(other) is Initiator:
@@ -40,21 +42,16 @@ class Initiator(object):
             return False
 
     def to_json(self, full: bool = True) -> dict:
+        json = {
+            "id": self.id,
+            "short_label": self.short_label,
+            "long_label": self.long_label,
+            "short_stack": self.short_stack,
+            "tbegin": self.tbegin,
+        }
         if full:
-            json = {
-                "id": self.id,
-                "short_label": self.short_label,
-                "long_label": self.long_label,
-                "short_stack": self.short_stack,
-                "stack": "\n".join(self.stack),
-            }
-        else:
-            json = {
-                "id": self.id,
-                "short_label": self.short_label,
-                "long_label": self.long_label,
-                "short_stack": self.short_stack,
-            }
+            json["stack"] = "\n".join(self.stack)
+
         return json
 
 
@@ -203,7 +200,7 @@ def httpdbg_initiator(
         current_initiator = Initiator(
             get_new_uuid(), instruction, None, short_stack, stack
         )
-        records._initiators[current_initiator.id] = current_initiator
+        records.initiators[current_initiator.id] = current_initiator
 
         os.environ[envname] = current_initiator.id
 

@@ -39,17 +39,16 @@ def test_urllib3_initiator(httpbin, monkeypatch):
 
     assert len(records) == 2
 
-    assert (
-        records[0].initiator.short_label == 'http.request("GET", f"{httpbin.url}/get")'
-    )
-    assert records[0].initiator.long_label is None
-    assert 'http.request("GET", f"{httpbin.url}/get") <===' in "".join(
-        records[0].initiator.stack
-    )
+    initiator0 = records.initiators[records[0].initiator]
+    initiator1 = records.initiators[records[1].initiator]
 
-    assert records[1].initiator.short_label == 'http.request("GET", "/get")'
-    assert records[1].initiator.long_label is None
-    assert 'http.request("GET", "/get") <===' in "".join(records[1].initiator.stack)
+    assert initiator0.short_label == 'http.request("GET", f"{httpbin.url}/get")'
+    assert initiator0.long_label is None
+    assert 'http.request("GET", f"{httpbin.url}/get") <===' in "".join(initiator0.stack)
+
+    assert initiator1.short_label == 'http.request("GET", "/get")'
+    assert initiator1.long_label is None
+    assert 'http.request("GET", "/get") <===' in "".join(initiator1.stack)
 
 
 @pytest.mark.initiator
@@ -67,18 +66,18 @@ def test_urllib3_initiator_secure(httpbin_secure, monkeypatch):
 
     assert len(records) == 2
 
-    assert (
-        records[0].initiator.short_label
-        == 'http.request("GET", f"{httpbin_secure.url}/get")'
-    )
-    assert records[0].initiator.long_label is None
+    initiator0 = records.initiators[records[0].initiator]
+    initiator1 = records.initiators[records[1].initiator]
+
+    assert initiator0.short_label == 'http.request("GET", f"{httpbin_secure.url}/get")'
+    assert initiator0.long_label is None
     assert 'http.request("GET", f"{httpbin_secure.url}/get") <===' in "".join(
-        records[0].initiator.stack
+        initiator0.stack
     )
 
-    assert records[1].initiator.short_label == 'http.request("GET", "/get")'
-    assert records[1].initiator.long_label is None
-    assert 'http.request("GET", "/get") <===' in "".join(records[1].initiator.stack)
+    assert initiator1.short_label == 'http.request("GET", "/get")'
+    assert initiator1.long_label is None
+    assert 'http.request("GET", "/get") <===' in "".join(initiator1.stack)
 
 
 @pytest.mark.urllib3
@@ -253,11 +252,10 @@ def test_urllib3_v2_request(httpbin, monkeypatch):
 
     assert len(records) == 1
 
-    assert (
-        records[0].initiator.short_label
-        == 'urllib3.request("GET", f"{httpbin.url}/get")'
-    )
-    assert records[0].initiator.long_label is None
+    initiator = records.initiators[records[0].initiator]
+
+    assert initiator.short_label == 'urllib3.request("GET", f"{httpbin.url}/get")'
+    assert initiator.long_label is None
     assert 'urllib3.request("GET", f"{httpbin.url}/get") <===' in "".join(
-        records[0].initiator.stack
+        initiator.stack
     )

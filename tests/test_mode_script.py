@@ -84,16 +84,13 @@ def test_run_script_initiator(httpbin, httpdbg_port):
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
+    initiators = ret.json()["initiators"]
 
+    initiator = initiators[reqs[list(reqs.keys())[0]]["initiator"]]
+
+    assert initiator["short_label"] == "test_run_script_initiator"
     assert (
-        reqs[list(reqs.keys())[0]]["initiator"]["short_label"]
-        == "test_run_script_initiator"
-    )
-    assert (
-        reqs[list(reqs.keys())[0]]["initiator"]["long_label"]
+        initiator["long_label"]
         == "tests/test_mode_script.py::test_run_script_initiator"
     )
-    assert (
-        '_ = requests.get(f"{base_url}/get")'
-        in reqs[list(reqs.keys())[0]]["initiator"]["short_stack"]
-    )
+    assert '_ = requests.get(f"{base_url}/get")' in initiator["short_stack"]

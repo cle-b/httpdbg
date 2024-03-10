@@ -20,8 +20,9 @@ class RequestPayload(JSONEncoder):
             "request": None,
             "response": None,
             "exception": None,
-            "initiator": req.initiator.to_json(),
+            "initiator": req.initiator,
             "in_progress": req.in_progress,
+            "tbegin": req.tbegin,
         }
 
         payload["request"] = {
@@ -63,7 +64,9 @@ class RequestListPayload(JSONEncoder):
             records, HTTPRecords
         ), "This encoder works only for HTTPRecords object."
 
-        payload = {"id": records.id, "requests": {}}
+        payload = {"id": records.id, "requests": {}, "initiators": {}}
+
+        initiators = []
 
         for id, req in records.requests.items():
             payload["requests"][id] = {
@@ -74,9 +77,14 @@ class RequestListPayload(JSONEncoder):
                 "status_code": req.status_code,
                 "reason": req.reason,
                 "verb": req.method,
-                "initiator": req.initiator.to_json(full=False),
+                "initiator": req.initiator,
                 "in_progress": req.in_progress,
                 "last_update": req.last_update,
+                "tbegin": req.tbegin,
             }
+            initiators.append(req.initiator)
+
+        for initiator in initiators:
+            payload["initiators"][initiator] = records.initiators[initiator].to_json()
 
         return payload

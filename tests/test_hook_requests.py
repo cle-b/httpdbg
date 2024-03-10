@@ -34,11 +34,11 @@ def test_requests_initiator(httpbin, monkeypatch):
     assert len(records) == 1
     http_record = records[0]
 
-    assert http_record.initiator.short_label == 'requests.get(f"{httpbin.url}/get")'
-    assert http_record.initiator.long_label is None
-    assert 'requests.get(f"{httpbin.url}/get") <===' in "".join(
-        http_record.initiator.stack
-    )
+    initiator = records.initiators[http_record.initiator]
+
+    assert initiator.short_label == 'requests.get(f"{httpbin.url}/get")'
+    assert initiator.long_label is None
+    assert 'requests.get(f"{httpbin.url}/get") <===' in "".join(initiator.stack)
 
 
 @pytest.mark.requests
