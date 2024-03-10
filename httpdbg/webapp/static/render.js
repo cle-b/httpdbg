@@ -18,7 +18,6 @@ function insert_into_requests_list(httpdbg, elt_id, rendered) {
 }
 
 async function refresh_resquests(httpdbg) {
-    // var table_body = document.getElementById("requests-list-body");
     var template_request = document.getElementById("template_request").innerHTML;
     var template_initiator = document.getElementById("template_initiator").innerHTML;
 

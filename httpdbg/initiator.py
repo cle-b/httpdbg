@@ -205,7 +205,7 @@ def httpdbg_initiator(
         os.environ[envname] = current_initiator.id
 
         try:
-            yield current_initiator
+            yield current_initiator.id
         except Exception:
             del os.environ[envname]
             raise
