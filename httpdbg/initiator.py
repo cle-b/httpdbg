@@ -177,7 +177,7 @@ def extract_short_stack_from_file(
 @contextmanager
 def httpdbg_initiator(
     records, extracted_stack: traceback.StackSummary, original_method, *args, **kwargs
-) -> Generator[Union[Initiator, None], None, None]:
+) -> Generator[Union[str, None], None, None]:
     envname = f"HTTPDBG_CURRENT_INITIATOR_{records.id}"
 
     if not os.environ.get(envname):
