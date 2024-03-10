@@ -166,9 +166,6 @@ async function get_request(httpdbg, request_id) {
                 httpdbg.requests[request_id].response.for_filter = "";
             }
 
-            // the full stack is not present in request summary
-            httpdbg.requests[request_id].initiator = data.initiator;
-
             httpdbg.requests[request_id].to_refresh = true;
 
             httpdbg.requests[request_id].loaded = true;
