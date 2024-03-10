@@ -73,24 +73,32 @@ def test_run_script_not_a_python_script(httpbin, capsys):
 
 @pytest.mark.api
 @pytest.mark.script
-def test_run_script_initiator(httpbin, httpdbg_port):
-    with httpdbg_srv(httpdbg_port) as records:
-        with httprecord(records):
-            script_to_run = os.path.join(
-                os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
-            )
-            run_script([script_to_run, httpbin.url])
+def test_run_script_initiator(httpbin, httpdbg_port, monkeypatch):
+    with monkeypatch.context() as m:
+        m.delenv("PYTEST_CURRENT_TEST")
+        with httpdbg_srv(httpdbg_port) as records:
+            with httprecord(records):
+                script_to_run = os.path.join(
+                    os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
+                )
+                run_script([script_to_run, httpbin.url])
 
-        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
+            ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
+
+    with open("abc.txt", "wb") as f:
+        f.write(ret.content)
 
     reqs = ret.json()["requests"]
     initiators = ret.json()["initiators"]
 
-    initiator = initiators[reqs[list(reqs.keys())[0]]["initiator"]]
+    initiator0 = initiators[reqs[list(reqs.keys())[0]]["initiator"]]
+    assert initiator0["short_label"] == '_ = requests.get(f"{base_url}/get")'
+    assert initiator0["long_label"] is None
+    assert '_ = requests.get(f"{base_url}/get")' in initiator0["short_stack"]
+    assert '_ = requests.get(f"{base_url}/get") <====' in initiator0["stack"]
 
-    assert initiator["short_label"] == "test_run_script_initiator"
-    assert (
-        initiator["long_label"]
-        == "tests/test_mode_script.py::test_run_script_initiator"
-    )
-    assert '_ = requests.get(f"{base_url}/get")' in initiator["short_stack"]
+    initiator1 = initiators[reqs[list(reqs.keys())[1]]["initiator"]]
+    assert initiator1["short_label"] == '_ = requests.post(f"{base_url}/post")'
+    assert initiator1["long_label"] is None
+    assert '_ = requests.post(f"{base_url}/post")' in initiator1["short_stack"]
+    assert '_ = requests.post(f"{base_url}/post") <====' in initiator1["stack"]
