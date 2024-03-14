@@ -11,7 +11,7 @@ from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecords
 
 
-def set_hook_for_httpx_async(records, method):
+def set_hook_for_httpx_async(records: HTTPRecords, method):
     async def hook(*args, **kwargs):
         initiator = None
         try:
@@ -25,19 +25,14 @@ def set_hook_for_httpx_async(records, method):
 
             if "url" in callargs:
                 if initiator:
-                    record = HTTPRecord()
+                    records.add_new_record_exception(str(callargs["url"]), ex)
 
-                    record.initiator_id = initiator
-                    record.url = str(callargs["url"])
-                    record.exception = ex
-
-                    records.requests[record.id] = record
             raise
 
     return hook
 
 
-def set_hook_for_httpx(records, method):
+def set_hook_for_httpx(records: HTTPRecords, method):
     def hook(*args, **kwargs):
         initiator = None
         try:
@@ -51,13 +46,8 @@ def set_hook_for_httpx(records, method):
 
             if "url" in callargs:
                 if initiator:
-                    record = HTTPRecord()
+                    records.add_new_record_exception(str(callargs["url"]), ex)
 
-                    record.initiator_id = initiator
-                    record.url = str(callargs["url"])
-                    record.exception = ex
-
-                    records.requests[record.id] = record
             raise
 
     return hook
