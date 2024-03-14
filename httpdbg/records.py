@@ -202,11 +202,12 @@ class HTTPRecord:
         self.id = get_new_uuid()
         self.address: Tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
-        self.initiator: Initiator = Initiator("", "", None, "", [])
+        self.initiator_id: Union[str, None] = None
         self.exception = None
-        self.request = HTTPRecordRequest()
-        self.response = HTTPRecordResponse()
+        self.request: HTTPRecordRequest = HTTPRecordRequest()
+        self.response: HTTPRecordResponse = HTTPRecordResponse()
         self.ssl = None
+        self.tbegin: float = time.time()
 
     @property
     def url(self) -> str:
@@ -282,7 +283,7 @@ class HTTPRecords:
         self.id = get_new_uuid()
         self.requests: Dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
-        self._initiators: Dict[str, Initiator] = {}
+        self.initiators: Dict[str, Initiator] = {}
         self._sockets: Dict[str, SocketRawData] = {}
 
     @property
@@ -295,11 +296,11 @@ class HTTPRecords:
     def __len__(self) -> int:
         return len(self.requests)
 
-    def get_initiator(self) -> Initiator:
+    def get_initiator(self) -> str:
         envname = f"HTTPDBG_CURRENT_INITIATOR_{self.id}"
 
         if envname in os.environ:
-            initiator = self._initiators[os.environ[envname]]
+            initiator = self.initiators[os.environ[envname]]
         else:
             fullstack = traceback.format_stack()
             stack: List[str] = []
@@ -309,7 +310,7 @@ class HTTPRecords:
                 stack.append(line)
             long_label = stack[-1]
             short_label = long_label.split("\n")[1]
-            initiator = Initiator(get_new_uuid(), short_label, None, long_label, stack)
+            initiator = Initiator(short_label, None, long_label, stack)
 
         if ("PYTEST_CURRENT_TEST" in os.environ) and (
             "HTTPDBG_PYTEST_PLUGIN" not in os.environ
@@ -317,14 +318,16 @@ class HTTPRecords:
             long_label = " ".join(os.environ["PYTEST_CURRENT_TEST"].split(" ")[:-1])
             short_label = long_label.split("::")[-1]
             initiator = Initiator(
-                f"{long_label}{self.id}",
                 short_label,
                 long_label,
                 initiator.short_stack,
                 initiator.stack,
+                id=f"{long_label}{self.id}",
             )
 
-        return initiator
+        self.initiators[initiator.id] = initiator
+
+        return initiator.id
 
     def get_socket_data(self, obj, extra_sock=None, force_new=False, request=None):
         socketdata = None
@@ -394,3 +397,20 @@ class HTTPRecords:
             logger.info(f"SocketRawData del id={id(obj)}")
             self._sockets[id(obj)] = None
             del self._sockets[id(obj)]
+
+    def add_new_record_exception(self, url, exception) -> HTTPRecord:
+        new_record = HTTPRecord()
+        new_record.url = url
+        new_record.initiator_id = self.get_initiator()
+        new_record.exception = exception
+        self.requests[new_record.id] = new_record
+        return new_record
+
+    def add_new_record(self, address, ssl, rawdata) -> HTTPRecord:
+        new_record = HTTPRecord()
+        new_record.initiator_id = self.get_initiator()
+        new_record.address = address
+        new_record.ssl = ssl
+        new_record.request.rawdata = rawdata
+        self.requests[new_record.id] = new_record
+        return new_record

@@ -7,11 +7,10 @@ from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
 from httpdbg.initiator import httpdbg_initiator
-from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecords
 
 
-def set_hook_for_aiohttp_async(records, method):
+def set_hook_for_aiohttp_async(records: HTTPRecords, method):
     async def hook(*args, **kwargs):
         initiator = None
         try:
@@ -25,13 +24,8 @@ def set_hook_for_aiohttp_async(records, method):
 
             if "str_or_url" in callargs:
                 if initiator:
-                    record = HTTPRecord()
+                    records.add_new_record_exception(str(callargs["str_or_url"]), ex)
 
-                    record.initiator = initiator
-                    record.url = str(callargs["str_or_url"])
-                    record.exception = ex
-
-                    records.requests[record.id] = record
             raise
 
     return hook

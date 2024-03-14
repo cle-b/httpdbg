@@ -80,11 +80,9 @@ def test_run_pytest_initiator(httpbin, httpdbg_port):
         ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
+    initiators = ret.json()["initiators"]
 
-    assert (
-        reqs[list(reqs.keys())[0]]["initiator"].get("short_label") == "test_demo_pytest"
-    )
-    assert (
-        reqs[list(reqs.keys())[0]]["initiator"].get("long_label")
-        == "tests/demo_run_pytest.py::test_demo_pytest"
-    )
+    initiator = initiators[reqs[list(reqs.keys())[0]]["initiator"]]
+
+    assert initiator.get("short_label") == "test_demo_pytest"
+    assert initiator.get("long_label") == "tests/demo_run_pytest.py::test_demo_pytest"

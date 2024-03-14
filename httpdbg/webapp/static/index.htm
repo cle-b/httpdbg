@@ -148,14 +148,15 @@
                     </tr>
                 </thead>
 
+                <tbody id="requests-list-body">
+                </tbody>
+
                 <script id="template_initiator" type="x-tmpl-mustache">
-                    <tbody id="initiator-{{initiator.id}}" name="initiator" class="initiator-header">
-                        <tr class="initiator">
-                            <td colspan="4" class="initiator-label" title="{{initiator.long_label}}">
-                                {{initiator.short_label}}
-                            </td>
-                        </tr>
-                    </tbody>
+                    <tr id="initiator-{{id}}" name="initiator" class="initiator" data-tbegin="{{tbegin}}">
+                        <td colspan="4" class="initiator-label" title="{{long_label}}">
+                            {{short_label}}
+                        </td>
+                    </tr>
                 </script>
 
                 <script id="template_request" type="x-tmpl-mustache">
@@ -166,7 +167,8 @@
                         onclick="select_request(arguments[0], '{{id}}')"
                         onkeypress="shortcut_request(event, '{{id}}')"
                         class="request"
-                        data-qa-request="{{id}}">
+                        data-qa-request="{{id}}"
+                        data-tbegin="{{tbegin}}">
                         <td class="pin" onclick="event.stopPropagation();">
                             <input class="pin-checkbox" type="checkbox" id="pin{{id}}" onclick="pin_request('{{id}}',this.checked)" {{pin}}>
                             <label class="pin-icon" for="pin{{id}}"><img class="icon" src="static/icons/push-pin-green-icon.svg-+-$**HTTPDBG_VERSION**$" alt="click to pin"/></label>
@@ -351,9 +353,7 @@
                                     <div class="colcontent comparison" name="compareto"></div>
                                 </div>
                                 <script id="template_stack" type="x-tmpl-mustache">
-                                    {{#initiator}}
-                                        <pre class="previewcode">{{initiator.stack}}</pre>
-                                    {{/initiator}}
+                                    <pre class="previewcode">{{stack}}</pre>
                                 </script>
                             </div>
 
@@ -364,11 +364,32 @@
         </div>
     </div>
     <script>
+
+        const httpdbg_global = {
+            "k7": null,
+            "requests": {},
+            "initiators": {},
+            "order": [],
+            "connected": false
+        }
+
+        async function refresh() {
+            get_all_requests(httpdbg_global);
+
+            while (true) {
+                await Promise.all([
+                    disable_link_if_server_disconnected(httpdbg_global),
+                    refresh_resquests(httpdbg_global),
+                    get_all_requests(httpdbg_global),
+                    wait_for(500)
+                ]);
+            }
+        }
+
         load_config_from_url(true);
         update_filter_url();
-        pol_new_data();
-        enable_refresh();
         opentab_headers();
+        refresh();        
     </script>
 </body>
 
