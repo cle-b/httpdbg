@@ -20,7 +20,7 @@ class RequestPayload(JSONEncoder):
             "request": None,
             "response": None,
             "exception": None,
-            "initiator": req.initiator,
+            "initiator": req.initiator_id,
             "in_progress": req.in_progress,
             "tbegin": req.tbegin,
         }
@@ -77,12 +77,12 @@ class RequestListPayload(JSONEncoder):
                 "status_code": req.status_code,
                 "reason": req.reason,
                 "verb": req.method,
-                "initiator": req.initiator,
+                "initiator": req.initiator_id,
                 "in_progress": req.in_progress,
                 "last_update": req.last_update,
                 "tbegin": req.tbegin,
             }
-            initiators.append(req.initiator)
+            initiators.append(req.initiator_id)
 
         for initiator in initiators:
             payload["initiators"][initiator] = records.initiators[initiator].to_json()

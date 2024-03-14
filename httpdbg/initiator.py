@@ -17,13 +17,13 @@ from httpdbg.utils import logger
 class Initiator(object):
     def __init__(
         self,
-        id: str,
         short_label: str,
         long_label: Union[str, None],
         short_stack: str,
         stack: List[str],
+        id: Union[str, None] = None,
     ):
-        self.id = id
+        self.id = get_new_uuid() if id is None else id
         self.short_label = short_label
         self.long_label = long_label
         self.short_stack = short_stack
@@ -197,9 +197,7 @@ def httpdbg_initiator(
             short_stack += f"    {k}={v}\n"
         short_stack += ")"
 
-        current_initiator = Initiator(
-            get_new_uuid(), instruction, None, short_stack, stack
-        )
+        current_initiator = Initiator(instruction, None, short_stack, stack)
         records.initiators[current_initiator.id] = current_initiator
 
         os.environ[envname] = current_initiator.id

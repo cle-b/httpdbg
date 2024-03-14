@@ -202,7 +202,7 @@ class HTTPRecord:
         self.id = get_new_uuid()
         self.address: Tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
-        self.initiator: Union[str, None] = None
+        self.initiator_id: Union[str, None] = None
         self.exception = None
         self.request: HTTPRecordRequest = HTTPRecordRequest()
         self.response: HTTPRecordResponse = HTTPRecordResponse()
@@ -318,11 +318,11 @@ class HTTPRecords:
             long_label = " ".join(os.environ["PYTEST_CURRENT_TEST"].split(" ")[:-1])
             short_label = long_label.split("::")[-1]
             initiator = Initiator(
-                f"{long_label}{self.id}",
                 short_label,
                 long_label,
                 initiator.short_stack,
                 initiator.stack,
+                id=f"{long_label}{self.id}",
             )
 
         self.initiators[initiator.id] = initiator

@@ -27,7 +27,7 @@ def set_hook_for_aiohttp_async(records, method):
                 if initiator:
                     record = HTTPRecord()
 
-                    record.initiator = initiator
+                    record.initiator_id = initiator
                     record.url = str(callargs["str_or_url"])
                     record.exception = ex
 

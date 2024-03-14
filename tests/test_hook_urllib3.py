@@ -39,8 +39,8 @@ def test_urllib3_initiator(httpbin, monkeypatch):
 
     assert len(records) == 2
 
-    initiator0 = records.initiators[records[0].initiator]
-    initiator1 = records.initiators[records[1].initiator]
+    initiator0 = records.initiators[records[0].initiator_id]
+    initiator1 = records.initiators[records[1].initiator_id]
 
     assert initiator0.short_label == 'http.request("GET", f"{httpbin.url}/get")'
     assert initiator0.long_label is None
@@ -66,8 +66,8 @@ def test_urllib3_initiator_secure(httpbin_secure, monkeypatch):
 
     assert len(records) == 2
 
-    initiator0 = records.initiators[records[0].initiator]
-    initiator1 = records.initiators[records[1].initiator]
+    initiator0 = records.initiators[records[0].initiator_id]
+    initiator1 = records.initiators[records[1].initiator_id]
 
     assert initiator0.short_label == 'http.request("GET", f"{httpbin_secure.url}/get")'
     assert initiator0.long_label is None
@@ -252,7 +252,7 @@ def test_urllib3_v2_request(httpbin, monkeypatch):
 
     assert len(records) == 1
 
-    initiator = records.initiators[records[0].initiator]
+    initiator = records.initiators[records[0].initiator_id]
 
     assert initiator.short_label == 'urllib3.request("GET", f"{httpbin.url}/get")'
     assert initiator.long_label is None

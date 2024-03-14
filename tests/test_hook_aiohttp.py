@@ -48,7 +48,7 @@ async def test_aiohttp_initiator(httpbin, monkeypatch):
     assert len(records) == 1
     http_record = records[0]
 
-    initiator = records.initiators[http_record.initiator]
+    initiator = records.initiators[http_record.initiator_id]
 
     assert initiator.short_label == 'await session.get(f"{httpbin.url}/get")'
     assert initiator.long_label is None
