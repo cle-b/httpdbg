@@ -11,7 +11,6 @@ from typing import Generator
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
-from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecords
 from httpdbg.utils import logger
 
@@ -25,7 +24,7 @@ def set_hook_for_socket_init(records, method):
     return hook
 
 
-def set_hook_for_socket_connect(records, method):
+def set_hook_for_socket_connect(records: HTTPRecords, method):
     def hook(self, address):
         socketdata = records.get_socket_data(self, force_new=True)
         if socketdata:
@@ -39,13 +38,8 @@ def set_hook_for_socket_connect(records, method):
             if not isinstance(
                 ex, (BlockingIOError, OSError)
             ):  # BlockingIOError for async, OSError for ipv6
-                record = HTTPRecord()
-                record.initiator_id = records.get_initiator()
-
-                record.exception = ex
-
-                records.requests[record.id] = record
-
+                if address:
+                    records.add_new_record_exception(str(address), ex)
             raise
 
         return r
@@ -53,17 +47,12 @@ def set_hook_for_socket_connect(records, method):
     return hook
 
 
-def set_hook_for_ssl_wrap_socket(records, method):
+def set_hook_for_ssl_wrap_socket(records: HTTPRecords, method):
     def hook(sock, *args, **kwargs):
         try:
             sslsocket = method(sock, *args, **kwargs)
         except Exception as ex:
-            record = HTTPRecord()
-
-            record.initiator_id = records.get_initiator()
-            record.exception = ex
-
-            records.requests[record.id] = record
+            records.add_new_record_exception("???", ex)
 
             raise
 
@@ -80,17 +69,12 @@ def set_hook_for_ssl_wrap_socket(records, method):
     return hook
 
 
-def set_hook_for_sslcontext_wrap_socket(records, method):
+def set_hook_for_sslcontext_wrap_socket(records: HTTPRecords, method):
     def hook(self, sock, *args, **kwargs):
         try:
             sslsocket = method(self, sock, *args, **kwargs)
         except Exception as ex:
-            record = HTTPRecord()
-
-            record.initiator_id = records.get_initiator()
-            record.exception = ex
-
-            records.requests[record.id] = record
+            records.add_new_record_exception("???", ex)
 
             raise
 
@@ -107,17 +91,12 @@ def set_hook_for_sslcontext_wrap_socket(records, method):
     return hook
 
 
-def set_hook_for_socket_wrap_bio(records, method):
+def set_hook_for_socket_wrap_bio(records: HTTPRecords, method):
     def hook(self, *args, **kwargs):
         try:
             sslobject = method(self, *args, **kwargs)
         except Exception as ex:
-            record = HTTPRecord()
-            record.initiator_id = records.get_initiator()
-
-            record.exception = ex
-
-            records.requests[record.id] = record
+            records.add_new_record_exception("???", ex)
 
             raise
 
@@ -181,7 +160,7 @@ def set_hook_for_socket_recv(records, method):
     return hook
 
 
-def set_hook_for_socket_sendall(records, method):
+def set_hook_for_socket_sendall(records: HTTPRecords, method):
     def hook(self, bytes, *args, **kwargs):
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
@@ -197,12 +176,9 @@ def set_hook_for_socket_sendall(records, method):
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     logger.info("SENDALL - http detected")
-                    socketdata.record = HTTPRecord()
-                    socketdata.record.initiator_id = records.get_initiator()
-                    socketdata.record.address = socketdata.address
-                    socketdata.record.ssl = socketdata.ssl
-                    socketdata.record.request.rawdata = socketdata.rawdata
-                    records.requests[socketdata.record.id] = socketdata.record
+                    socketdata.record = records.add_new_record(
+                        socketdata.address, socketdata.ssl, socketdata.rawdata
+                    )
                 elif http_detected is False:  # if None, there is nothing to do
                     records._sockets[id(self)] = None
 
@@ -216,7 +192,7 @@ def set_hook_for_socket_sendall(records, method):
     return hook
 
 
-def set_hook_for_socket_send(records, method):
+def set_hook_for_socket_send(records: HTTPRecords, method):
     def hook(self, bytes, *args, **kwargs):
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
@@ -238,12 +214,9 @@ def set_hook_for_socket_send(records, method):
                 socketdata.rawdata += bytes[:size]
                 http_detected = socketdata.http_detected()
                 if http_detected:
-                    socketdata.record = HTTPRecord()
-                    socketdata.record.initiator_id = records.get_initiator()
-                    socketdata.record.address = socketdata.address
-                    socketdata.record.ssl = socketdata.ssl
-                    socketdata.record.request.rawdata = socketdata.rawdata
-                    records.requests[socketdata.record.id] = socketdata.record
+                    socketdata.record = records.add_new_record(
+                        socketdata.address, socketdata.ssl, socketdata.rawdata
+                    )
                 elif http_detected is False:  # if None, there is nothing to do
                     records._sockets[id(self)] = None
         return size
@@ -274,7 +247,7 @@ def set_hook_for_asyncio_create_connection(records, method):
     return hook
 
 
-def set_hook_for_sslobject_write(records, method):
+def set_hook_for_sslobject_write(records: HTTPRecords, method):
     def hook(self, buf, *args, **kwargs):
         logger.info(f"WRITE - {type(self)}={id(self)} buf={(b'' + buf)[:20]}")
         socketdata = records.get_socket_data(self, request=True)
@@ -295,12 +268,9 @@ def set_hook_for_sslobject_write(records, method):
                 socketdata.rawdata += bytes(buf[:size])
                 http_detected = socketdata.http_detected()
                 if http_detected:
-                    socketdata.record = HTTPRecord()
-                    socketdata.record.initiator_id = records.get_initiator()
-                    socketdata.record.address = socketdata.address
-                    socketdata.record.ssl = socketdata.ssl
-                    socketdata.record.request.rawdata = socketdata.rawdata
-                    records.requests[socketdata.record.id] = socketdata.record
+                    socketdata.record = records.add_new_record(
+                        socketdata.address, socketdata.ssl, socketdata.rawdata
+                    )
                 elif http_detected is False:  # if None, there is nothing to do
                     records.sockets[id(self)] = None
         return size

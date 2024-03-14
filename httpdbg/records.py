@@ -310,7 +310,7 @@ class HTTPRecords:
                 stack.append(line)
             long_label = stack[-1]
             short_label = long_label.split("\n")[1]
-            initiator = Initiator(get_new_uuid(), short_label, None, long_label, stack)
+            initiator = Initiator(short_label, None, long_label, stack)
 
         if ("PYTEST_CURRENT_TEST" in os.environ) and (
             "HTTPDBG_PYTEST_PLUGIN" not in os.environ
@@ -398,9 +398,19 @@ class HTTPRecords:
             self._sockets[id(obj)] = None
             del self._sockets[id(obj)]
 
-    def add_new_record_exception(self, url, exception):
+    def add_new_record_exception(self, url, exception) -> HTTPRecord:
         new_record = HTTPRecord()
         new_record.url = url
         new_record.initiator_id = self.get_initiator()
         new_record.exception = exception
         self.requests[new_record.id] = new_record
+        return new_record
+
+    def add_new_record(self, address, ssl, rawdata) -> HTTPRecord:
+        new_record = HTTPRecord()
+        new_record.initiator_id = self.get_initiator()
+        new_record.address = address
+        new_record.ssl = ssl
+        new_record.request.rawdata = rawdata
+        self.requests[new_record.id] = new_record
+        return new_record

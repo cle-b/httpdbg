@@ -7,7 +7,6 @@ from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
 from httpdbg.initiator import httpdbg_initiator
-from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecords
 
 
