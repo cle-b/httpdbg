@@ -34,7 +34,7 @@ packages = ["httpdbg", "httpdbg.hooks", "httpdbg.webapp"]
 httpdbg = ["webapp/static/*", "webapp/static/icons/*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "httpdbg.VERSION"}
+version = {attr = "httpdbg.__version__"}
 
 [tool.mypy]
 no_implicit_optional = false
