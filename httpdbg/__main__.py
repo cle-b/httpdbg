@@ -2,7 +2,7 @@
 import sys
 import time
 
-from httpdbg import VERSION
+from httpdbg import __version__
 from httpdbg.args import read_args
 from httpdbg.hooks.all import httprecord
 from httpdbg.server import httpdbg_srv
@@ -54,7 +54,7 @@ def pyhttpdbg(params, subparams, test_mode=False):
 def pyhttpdbg_entry_point(test_mode=False):
     params, subparams = read_args(sys.argv[1:])
     if params.version:
-        print(VERSION)
+        print(__version__)
     else:
         pyhttpdbg(params, subparams, test_mode=test_mode)
 
