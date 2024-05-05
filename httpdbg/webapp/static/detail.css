@@ -31,7 +31,7 @@
   font-family: monospace;
 }
 
-.header-cookie-value {  
+.header-cookie-value {
   color: var(--header-cookie-value-text);
   font-family: monospace;
 }
