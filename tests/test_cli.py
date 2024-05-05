@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from httpdbg import VERSION
+from httpdbg import __version__
 from httpdbg.__main__ import pyhttpdbg_entry_point
 
 
@@ -11,4 +11,4 @@ def test_cli_version(monkeypatch, capsys):
 
     pyhttpdbg_entry_point(test_mode=True)
 
-    assert VERSION in capsys.readouterr().out.strip()
+    assert __version__ in capsys.readouterr().out.strip()

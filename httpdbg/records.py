@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import asyncio.proactor_events
+import datetime
 import os
 import socket
 import ssl
-import time
 import traceback
 from urllib.parse import urlparse
 from typing import Dict, List, Tuple, Union
@@ -22,12 +22,13 @@ from httpdbg.utils import logger
 
 
 class SocketRawData(object):
-    def __init__(self, id: str, address: Tuple[str, int], ssl: bool) -> None:
+    def __init__(self, id: int, address: Tuple[str, int], ssl: bool) -> None:
         self.id = id
         self.address = address
         self.ssl = ssl
         self._rawdata = bytes()
         self.record = None
+        self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
 
     @property
     def rawdata(self) -> bytes:
@@ -63,7 +64,9 @@ class HTTPRecordReqResp(object):
         self.rawdata = bytes()
         self._rawheaders = bytes()
         self._headers: List[HTTPDBGHeader] = []
-        self.last_update = 0
+        self.last_update: datetime.datetime = datetime.datetime.now(
+            datetime.timezone.utc
+        )
 
     def get_header(self, name: str, default: str = "") -> str:
         for header in self.headers:
@@ -116,7 +119,7 @@ class HTTPRecordReqResp(object):
 
     def __setattr__(self, name, value):
         self.__dict__[name] = value
-        self.__dict__["last_update"] = int(time.time() * 1000)
+        self.__dict__["last_update"] = datetime.datetime.now(datetime.timezone.utc)
 
     @property
     def preview(self):
@@ -198,15 +201,18 @@ class HTTPRecordResponse(HTTPRecordReqResp):
 
 
 class HTTPRecord:
-    def __init__(self) -> None:
+    def __init__(self, tbegin: datetime.datetime = None) -> None:
         self.id = get_new_uuid()
         self.address: Tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
         self.initiator: Initiator = Initiator("", "", None, "", [])
-        self.exception = None
-        self.request = HTTPRecordRequest()
-        self.response = HTTPRecordResponse()
-        self.ssl = None
+        self.exception: Union[Exception, None] = None
+        self.request: HTTPRecordRequest = HTTPRecordRequest()
+        self.response: HTTPRecordResponse = HTTPRecordResponse()
+        self.ssl: Union[bool, None] = None
+        self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
+        if tbegin:
+            self.tbegin = tbegin
 
     @property
     def url(self) -> str:
@@ -270,7 +276,7 @@ class HTTPRecord:
         return False
 
     @property
-    def last_update(self) -> int:
+    def last_update(self) -> datetime.datetime:
         return max(self.request.last_update, self.response.last_update)
 
 
@@ -283,7 +289,7 @@ class HTTPRecords:
         self.requests: Dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
         self._initiators: Dict[str, Initiator] = {}
-        self._sockets: Dict[str, SocketRawData] = {}
+        self._sockets: Dict[int, SocketRawData] = {}
 
     @property
     def unread(self) -> int:
@@ -326,7 +332,9 @@ class HTTPRecords:
 
         return initiator
 
-    def get_socket_data(self, obj, extra_sock=None, force_new=False, request=None):
+    def get_socket_data(
+        self, obj, extra_sock=None, force_new=False, request=None
+    ) -> Union[SocketRawData, None]:
         socketdata = None
 
         if force_new:
