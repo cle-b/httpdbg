@@ -8,7 +8,7 @@ import os
 import re
 from urllib.parse import urlparse, parse_qs
 
-from httpdbg import VERSION
+from httpdbg import __version__
 from httpdbg.utils import logger
 from httpdbg.webapp.api import RequestListPayload, RequestPayload
 
@@ -92,7 +92,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
                     )
 
                 filecontent = filecontent.replace(
-                    b"$**HTTPDBG_VERSION**$", VERSION.encode("utf-8")
+                    b"$**HTTPDBG_VERSION**$", __version__.encode("utf-8")
                 )
 
                 self.wfile.write(filecontent)

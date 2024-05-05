@@ -76,7 +76,8 @@ class RequestListPayload(JSONEncoder):
                 "verb": req.method,
                 "initiator": req.initiator.to_json(full=False),
                 "in_progress": req.in_progress,
-                "last_update": req.last_update,
+                "tbegin": req.tbegin.isoformat(),
+                "last_update": req.last_update.isoformat(),
             }
 
         return payload

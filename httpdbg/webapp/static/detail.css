@@ -28,10 +28,12 @@
 
 .header-cookie-key {
   color: var(--header-cookie-key-text);
+  font-family: monospace;
 }
 
-.header-cookie-value {
+.header-cookie-value {  
   color: var(--header-cookie-value-text);
+  font-family: monospace;
 }
 
 .tab {
