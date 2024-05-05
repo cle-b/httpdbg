@@ -197,7 +197,7 @@ def set_hook_for_socket_sendall(records, method):
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     logger.info("SENDALL - http detected")
-                    socketdata.record = HTTPRecord(tbegin = socketdata.tbegin)
+                    socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
                     socketdata.record.initiator = records.get_initiator()
                     socketdata.record.address = socketdata.address
                     socketdata.record.ssl = socketdata.ssl

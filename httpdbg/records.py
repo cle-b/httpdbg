@@ -5,7 +5,6 @@ import datetime
 import os
 import socket
 import ssl
-import time
 import traceback
 from urllib.parse import urlparse
 from typing import Dict, List, Tuple, Union
@@ -23,7 +22,7 @@ from httpdbg.utils import logger
 
 
 class SocketRawData(object):
-    def __init__(self, id: str, address: Tuple[str, int], ssl: bool) -> None:
+    def __init__(self, id: int, address: Tuple[str, int], ssl: bool) -> None:
         self.id = id
         self.address = address
         self.ssl = ssl
@@ -65,7 +64,9 @@ class HTTPRecordReqResp(object):
         self.rawdata = bytes()
         self._rawheaders = bytes()
         self._headers: List[HTTPDBGHeader] = []
-        self.last_update: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
+        self.last_update: datetime.datetime = datetime.datetime.now(
+            datetime.timezone.utc
+        )
 
     def get_header(self, name: str, default: str = "") -> str:
         for header in self.headers:
@@ -205,10 +206,10 @@ class HTTPRecord:
         self.address: Tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
         self.initiator: Initiator = Initiator("", "", None, "", [])
-        self.exception: Exception = None
+        self.exception: Union[Exception, None] = None
         self.request: HTTPRecordRequest = HTTPRecordRequest()
         self.response: HTTPRecordResponse = HTTPRecordResponse()
-        self.ssl: bool = None
+        self.ssl: Union[bool, None] = None
         self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         if tbegin:
             self.tbegin = tbegin
@@ -288,7 +289,7 @@ class HTTPRecords:
         self.requests: Dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
         self._initiators: Dict[str, Initiator] = {}
-        self._sockets: Dict[str, SocketRawData] = {}
+        self._sockets: Dict[int, SocketRawData] = {}
 
     @property
     def unread(self) -> int:
@@ -331,7 +332,9 @@ class HTTPRecords:
 
         return initiator
 
-    def get_socket_data(self, obj, extra_sock=None, force_new=False, request=None) -> Union[SocketRawData, None]:
+    def get_socket_data(
+        self, obj, extra_sock=None, force_new=False, request=None
+    ) -> Union[SocketRawData, None]:
         socketdata = None
 
         if force_new:
