@@ -60,6 +60,8 @@ jobs:
     - name: Run tests
       run: |
         make ci
+      env:
+        PIP_USE_PEP517: 1        
 
   deploy:
     name: Deploy on PyPI
