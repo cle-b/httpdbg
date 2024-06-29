@@ -12,7 +12,7 @@ httpx
 pytest-asyncio
 aiohttp
 build
-mypy<=1.7.2
-types-requests<2.31.0.7
+mypy
+types-requests
 types-urllib3
 setuptools
