@@ -1,19 +1,18 @@
+pytest<8
 flake8
 black
-pytest<8
-Jinja2<3.1
-Werkzeug<2.1
-flask>2
 pytest-httpbin
+Jinja2
+Werkzeug
+flask
 tox
 coverage
 requests
 httpx
 pytest-asyncio
-aiohttp; python_version < '3.12'
-aiohttp>=3.9.0; python_version == '3.12'
+aiohttp
 build
-mypy<=1.7.2
-types-requests<2.31.0.7
+mypy
+types-requests
 types-urllib3
 setuptools
