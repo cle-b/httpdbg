@@ -1,4 +1,4 @@
-pytest
+pytest<8
 flake8
 black
 pytest-httpbin
