@@ -1,10 +1,10 @@
+pytest
 flake8
 black
-pytest<8
-Jinja2<3.1
-Werkzeug<2.1
-flask>2
 pytest-httpbin
+Jinja2
+Werkzeug
+flask
 tox
 coverage
 requests
