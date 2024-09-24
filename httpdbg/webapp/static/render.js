@@ -292,6 +292,10 @@ function clean(force_clean = false) {
         for (const [request_id, request] of Object.entries(tmprequests)) {
             save_request(request_id, request);
         };
+
+        global.initiator_collapse = [];
+
+        update_collapse_initiator();
     }
 }
 

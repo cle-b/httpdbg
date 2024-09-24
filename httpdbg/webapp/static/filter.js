@@ -35,3 +35,28 @@ function update_filter_url() {
         }
     }
 }
+
+function collapse_initiator(initiator_id, collapse) {
+    if (collapse) {
+        global.initiator_collapse.push(initiator_id);
+    } else {
+        let index = global.initiator_collapse.indexOf(initiator_id); 
+        if (index !== -1) {
+            global.initiator_collapse.splice(index, 1);
+        }
+    }
+
+    update_collapse_initiator();
+}
+
+function update_collapse_initiator() {
+    var sheet = document.getElementById("collapseinitiatorcss").sheet;
+
+    while (sheet.cssRules.length > 0) {
+        sheet.deleteRule(0);
+    }
+
+    for (let initiator_id of global.initiator_collapse) {
+        sheet.insertRule('[data-initiator="' + initiator_id + '"] {display: none;}');
+    }
+}

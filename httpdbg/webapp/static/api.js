@@ -3,7 +3,8 @@
 const global = {
     "k7": null,
     "requests": {},
-    "connected": false
+    "connected": false,
+    "initiator_collapse": []
 }
 
 function save_request(request_id, request) {
@@ -113,7 +114,7 @@ async function get_request(request_id) {
             }
 
             // the full stack is not present in request summary
-            global.requests[request_id].initiator = data.initiator;            
+            global.requests[request_id].initiator = data.initiator;
 
             global.requests[request_id].to_refresh = true;
 

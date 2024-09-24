@@ -17,6 +17,7 @@
     <style type="text/css" id="filter"></style>
     <style type="text/css" id="configurationcss"></style>
     <style type="text/css" id="serverstatuscss"></style>
+    <style type="text/css" id="collapseinitiatorcss"></style>
     <script src="static/mustache.min.js-+-$**HTTPDBG_VERSION**$"></script>
     <script src="static/main.js-+-$**HTTPDBG_VERSION**$"></script>
     <script src="static/api.js-+-$**HTTPDBG_VERSION**$"></script>
@@ -151,7 +152,11 @@
                 <script id="template_initiator" type="x-tmpl-mustache">
                     <tbody id="initiator-{{initiator.id}}" name="initiator" class="initiator-header">
                         <tr class="initiator">
-                            <td colspan="4" class="initiator-label" title="{{initiator.long_label}}">
+                            <td class="collapse" onclick="event.stopPropagation();">
+                                <input class="collapse-checkbox" type="checkbox" id="collapse{{initiator.id}}" onclick="collapse_initiator('{{initiator.id}}',this.checked)">
+                                <label class="collapse-icon" for="collapse{{initiator.id}}"><img class="icon" src="static/icons/chevron-direction-top-outline-icon.svg-+-$**HTTPDBG_VERSION**$" alt="click to collapse/expand"/></label>
+                            </td>
+                            <td colspan="3" class="initiator-label" title="{{initiator.long_label}}">
                                 {{initiator.short_label}}
                             </td>
                         </tr>
@@ -163,6 +168,7 @@
                         data-filter-url="{{url}}"
                         data-filter-request="{{request.for_filter}}"
                         data-filter-response="{{response.for_filter}}"
+                        data-initiator="{{initiator.id}}"
                         onclick="select_request(arguments[0], '{{id}}')"
                         onkeypress="shortcut_request(event, '{{id}}')"
                         class="request"
