@@ -74,6 +74,10 @@
     display: none;
 }
 
+.initiator {
+    background-color: var(--table-initiator);    
+}
+
 .request {
     display: none;
 }
@@ -108,4 +112,30 @@
 
 .icon-filter {
     filter: grayscale(100%);
+}
+
+
+.collapse {
+    width: 16px;
+    padding: 2px !important;
+    transform: rotate(180deg);
+    background-color: var(--table-initiator);    
+    opacity: 0.4;
+}
+
+.collapse-checkbox {
+    display: none;
+}
+
+.collapse-checkbox:checked+label {
+    filter: none !important;
+}
+
+.collapse-checkbox:checked+label img {
+    transform: rotate(-90deg);
+}
+
+.collapse-icon {
+    width: 16px;
+    padding: 0px !important;
 }
