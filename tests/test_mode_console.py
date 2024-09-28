@@ -33,8 +33,8 @@ def test_run_console_from_pyhttpdbg_entry_point_default(
     assert "test_mode is on" in capsys.readouterr().out
 
 
-def test_run_console(httpbin, httpdbg_port):
-    with httpdbg_srv(httpdbg_port) as records:
+def test_run_console(httpbin, httpdbg_host, httpdbg_port):
+    with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
         with httprecord(records):
             new_console = run_console(test_mode=True)
             new_console.push("import requests")
@@ -42,7 +42,7 @@ def test_run_console(httpbin, httpdbg_port):
             with pytest.raises(SystemExit):
                 new_console.push("exit()")
 
-        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
+        ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
 
         reqs = ret.json()["requests"]
 

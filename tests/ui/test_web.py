@@ -10,8 +10,8 @@ from web.ui import HttpdbgWebUI
 
 
 @pytest.fixture()
-def records(httpbin, httpdbg_port):
-    with httpdbg_srv(httpdbg_port) as records:
+def records(httpbin, httpdbg_host, httpdbg_port):
+    with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
         with httprecord(records):
             for n in range(2, random.randint(5, 8)):
                 requests.get(httpbin.url + f"/get?n={n}")

@@ -16,6 +16,12 @@ def read_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
         description="httdbg - a very simple tool to debug HTTP(S) client requests"
     )
     parser.add_argument(
+        "--host",
+        type=str,
+        default="localhost",
+        help="the web interface host IP address",
+    )
+    parser.add_argument(
         "--port", "-p", type=int, default=4909, help="the web interface port"
     )
 
