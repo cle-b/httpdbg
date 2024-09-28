@@ -104,6 +104,7 @@ httdbg - a very simple tool to debug HTTP(S) client requests
 
 options:
   -h, --help            show this help message and exit
+  --host HOST           the web interface host IP address
   --port PORT, -p PORT  the web interface port
   --version, -v         print the httpdbg version
   --initiator INITIATOR, -i INITIATOR
