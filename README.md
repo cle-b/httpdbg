@@ -97,7 +97,7 @@ No configuration is necessary to start but some few settings are available for p
 ### command line
 
 ```console
-usage: pyhttpdbg [-h] [--port PORT] [--version] [--initiator INITIATOR] [--keep-up | --force-quit]
+usage: pyhttpdbg [-h] [--host HOST] [--port PORT] [--version] [--initiator INITIATOR] [--keep-up | --force-quit]
                  [--console | --module MODULE | --script SCRIPT]
 
 httdbg - a very simple tool to debug HTTP(S) client requests
