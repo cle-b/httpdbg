@@ -11,7 +11,7 @@ from httpdbg.server import httpdbg_srv
 
 
 @pytest.mark.pytest
-def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, httpdbg_port, monkeypatch):
+def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
     os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
     script_to_run = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
@@ -29,8 +29,8 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, httpdbg_port, monkeypatc
 
 
 @pytest.mark.pytest
-def test_run_pytest(httpbin, httpdbg_port):
-    with httpdbg_srv(httpdbg_port) as records:
+def test_run_pytest(httpbin, httpdbg_host, httpdbg_port):
+    with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
         with httprecord(records):
             os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
             script_to_run = os.path.join(
@@ -38,7 +38,7 @@ def test_run_pytest(httpbin, httpdbg_port):
             )
             run_module(["pytest", f"{script_to_run}::test_demo_pytest"])
 
-        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
+        ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
 
@@ -49,15 +49,15 @@ def test_run_pytest(httpbin, httpdbg_port):
 
 
 @pytest.mark.pytest
-def test_run_pytest_with_exception(httpdbg_port, capsys):
-    with httpdbg_srv(httpdbg_port) as records:
+def test_run_pytest_with_exception(httpdbg_host, httpdbg_port, capsys):
+    with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
         with httprecord(records):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
             )
             run_module(["pytest", f"{script_to_run}::test_demo_raise_exception"])
 
-        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
+        ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
 
@@ -68,8 +68,8 @@ def test_run_pytest_with_exception(httpdbg_port, capsys):
 
 @pytest.mark.api
 @pytest.mark.pytest
-def test_run_pytest_initiator(httpbin, httpdbg_port):
-    with httpdbg_srv(httpdbg_port) as records:
+def test_run_pytest_initiator(httpbin, httpdbg_host, httpdbg_port):
+    with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
         with httprecord(records):
             os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
             script_to_run = os.path.join(
@@ -77,7 +77,7 @@ def test_run_pytest_initiator(httpbin, httpdbg_port):
             )
             run_module(["pytest", f"{script_to_run}::test_demo_pytest"])
 
-        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
+        ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
 

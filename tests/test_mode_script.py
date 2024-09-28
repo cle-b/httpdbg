@@ -23,15 +23,15 @@ def test_run_script_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
 
 
 @pytest.mark.script
-def test_run_script(httpbin, httpdbg_port):
-    with httpdbg_srv(httpdbg_port) as records:
+def test_run_script(httpbin, httpdbg_host, httpdbg_port):
+    with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
         with httprecord(records):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
             )
             run_script([script_to_run, httpbin.url])
 
-        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
+        ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
 
@@ -41,15 +41,15 @@ def test_run_script(httpbin, httpdbg_port):
 
 
 @pytest.mark.script
-def test_run_script_with_exception(httpbin, httpdbg_port, capsys):
-    with httpdbg_srv(httpdbg_port) as records:
+def test_run_script_with_exception(httpbin, httpdbg_host, httpdbg_port, capsys):
+    with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
         with httprecord(records):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
             )
             run_script([script_to_run, httpbin.url, "raise_exception"])
 
-        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
+        ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
 
@@ -73,15 +73,15 @@ def test_run_script_not_a_python_script(httpbin, capsys):
 
 @pytest.mark.api
 @pytest.mark.script
-def test_run_script_initiator(httpbin, httpdbg_port):
-    with httpdbg_srv(httpdbg_port) as records:
+def test_run_script_initiator(httpbin, httpdbg_host, httpdbg_port):
+    with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
         with httprecord(records):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_script.py"
             )
             run_script([script_to_run, httpbin.url])
 
-        ret = requests.get(f"http://127.0.0.1:{httpdbg_port}/requests")
+        ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
 

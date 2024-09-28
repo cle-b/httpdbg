@@ -4,17 +4,23 @@ from http.server import HTTPServer
 import threading
 from typing import Generator
 
+from httpdbg.exception import HttpdbgException
 from httpdbg.records import HTTPRecords
 from httpdbg.webapp import HttpbgHTTPRequestHandler
 
 
 @contextmanager
-def httpdbg_srv(port: int) -> Generator[HTTPRecords, None, None]:
+def httpdbg_srv(host: str, port: int) -> Generator[HTTPRecords, None, None]:
     server = None
     records = HTTPRecords()
     try:
-        server = ServerThread(port, records)
-        server.start()
+        try:
+            server = ServerThread(host, port, records)
+            server.start()
+        except Exception as ex_server_start:
+            raise HttpdbgException(
+                f"An issue occurred while starting the httpdbg web interface: [{str(ex_server_start)}]"
+            )
 
         yield records
 
@@ -26,14 +32,14 @@ def httpdbg_srv(port: int) -> Generator[HTTPRecords, None, None]:
 
 
 class ServerThread(threading.Thread):
-    def __init__(self, port: int, records: HTTPRecords) -> None:
+    def __init__(self, host: str, port: int, records: HTTPRecords) -> None:
         threading.Thread.__init__(self)
         self.port = port
 
         def http_request_handler(*args, **kwargs):
             HttpbgHTTPRequestHandler(records, *args, **kwargs)
 
-        self.srv = HTTPServer(("localhost", port), http_request_handler)
+        self.srv = HTTPServer((host, port), http_request_handler)
 
     def run(self):
         self.srv.serve_forever()
