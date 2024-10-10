@@ -5,11 +5,12 @@ from typing import List
 from typing import Union
 
 from httpdbg.hooks.aiohttp import hook_aiohttp
+from httpdbg.hooks.external import watcher_external
 from httpdbg.hooks.generic import hook_generic
 from httpdbg.hooks.httpx import hook_httpx
+from httpdbg.hooks.pytest import hook_pytest
 from httpdbg.hooks.requests import hook_requests
 from httpdbg.hooks.socket import hook_socket
-from httpdbg.hooks.external import watcher_external
 from httpdbg.hooks.urllib3 import hook_urllib3
 from httpdbg.records import HTTPRecords
 
@@ -27,5 +28,6 @@ def httprecord(
                 with hook_requests(records):
                     with hook_urllib3(records):
                         with hook_aiohttp(records):
-                            with hook_generic(records, initiators):
-                                yield records
+                            with hook_pytest(records):
+                                with hook_generic(records, initiators):
+                                    yield records

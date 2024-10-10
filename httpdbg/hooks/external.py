@@ -8,17 +8,18 @@ import tempfile
 import time
 import threading
 
+from httpdbg.env import HTTPDBG_SUBPROCESS_DIR
 from httpdbg.records import HTTPRecords
 
 
 @contextmanager
 def watcher_external(records: HTTPRecords) -> Generator[HTTPRecords, None, None]:
     try:
-        if "HTTPDBG_SUBPROCESS_DIR" not in os.environ:
+        if HTTPDBG_SUBPROCESS_DIR not in os.environ:
             with tempfile.TemporaryDirectory(
                 prefix="httpdbg"
             ) as httpdbg_subprocess_dir:
-                os.environ["HTTPDBG_SUBPROCESS_DIR"] = httpdbg_subprocess_dir
+                os.environ[HTTPDBG_SUBPROCESS_DIR] = httpdbg_subprocess_dir
 
                 watcher = WatcherSubprocessDirThread(records)
                 watcher.start()
@@ -43,9 +44,7 @@ class WatcherSubprocessDirThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def load_dump(self):
-        for dump in glob.glob(
-            f"{os.environ['HTTPDBG_SUBPROCESS_DIR']}/*.httpdbgrecords"
-        ):
+        for dump in glob.glob(f"{os.environ[HTTPDBG_SUBPROCESS_DIR]}/*.httpdbgrecords"):
             with open(dump, "rb") as dumpfile:
                 newrecords = pickle.load(dumpfile)
                 self.records.requests.update(newrecords.requests)
