@@ -20,6 +20,7 @@ class RequestPayload(JSONEncoder):
             "request": None,
             "response": None,
             "exception": None,
+            "tag": req.tag,
             "initiator": req.initiator.to_json(),
             "in_progress": req.in_progress,
         }
@@ -74,6 +75,7 @@ class RequestListPayload(JSONEncoder):
                 "status_code": req.status_code,
                 "reason": req.reason,
                 "verb": req.method,
+                "tag": req.tag,
                 "initiator": req.initiator.to_json(full=False),
                 "in_progress": req.in_progress,
                 "tbegin": req.tbegin.isoformat(),

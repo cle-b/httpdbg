@@ -16,11 +16,28 @@
 }
 
 .url {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     text-align: left;
-    white-space: nowrap;
-    text-overflow: ellipsis;
     overflow: hidden;
     width: auto;
+}
+
+.url-content {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tag {
+    margin-left: 6px;
+    color: var(--tag-text);
+    background-color: var(--tag-bg-color);
+    border-radius: 20%;
+    padding: 1px 2px;
+    font-size: 0.8em;
 }
 
 .initiator-label {
@@ -75,7 +92,7 @@
 }
 
 .initiator {
-    background-color: var(--table-initiator);    
+    background-color: var(--table-initiator);
 }
 
 .request {
@@ -119,7 +136,7 @@
     width: 16px;
     padding: 2px !important;
     transform: rotate(180deg);
-    background-color: var(--table-initiator);    
+    background-color: var(--table-initiator);
     opacity: 0.4;
 }
 

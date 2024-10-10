@@ -8,6 +8,8 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
+from httpdbg.env import HTTPDBG_CURRENT_INITIATOR
+from httpdbg.env import HTTPDBG_CURRENT_TAG
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.utils import get_new_uuid
 from httpdbg.utils import logger
@@ -181,7 +183,7 @@ def extract_short_stack_from_file(
 def httpdbg_initiator(
     records, extracted_stack: traceback.StackSummary, original_method, *args, **kwargs
 ) -> Generator[Union[Initiator, None], None, None]:
-    envname = f"HTTPDBG_CURRENT_INITIATOR_{records.id}"
+    envname = f"{HTTPDBG_CURRENT_INITIATOR}_{records.id}"
 
     if not os.environ.get(envname):
         # temporary set a fake initiator env variable to avoid a recursion error
@@ -217,3 +219,17 @@ def httpdbg_initiator(
 
     else:
         yield None
+
+
+@contextmanager
+def httpdbg_tag(tag: str) -> Generator[None, None, None]:
+
+    os.environ[HTTPDBG_CURRENT_TAG] = tag
+
+    try:
+        yield
+    except Exception:
+        del os.environ[HTTPDBG_CURRENT_TAG]
+        raise
+
+    del os.environ[HTTPDBG_CURRENT_TAG]
