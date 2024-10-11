@@ -124,6 +124,7 @@ Clic on the **&#9881;** button on the top right of the page.
 Some options are available:
   * Hide the netloc in the url
   * Hide the initiator rows
+  * Hide the tags
 
 To keep your configuration, bookmark the page with the full search query.
 

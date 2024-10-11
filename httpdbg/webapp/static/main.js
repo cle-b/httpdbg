@@ -14,6 +14,12 @@ let httpdbgApp = {
             "css": ".netloc {display: none;}",
             "value": false
         },
+        "hide_tag": {
+            "checkbox": "ctag",
+            "param": "ht",
+            "css": ".tag {display: none;}",
+            "value": false
+        },        
         "details_wrap_default": {
             "checkbox": "cwrap",
             "param": "wl",

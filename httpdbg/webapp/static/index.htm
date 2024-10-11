@@ -68,6 +68,11 @@
 
                         <input type="checkbox" id="cinitiator" name="hi" onchange="load_config_from_form(true)">
                         <label for="cinitiator">Hide the initiator rows</label>
+
+                        <br>
+
+                        <input type="checkbox" id="ctag" name="ht" onchange="load_config_from_form(true)">
+                        <label for="ctag">Hide the tags</label>
                     </fieldset>
                 </div>
                 <div>
@@ -179,7 +184,12 @@
                         </td>
                         <td class="status"><span title="{{reason}}" data-qa-request-status>{{{status_code_view}}}</span></td>
                         <td class="method"><span title="{{verb}}" data-qa-request-method>{{verb}}</span></td>
-                        <td class="url" title="{{title}}"><span data-qa-request-url><span class="netloc">{{netloc}}</span><span>{{urlext}}</span></span></td>
+                        <td class="url" title="{{title}}">
+                            <span class="url-content" data-qa-request-url>
+                                <span class="netloc">{{netloc}}</span><span>{{urlext}}</span>
+                            </span>
+                            {{#tag}}<span class="tag">{{tag}}</span>{{/tag}}
+                        </td>
                     </tr>
                 </script>
 

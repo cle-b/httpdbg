@@ -9,6 +9,8 @@ import traceback
 from urllib.parse import urlparse
 from typing import Dict, List, Tuple, Union
 
+from httpdbg.env import HTTPDBG_CURRENT_INITIATOR
+from httpdbg.env import HTTPDBG_CURRENT_TAG
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
 from httpdbg.initiator import in_lib
@@ -211,6 +213,7 @@ class HTTPRecord:
         self.response: HTTPRecordResponse = HTTPRecordResponse()
         self.ssl: Union[bool, None] = None
         self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
+        self.tag = os.environ.get(HTTPDBG_CURRENT_TAG)
         if tbegin:
             self.tbegin = tbegin
 
@@ -302,7 +305,7 @@ class HTTPRecords:
         return len(self.requests)
 
     def get_initiator(self) -> Initiator:
-        envname = f"HTTPDBG_CURRENT_INITIATOR_{self.id}"
+        envname = f"{HTTPDBG_CURRENT_INITIATOR}_{self.id}"
 
         if envname in os.environ:
             initiator = self._initiators[os.environ[envname]]
