@@ -232,9 +232,9 @@ def httpdbg_tag(tag: str) -> Generator[None, None, None]:
     try:
         yield
     except Exception:
-        if not tag_already_set:
+        if (not tag_already_set) and (HTTPDBG_CURRENT_TAG in os.environ):
             del os.environ[HTTPDBG_CURRENT_TAG]
         raise
 
-    if not tag_already_set:
+    if (not tag_already_set) and (HTTPDBG_CURRENT_TAG in os.environ):
         del os.environ[HTTPDBG_CURRENT_TAG]
