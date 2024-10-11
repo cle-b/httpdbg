@@ -224,12 +224,17 @@ def httpdbg_initiator(
 @contextmanager
 def httpdbg_tag(tag: str) -> Generator[None, None, None]:
 
-    os.environ[HTTPDBG_CURRENT_TAG] = tag
+    tag_already_set = HTTPDBG_CURRENT_TAG in os.environ
+
+    if not tag_already_set:
+        os.environ[HTTPDBG_CURRENT_TAG] = tag
 
     try:
         yield
     except Exception:
-        del os.environ[HTTPDBG_CURRENT_TAG]
+        if not tag_already_set:
+            del os.environ[HTTPDBG_CURRENT_TAG]
         raise
 
-    del os.environ[HTTPDBG_CURRENT_TAG]
+    if not tag_already_set:
+        del os.environ[HTTPDBG_CURRENT_TAG]
