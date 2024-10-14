@@ -25,11 +25,11 @@ from httpdbg.utils import logger
 
 class SocketRawData(object):
     def __init__(self, id: int, address: Tuple[str, int], ssl: bool) -> None:
-        self.id = id
-        self.address = address
-        self.ssl = ssl
-        self._rawdata = bytes()
-        self.record = None
+        self.id: int = id
+        self.address: Tuple[str, int] = address
+        self.ssl: bool = ssl
+        self._rawdata: bytes = bytes()
+        self.record: Union[HTTPRecord, None] = None
         self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
 
     @property
@@ -63,8 +63,8 @@ class SocketRawData(object):
 
 class HTTPRecordReqResp(object):
     def __init__(self) -> None:
-        self.rawdata = bytes()
-        self._rawheaders = bytes()
+        self._rawdata: bytes = bytes()
+        self._rawheaders: bytes = bytes()
         self._headers: List[HTTPDBGHeader] = []
         self.last_update: datetime.datetime = datetime.datetime.now(
             datetime.timezone.utc
@@ -119,10 +119,6 @@ class HTTPRecordReqResp(object):
 
         return rawdata
 
-    def __setattr__(self, name, value):
-        self.__dict__[name] = value
-        self.__dict__["last_update"] = datetime.datetime.now(datetime.timezone.utc)
-
     @property
     def preview(self):
         return generate_preview(
@@ -130,6 +126,15 @@ class HTTPRecordReqResp(object):
             self.get_header("Content-Type"),
             self.get_header("Content-Encoding"),
         )
+
+    @property
+    def rawdata(self) -> bytes:
+        return self._rawdata
+
+    @rawdata.setter
+    def rawdata(self, value: bytes):
+        self.last_update = datetime.datetime.now(datetime.timezone.utc)
+        self._rawdata = value
 
 
 class HTTPRecordRequest(HTTPRecordReqResp):
