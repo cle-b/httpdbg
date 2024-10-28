@@ -10,7 +10,7 @@ def run_script(argv: List[str]) -> None:
     if len(argv) == 0:
         exit("script mode - error - python file required, but none set")
     try:
-        spec = importlib.util.spec_from_file_location("torun", argv[0])  # type: ignore
+        spec = importlib.util.spec_from_file_location("__main__", argv[0])  # type: ignore
         module = importlib.util.module_from_spec(spec)  # type: ignore
     except AttributeError:
         exit("script mode - error - the first argument shall be a python file")
