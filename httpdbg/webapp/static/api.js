@@ -13,7 +13,11 @@ function save_request(request_id, request) {
     if (request.pin == undefined) {
         request.pin = "";
     }
+    if (request.filter == undefined) {
+        request.filter = "---";
+    }
     global.requests[request_id] = request;
+
     if (global.requests[request_id].in_progress) {
         global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" alt="loading"/>';
     } else {
@@ -28,12 +32,6 @@ function save_request(request_id, request) {
                 global.requests[request_id].status_code_view = global.requests[request_id].status_code;
                 break;
         }
-    }
-    global.requests[request_id].request = global.requests[request_id].request || {
-        "for_filter": ""
-    }
-    global.requests[request_id].response = global.requests[request_id].response || {
-        "for_filter": ""
     }
 
     if (!request.pin) {
@@ -88,29 +86,26 @@ async function get_request(request_id) {
         .then(res => res.json())
         .then(data => {
             global.connected = true;
+            global.requests[request_id].filter = prepare_for_filter(global.requests[request_id].url);
 
             global.requests[request_id].request = data.request;
             if (data.request.body && data.request.body.text) {
-                global.requests[request_id].request.for_filter = prepare_for_filter(
+                global.requests[request_id].filter += " " + prepare_for_filter(
                     parse_raw_text(
                         data.request.body.text,
                         data.request.body.content_type
                     ) || data.request.body.text
                 );
-            } else {
-                global.requests[request_id].request.for_filter = "";
             }
 
             global.requests[request_id].response = data.response;
             if (data.response.body && data.response.body.text) {
-                global.requests[request_id].response.for_filter = prepare_for_filter(
+                global.requests[request_id].filter += " " + prepare_for_filter(
                     parse_raw_text(
                         data.response.body.text,
                         data.response.body.content_type
                     ) || data.response.body.text
                 );
-            } else {
-                global.requests[request_id].response.for_filter = "";
             }
 
             // the full stack is not present in request summary

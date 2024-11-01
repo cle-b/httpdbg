@@ -141,15 +141,19 @@
                         <th class="method" title="method"></th>
                         <th class="url">
                             url
+                            &nbsp;
                             <img class="icon icon-filter"
                                 src="static/icons/filter-outline-icon.svg-+-$**HTTPDBG_VERSION**$"
                                 alt="filter for url" />
+                            &nbsp;                                
                             <label for="filter-url" class="visuallyhidden">
                                 filter for url
                             </label>
-                            <input type="text" value="" id="filter-url" title="filter for url"
+                            <input type="text" value="" id="filter-url" title="match the url or the request payload"
                                 onkeyup="update_filter_url()" oncut="update_filter_url()" onpaste="update_filter_url()"
                                 onchange="update_filter_url()">
+                            &nbsp;                                
+                            <span id="filter-requests-count">0/0 requests</span>
                         </th>
                     </tr>
                 </thead>
@@ -170,9 +174,7 @@
 
                 <script id="template_request" type="x-tmpl-mustache">
                     <tr id="request-{{id}}"
-                        data-filter-url="{{url}}"
-                        data-filter-request="{{request.for_filter}}"
-                        data-filter-response="{{response.for_filter}}"
+                        data-filter="{{filter}}"
                         data-initiator="{{initiator.id}}"
                         onclick="select_request(arguments[0], '{{id}}')"
                         onkeypress="shortcut_request(event, '{{id}}')"
