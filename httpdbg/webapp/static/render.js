@@ -39,6 +39,7 @@ async function refresh_resquests() {
             request.to_refresh = false;
         }
     };
+    filter_requests_count();
 }
 
 
