@@ -93,6 +93,11 @@ def get_current_instruction(
                 n_stack -= 1
                 framesummary = extracted_stack[n_stack - 1]
 
+        if "httpdbg/hooks" in framesummary.filename:
+            while "httpdbg/hooks" in framesummary.filename:
+                n_stack -= 1
+                framesummary = extracted_stack[n_stack - 1]
+
         short_stack = f'File "{framesummary.filename}", line {framesummary.lineno}, in {framesummary.name}\n'
         if os.path.exists(framesummary.filename) and framesummary.lineno is not None:
             instruction, s_stack = extract_short_stack_from_file(
