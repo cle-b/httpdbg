@@ -88,10 +88,13 @@ def get_current_instruction(
     try:
         n_stack = -1
         framesummary = extracted_stack[-2]
-        if "asyncio" in framesummary.filename:
-            while "asyncio" in framesummary.filename:
-                n_stack -= 1
-                framesummary = extracted_stack[n_stack - 1]
+        while "asyncio" in framesummary.filename:
+            n_stack -= 1
+            framesummary = extracted_stack[n_stack - 1]
+
+        while "httpdbg/hooks" in framesummary.filename:
+            n_stack -= 1
+            framesummary = extracted_stack[n_stack - 1]
 
         short_stack = f'File "{framesummary.filename}", line {framesummary.lineno}, in {framesummary.name}\n'
         if os.path.exists(framesummary.filename) and framesummary.lineno is not None:
