@@ -23,14 +23,12 @@ class Initiator(object):
         long_label: Union[str, None],
         short_stack: str,
         stack: List[str],
-        method: Union[callable, None]=None,
     ):
         self.id = id
         self.short_label = short_label
         self.long_label = long_label
         self.short_stack = short_stack
         self.stack = stack
-        self.method = method
 
     def __eq__(self, other) -> bool:
         if type(other) is Initiator:
@@ -51,7 +49,6 @@ class Initiator(object):
                 "long_label": self.long_label,
                 "short_stack": self.short_stack,
                 "stack": "\n".join(self.stack),
-                "method": f"{self.method.__module__}.{self.method.__name__}" if self.method else "",
             }
         else:
             json = {
@@ -59,7 +56,6 @@ class Initiator(object):
                 "short_label": self.short_label,
                 "long_label": self.long_label,
                 "short_stack": self.short_stack,
-                "method": f"{self.method.__module__}.{self.method.__name__}" if self.method else "",
             }
         return json
 
@@ -212,7 +208,7 @@ def httpdbg_initiator(
         short_stack += ")"
 
         current_initiator = Initiator(
-            get_new_uuid(), instruction, None, short_stack, stack, original_method
+            get_new_uuid(), instruction, None, short_stack, stack
         )
         records._initiators[current_initiator.id] = current_initiator
 
