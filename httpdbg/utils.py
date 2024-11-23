@@ -1,19 +1,8 @@
 # -*- coding: utf-8 -*-
 from http.cookies import SimpleCookie
-import logging
-import os
 import secrets
 import string
 from typing import List
-
-from httpdbg.env import HTTPDBG_LOG
-
-logger = logging.getLogger("httpdbg")
-logger.setLevel(100)
-log_level = os.environ.get(HTTPDBG_LOG)
-if log_level is not None:
-    logging.basicConfig(level=int(log_level), format="%(message)s")
-    logger.setLevel(int(log_level))
 
 
 def get_new_uuid() -> str:
