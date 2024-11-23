@@ -5,6 +5,7 @@ import time
 from httpdbg import __version__
 from httpdbg.args import read_args
 from httpdbg.hooks.all import httprecord
+from httpdbg.log import set_env_for_logging
 from httpdbg.server import httpdbg_srv
 from httpdbg.mode_console import run_console
 from httpdbg.mode_module import run_module
@@ -18,6 +19,9 @@ def print_msg(msg):
 
 
 def pyhttpdbg(params, subparams, test_mode=False):
+
+    set_env_for_logging(params.log_level, params.log)
+
     url = f"http://{params.host}:{params.port}/{'?hi=on' if params.console else ''}"
 
     print_msg(f"  httpdbg - HTTP(S) requests available at {url}")

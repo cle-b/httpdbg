@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import argparse
+from pathlib import Path
 from typing import List, Tuple
+
+from httpdbg.log import LogLevel
 
 
 def read_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
@@ -48,6 +51,16 @@ def read_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
         action="store_true",
         help="stop the server even if the requests have not been read",
     )
+
+    parser.add_argument(
+        "--log-level",
+        type=LogLevel,
+        choices=LogLevel,
+        default=LogLevel.WARNING,
+        help="The log level",
+    )
+
+    parser.add_argument("--log", type=Path, help="Path to the log file.")
 
     actions = parser.add_mutually_exclusive_group()
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import inspect
 
-from httpdbg.utils import logger
+from httpdbg.log import logger
 
 
 def getcallargs(original_method, *args, **kwargs):
@@ -15,7 +15,7 @@ def getcallargs(original_method, *args, **kwargs):
             inspect.signature(original_method).bind_partial(*args, **kwargs).arguments
         )
     except Exception as ex:
-        logger.info(f"getcallargs - exception {str(ex)}")
+        logger().info(f"getcallargs - exception {str(ex)}")
         # TypeError('too many positional arguments') may occur when using pytest (seems related to teardown_method)
         callargs = {}
         i = 0
@@ -24,7 +24,7 @@ def getcallargs(original_method, *args, **kwargs):
             callargs[f"_positional_argument{i}"] = arg
 
     callargs.update(kwargs)
-    logger.info(f"getcallargs {original_method} - {[arg for arg in callargs]}")
+    logger().info(f"getcallargs {original_method} - {[arg for arg in callargs]}")
     return callargs
 
 

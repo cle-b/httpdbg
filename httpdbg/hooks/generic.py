@@ -15,11 +15,11 @@ from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
 from httpdbg.initiator import httpdbg_initiator
 from httpdbg.records import HTTPRecords
-from httpdbg.utils import logger
+from httpdbg.log import logger
 
 
 def set_hook_for_generic_async(records: HTTPRecords, method: Any):
-    logger.info(f"SET_HOOK_FOR_GENERIC_ASYNC {method}")
+    logger().info(f"SET_HOOK_FOR_GENERIC_ASYNC {method}")
 
     async def hook(*args, **kwargs):
         with httpdbg_initiator(
@@ -33,7 +33,7 @@ def set_hook_for_generic_async(records: HTTPRecords, method: Any):
 
 
 def set_hook_for_generic(records: HTTPRecords, method: Any):
-    logger.info(f"SET_HOOK_FOR_GENERIC {method}")
+    logger().info(f"SET_HOOK_FOR_GENERIC {method}")
 
     def hook(*args, **kwargs):
         with httpdbg_initiator(
@@ -56,11 +56,11 @@ def hook_generic(
         initiators = []
 
     for initiator in initiators:
-        logger.info(f"HOOK_GENERIC add initiator - {initiator}")
+        logger().info(f"HOOK_GENERIC add initiator - {initiator}")
         hooks += list_callables_from_package(records, initiator)
 
     try:
-        logger.info(
+        logger().info(
             f"HOOK_GENERIC add initiator - hooks - {[hook.__httpdbg__.__name__ for hook in hooks]}"
         )
     except Exception:
@@ -77,7 +77,7 @@ def list_callables_from_package(records: HTTPRecords, package: str) -> List[Any]
     callables = []
 
     try:
-        logger.info(f"LIST_CALLABLES_FROM_PACKAGE {package}")
+        logger().info(f"LIST_CALLABLES_FROM_PACKAGE {package}")
 
         callables += list_callables_from_module(records, package)
 
@@ -96,7 +96,7 @@ def list_callables_from_package(records: HTTPRecords, package: str) -> List[Any]
                             records, f"{package}.{file_or_dir.name}"
                         )
     except Exception as ex:
-        logger.info(f"LIST_CALLABLES_FROM_PACKAGE {package} - error - {str(ex)}")
+        logger().info(f"LIST_CALLABLES_FROM_PACKAGE {package} - error - {str(ex)}")
 
     return callables
 
@@ -105,7 +105,7 @@ def list_callables_from_module(records: HTTPRecords, module: str) -> List[Any]:
     callables = []
 
     try:
-        logger.info(f"LIST_CALLABLES_FROM_MODULE {module}")
+        logger().info(f"LIST_CALLABLES_FROM_MODULE {module}")
 
         imported_module = importlib.import_module(module)
 
@@ -141,7 +141,7 @@ def list_callables_from_module(records: HTTPRecords, module: str) -> List[Any]:
                         records, imported_module, module, name
                     )
     except Exception as ex:
-        logger.info(f"LIST_CALLABLES_FROM_MODULE {module} - error - {str(ex)}")
+        logger().info(f"LIST_CALLABLES_FROM_MODULE {module} - error - {str(ex)}")
 
     return callables
 
@@ -155,7 +155,7 @@ def list_callables_from_class(
     callables = []
 
     try:
-        logger.info(f"LIST_CALLABLES_FROM_CLASS {module}.{classname}")
+        logger().info(f"LIST_CALLABLES_FROM_CLASS {module}.{classname}")
         for name in imported_module.__dict__[classname].__dict__.keys():
             from_module = getattr(
                 imported_module.__dict__[classname].__dict__[name], "__module__", ""
@@ -192,7 +192,7 @@ def list_callables_from_class(
                         setattr(imported_module.__dict__[classname], name, hook)
                         callables.append(hook)
     except Exception as ex:
-        logger.info(
+        logger().info(
             f"LIST_CALLABLES_FROM_CLASS {module}.{classname} - error - {str(ex)}"
         )
 

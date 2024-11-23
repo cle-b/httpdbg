@@ -12,7 +12,7 @@ from httpdbg.env import HTTPDBG_CURRENT_INITIATOR
 from httpdbg.env import HTTPDBG_CURRENT_TAG
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.utils import get_new_uuid
-from httpdbg.utils import logger
+from httpdbg.log import logger
 
 
 class Initiator(object):
@@ -127,7 +127,7 @@ def get_current_instruction(
             short_stack += f"{instruction}\n"
             stack = []
     except Exception as ex:
-        logger.info(
+        logger().info(
             f"GET_CURRENT_INSTRUCTION [{str(extracted_stack)}] - error - {str(ex)}"
         )
 
@@ -175,7 +175,7 @@ def extract_short_stack_from_file(
                     if end_of_instruction_found and stop_if_instruction_ends:
                         break
     except Exception as ex:
-        logger.info(
+        logger().info(
             f"EXTRACT_SHORT_STACK_FROM_FILE {filename} lineno={lineno} before={before} after={after}- error - {str(ex)}"
         )
 

@@ -20,7 +20,7 @@ from httpdbg.utils import get_new_uuid
 from httpdbg.utils import chunked_to_bytes
 from httpdbg.utils import list_cookies_headers_request_simple_cookies
 from httpdbg.utils import list_cookies_headers_response_simple_cookies
-from httpdbg.utils import logger
+from httpdbg.log import logger
 
 
 class SocketRawData(object):
@@ -38,7 +38,7 @@ class SocketRawData(object):
 
     @rawdata.setter
     def rawdata(self, value: bytes) -> None:
-        logger.info(
+        logger().info(
             f"SocketRawData id={self.id} newdata={value[:20]!r} len={len(value)}"
         )
         self._rawdata = value
@@ -407,6 +407,6 @@ class HTTPRecords:
 
     def del_socket_data(self, obj):
         if id(obj) in self._sockets:
-            logger.info(f"SocketRawData del id={id(obj)}")
+            logger().info(f"SocketRawData del id={id(obj)}")
             self._sockets[id(obj)] = None
             del self._sockets[id(obj)]

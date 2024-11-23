@@ -9,7 +9,7 @@ import re
 from urllib.parse import urlparse, parse_qs
 
 from httpdbg import __version__
-from httpdbg.utils import logger
+from httpdbg.log import logger
 from httpdbg.webapp.api import RequestListPayload, RequestPayload
 
 
@@ -18,7 +18,7 @@ def silently_catch_error():
     try:
         yield
     except Exception as ex:
-        logger.info(f"HttpbgHTTPRequestHandler - silently_catch_error - {str(ex)}")
+        logger().info(f"HttpbgHTTPRequestHandler - silently_catch_error - {str(ex)}")
 
 
 class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):

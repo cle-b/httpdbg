@@ -13,7 +13,7 @@ from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
 from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecords
-from httpdbg.utils import logger
+from httpdbg.log import logger
 
 
 def set_hook_for_socket_init(records, method):
@@ -29,7 +29,7 @@ def set_hook_for_socket_connect(records, method):
     def hook(self, address):
         socketdata = records.get_socket_data(self, force_new=True)
         if socketdata:
-            logger.info(
+            logger().info(
                 f"CONNECT - self={self} id={id(self)} socketdata={socketdata} address={address}"
             )
 
@@ -67,13 +67,13 @@ def set_hook_for_ssl_wrap_socket(records, method):
 
             raise
 
-        logger.info(
+        logger().info(
             f"WRAP_SOCKET - {type(sock)}={id(sock)} {type(sslsocket)}={id(sslsocket)}"
         )
 
         socketdata = records.move_socket_data(sslsocket, sock)
         if socketdata:
-            logger.info(f"WRAP_SOCKET * - socketdata={socketdata}")
+            logger().info(f"WRAP_SOCKET * - socketdata={socketdata}")
 
         return sslsocket
 
@@ -94,13 +94,13 @@ def set_hook_for_sslcontext_wrap_socket(records, method):
 
             raise
 
-        logger.info(
+        logger().info(
             f"WRAP_SOCKET (SSLContext) - {type(self)}={id(self)}  {type(sock)}={id(sock)} {type(sslsocket)}={id(sslsocket)}"
         )
 
         socketdata = records.move_socket_data(sslsocket, sock)
         if socketdata:
-            logger.info(f"WRAP_SOCKET (SSLContext) * - socketdata={socketdata}")
+            logger().info(f"WRAP_SOCKET (SSLContext) * - socketdata={socketdata}")
 
         return sslsocket
 
@@ -121,13 +121,13 @@ def set_hook_for_socket_wrap_bio(records, method):
 
             raise
 
-        logger.info(
+        logger().info(
             f"WRAP_SOCKET_BIO - {type(self)}={id(self)} {type(sslobject)}={id(sslobject)}"
         )
 
         socketdata = records.get_socket_data(sslobject, self)
         if socketdata:
-            logger.info(f"WRAP_SOCKET_BIO * - socketdata={socketdata}")
+            logger().info(f"WRAP_SOCKET_BIO * - socketdata={socketdata}")
 
         return sslobject
 
@@ -138,7 +138,7 @@ def set_hook_for_socket_recv_into(records, method):
     def hook(self, buffer, *args, **kwargs):
         socketdata = records.get_socket_data(self)
         if socketdata:
-            logger.info(
+            logger().info(
                 f"RECV_INTO - self={self} id={id(self)} socketdata={socketdata} args={args} kwargs={kwargs}"
             )
 
@@ -150,7 +150,9 @@ def set_hook_for_socket_recv_into(records, method):
             raise
 
         if socketdata and socketdata.record:
-            logger.info(f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:20]}")
+            logger().info(
+                f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:20]}"
+            )
             socketdata.record.response.rawdata += buffer[:nbytes]
 
         return nbytes
@@ -162,7 +164,7 @@ def set_hook_for_socket_recv(records, method):
     def hook(self, bufsize, *args, **kwargs):
         socketdata = records.get_socket_data(self)
         if socketdata:
-            logger.info(
+            logger().info(
                 f"RECV - self={self} id={id(self)} socketdata={socketdata} bufsize={bufsize} args={args} kwargs={kwargs}"
             )
 
@@ -185,7 +187,7 @@ def set_hook_for_socket_sendall(records, method):
     def hook(self, bytes, *args, **kwargs):
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
-            logger.info(
+            logger().info(
                 f"SENDALL - self={self} id={id(self)} socketdata={socketdata} bytes={(b''+bytes)[:20]} type={type(bytes)} len={len(bytes)} args={args} kwargs={kwargs}"
             )
 
@@ -196,7 +198,7 @@ def set_hook_for_socket_sendall(records, method):
                 socketdata.rawdata += bytes
                 http_detected = socketdata.http_detected()
                 if http_detected:
-                    logger.info("SENDALL - http detected")
+                    logger().info("SENDALL - http detected")
                     socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
                     socketdata.record.initiator = records.get_initiator()
                     socketdata.record.address = socketdata.address
@@ -220,7 +222,7 @@ def set_hook_for_socket_send(records, method):
     def hook(self, bytes, *args, **kwargs):
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
-            logger.info(
+            logger().info(
                 f"SEND - self={self} id={id(self)} socketdata={socketdata} bytes={(b''+bytes)[:20]} args={args} kwargs={kwargs}"
             )
 
@@ -253,7 +255,7 @@ def set_hook_for_socket_send(records, method):
 
 def set_hook_for_asyncio_create_connection(records, method):
     async def hook(self, *args, **kwargs):
-        logger.info(
+        logger().info(
             f"CREATE_CONNECTION - self={self} id={id(self)} args={args} kwargs={kwargs}"
         )
         r = await method(self, *args, **kwargs)
@@ -266,7 +268,7 @@ def set_hook_for_asyncio_create_connection(records, method):
                 socketdata = records.get_socket_data(
                     ssl_object, sock, force_new=True
                 )  # to link the cnx info to the sslobject
-                logger.info(
+                logger().info(
                     f"CREATE_CONNECTION - ssl_object ssl_object={ssl_object} ssl_objectid={id(ssl_object)} socketdata={socketdata}"
                 )
         return r
@@ -276,10 +278,10 @@ def set_hook_for_asyncio_create_connection(records, method):
 
 def set_hook_for_sslobject_write(records, method):
     def hook(self, buf, *args, **kwargs):
-        logger.info(f"WRITE - {type(self)}={id(self)} buf={(b'' + buf)[:20]}")
+        logger().info(f"WRITE - {type(self)}={id(self)} buf={(b'' + buf)[:20]}")
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
-            logger.info(f"WRITE * - socketdata={socketdata}")
+            logger().info(f"WRITE * - socketdata={socketdata}")
 
         try:
             size = method(self, buf, *args, **kwargs)
@@ -310,10 +312,10 @@ def set_hook_for_sslobject_write(records, method):
 
 def set_hook_for_sslobject_read(records, method):
     def hook(self, *args, **kwargs):
-        logger.info(f"READ - {type(self)}={id(self)}")
+        logger().info(f"READ - {type(self)}={id(self)}")
         socketdata = records.get_socket_data(self)
         if socketdata:
-            logger.info(f"READ * - socketdata={socketdata}")
+            logger().info(f"READ * - socketdata={socketdata}")
 
         try:
             r = method(self, *args, **kwargs)
