@@ -38,7 +38,7 @@ def set_env_for_logging(log_level: LogLevel, path: Union[Path, None]):
 @cache
 def logger() -> logging.Logger:
 
-    logger = logging.getLogger()
+    logger = logging.getLogger("httpdbg")
     log_level = int(os.environ.get(HTTPDBG_LOG_LEVEL, logging.WARNING))
     logger.setLevel(log_level)
 
