@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import asyncio.proactor_events
+from collections.abc import Callable
 from contextlib import contextmanager
 import platform
 import socket
@@ -16,7 +17,10 @@ from httpdbg.records import HTTPRecords
 from httpdbg.log import logger
 
 
-def set_hook_for_socket_init(records, method):
+# hook: socket.socket.__init__
+# what: A new socket object is created.
+# action: If an entry exists in the temporary raw socket storage list, it is removed.
+def set_hook_for_socket_init(records: HTTPRecords, method: Callable):
     def hook(self, *args, **kwargs):
         records.del_socket_data(self)
 
@@ -25,14 +29,16 @@ def set_hook_for_socket_init(records, method):
     return hook
 
 
-def set_hook_for_socket_connect(records, method):
+# hook: socket.socket.connect, ssl.SSLSocket.connect
+# what: A connection to a remote socket is initiated.
+# action: A new entry is added to the temporary raw socket storage list.
+def set_hook_for_socket_connect(records: HTTPRecords, method: Callable):
     def hook(self, address):
         socketdata = records.get_socket_data(self, force_new=True)
         if socketdata:
             logger().info(
                 f"CONNECT - self={self} id={id(self)} socketdata={socketdata} address={address}"
             )
-
         try:
             r = method(self, address)
         except Exception as ex:
@@ -41,11 +47,8 @@ def set_hook_for_socket_connect(records, method):
             ):  # BlockingIOError for async, OSError for ipv6
                 record = HTTPRecord()
                 record.initiator = records.get_initiator()
-
                 record.exception = ex
-
                 records.requests[record.id] = record
-
             raise
 
         return r
@@ -53,7 +56,11 @@ def set_hook_for_socket_connect(records, method):
     return hook
 
 
-def set_hook_for_ssl_wrap_socket(records, method):
+# hook: ssl.wrap_socket,
+# what: Takes an instance sock of socket.socket, and returns an instance of ssl.SSLSocket.
+# a subtype of socket.socket, which wraps the underlying socket in an SSL context.
+# action: Link the socket and the sslsocket
+def set_hook_for_ssl_wrap_socket(records: HTTPRecords, method: Callable):
     def hook(sock, *args, **kwargs):
         try:
             sslsocket = method(sock, *args, **kwargs)
@@ -80,7 +87,10 @@ def set_hook_for_ssl_wrap_socket(records, method):
     return hook
 
 
-def set_hook_for_sslcontext_wrap_socket(records, method):
+# hook: ssl.SSLContext.wrap_socket
+# what: Wrap an existing Python socket sock and return an instance of SSLContext.sslsocket_class (default SSLSocket).
+# action: Link the socket and the sslsocket
+def set_hook_for_sslcontext_wrap_socket(records: HTTPRecords, method: Callable):
     def hook(self, sock, *args, **kwargs):
         try:
             sslsocket = method(self, sock, *args, **kwargs)
@@ -107,7 +117,10 @@ def set_hook_for_sslcontext_wrap_socket(records, method):
     return hook
 
 
-def set_hook_for_socket_wrap_bio(records, method):
+# hook: ssl.SSLContext.wrap_bio
+# what: Wrap the BIO objects incoming and outgoing and return an instance of SSLContext.sslobject_class (default SSLObject).
+# action: Record a new SocketRawData if necessary
+def set_hook_for_socket_wrap_bio(records: HTTPRecords, method: Callable):
     def hook(self, *args, **kwargs):
         try:
             sslobject = method(self, *args, **kwargs)
@@ -134,7 +147,10 @@ def set_hook_for_socket_wrap_bio(records, method):
     return hook
 
 
-def set_hook_for_socket_recv_into(records, method):
+# hook: socket.socket.recv_into, ssl.SSLSocket.recv_into, asyncio.proactor_events._ProactorReadPipeTransport._data_received
+# what: Receive up to nbytes bytes from the socket, storing the data into a buffer rather than creating a new bytestring.
+# action: Append the data to an existing SocketRawData
+def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
     def hook(self, buffer, *args, **kwargs):
         socketdata = records.get_socket_data(self)
         if socketdata:
@@ -160,7 +176,10 @@ def set_hook_for_socket_recv_into(records, method):
     return hook
 
 
-def set_hook_for_socket_recv(records, method):
+# hook: socket.socket.recv, ssl.SSLSocket.recv
+# what: Receive data from the socket. The return value is a bytes object representing the data received.
+# action: Append the data to an existing SocketRawData
+def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
     def hook(self, bufsize, *args, **kwargs):
         socketdata = records.get_socket_data(self)
         if socketdata:
@@ -183,7 +202,11 @@ def set_hook_for_socket_recv(records, method):
     return hook
 
 
-def set_hook_for_socket_sendall(records, method):
+# hook: socket.socket.sendall
+# what: Send data to the socket.
+# action: Append the data to an existing SocketRawData. Check if this is an HTTP request.
+# and record it if this is case, otherwise delete the temporay SocketRawData.
+def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
     def hook(self, bytes, *args, **kwargs):
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
@@ -218,7 +241,11 @@ def set_hook_for_socket_sendall(records, method):
     return hook
 
 
-def set_hook_for_socket_send(records, method):
+# hook: socket.socket.send, ssl.SSLSocket.send, asyncio.proactor_events._ProactorBaseWritePipeTransport.write
+# what: Send data to the socket.
+# action: Append the data to an existing SocketRawData. Check if this is an HTTP request.
+# and record it if this is case, otherwise delete the temporay SocketRawData.
+def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
     def hook(self, bytes, *args, **kwargs):
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
@@ -253,7 +280,10 @@ def set_hook_for_socket_send(records, method):
     return hook
 
 
-def set_hook_for_asyncio_create_connection(records, method):
+# hook: asyncio.BaseEventLoop.create_connection
+# what: Open a streaming transport connection to a given address specified by host and port.
+# action: Link the socket and the sslsocket
+def set_hook_for_asyncio_create_connection(records: HTTPRecords, method: Callable):
     async def hook(self, *args, **kwargs):
         logger().info(
             f"CREATE_CONNECTION - self={self} id={id(self)} args={args} kwargs={kwargs}"
@@ -276,7 +306,11 @@ def set_hook_for_asyncio_create_connection(records, method):
     return hook
 
 
-def set_hook_for_sslobject_write(records, method):
+# hook: ssl.SSLObject.write
+# what: Write buf to the SSL socket and return the number of bytes written.
+# action: Append the data to an existing SocketRawData. Check if this is an HTTP request.
+# and record it if this is case, otherwise delete the temporay SocketRawData.
+def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
     def hook(self, buf, *args, **kwargs):
         logger().info(f"WRITE - {type(self)}={id(self)} buf={(b'' + buf)[:20]}")
         socketdata = records.get_socket_data(self, request=True)
@@ -310,7 +344,10 @@ def set_hook_for_sslobject_write(records, method):
     return hook
 
 
-def set_hook_for_sslobject_read(records, method):
+# hook: ssl.SSLObject.read
+# what: Read up to len bytes of data from the SSL socket and return the result as a bytes instance.
+# action: Append the data to an existing SocketRawData.
+def set_hook_for_sslobject_read(records: HTTPRecords, method: Callable):
     def hook(self, *args, **kwargs):
         logger().info(f"READ - {type(self)}={id(self)}")
         socketdata = records.get_socket_data(self)
