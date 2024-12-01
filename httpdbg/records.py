@@ -24,6 +24,7 @@ from httpdbg.log import logger
 
 
 class SocketRawData(object):
+    """Store the request data without encryption, even when using an SSLSocket."""
     def __init__(self, id: int, address: Tuple[str, int], ssl: bool) -> None:
         self.id: int = id
         self.address: Tuple[str, int] = address
@@ -343,6 +344,7 @@ class HTTPRecords:
     def get_socket_data(
         self, obj, extra_sock=None, force_new=False, request=None
     ) -> Union[SocketRawData, None]:
+        """ Record a new SocketRawData (or get an existing one) and return it."""
         socketdata = None
 
         if force_new:
