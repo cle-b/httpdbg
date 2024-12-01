@@ -17,7 +17,7 @@ from httpdbg.records import HTTPRecords
 from httpdbg.log import logger
 
 
-# hook for: socket.socket.__init__
+# hook: socket.socket.__init__
 # what: A new socket object is created.
 # action: If an entry exists in the temporary raw socket storage list, it is removed.
 def set_hook_for_socket_init(records: HTTPRecords, method: Callable):
@@ -29,7 +29,7 @@ def set_hook_for_socket_init(records: HTTPRecords, method: Callable):
     return hook
 
 
-# hook for: socket.socket.connect, ssl.SSLSocket.connect
+# hook: socket.socket.connect, ssl.SSLSocket.connect
 # what: A connection to a remote socket is initiated.
 # action: A new entry is added to the temporary raw socket storage list.
 def set_hook_for_socket_connect(records: HTTPRecords, method: Callable):
