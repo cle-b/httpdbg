@@ -45,10 +45,8 @@ def set_hook_for_socket_connect(records: HTTPRecords, method: Callable):
             if not isinstance(
                 ex, (BlockingIOError, OSError)
             ):  # BlockingIOError for async, OSError for ipv6
-                record = HTTPRecord()
-                record.initiator = records.get_initiator()
-                record.exception = ex
-                records.requests[record.id] = record
+                initiator = records.get_initiator()
+                records.add_new_record_exception(initiator, "", ex)
             raise
 
         return r
@@ -65,13 +63,8 @@ def set_hook_for_ssl_wrap_socket(records: HTTPRecords, method: Callable):
         try:
             sslsocket = method(sock, *args, **kwargs)
         except Exception as ex:
-            record = HTTPRecord()
-
-            record.initiator = records.get_initiator()
-            record.exception = ex
-
-            records.requests[record.id] = record
-
+            initiator = records.get_initiator()
+            records.add_new_record_exception(initiator, "", ex)
             raise
 
         logger().info(
@@ -95,13 +88,8 @@ def set_hook_for_sslcontext_wrap_socket(records: HTTPRecords, method: Callable):
         try:
             sslsocket = method(self, sock, *args, **kwargs)
         except Exception as ex:
-            record = HTTPRecord()
-
-            record.initiator = records.get_initiator()
-            record.exception = ex
-
-            records.requests[record.id] = record
-
+            initiator = records.get_initiator()
+            records.add_new_record_exception(initiator, "", ex)
             raise
 
         logger().info(
@@ -125,13 +113,8 @@ def set_hook_for_socket_wrap_bio(records: HTTPRecords, method: Callable):
         try:
             sslobject = method(self, *args, **kwargs)
         except Exception as ex:
-            record = HTTPRecord()
-            record.initiator = records.get_initiator()
-
-            record.exception = ex
-
-            records.requests[record.id] = record
-
+            initiator = records.get_initiator()
+            records.add_new_record_exception(initiator, "", ex)
             raise
 
         logger().info(

@@ -413,3 +413,13 @@ class HTTPRecords:
             logger().info(f"SocketRawData del id={id(obj)}")
             self._sockets[id(obj)] = None
             del self._sockets[id(obj)]
+
+    def add_new_record_exception(
+        self, initiator: Initiator, url: str, exception: Exception
+    ) -> HTTPRecord:
+        new_record = HTTPRecord()
+        new_record.url = url
+        new_record.initiator = initiator
+        new_record.exception = exception
+        self.requests[new_record.id] = new_record
+        return new_record
