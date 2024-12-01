@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections.abc import Callable
 from contextlib import contextmanager
 import traceback
 from typing import Generator
@@ -7,11 +8,10 @@ from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
 from httpdbg.initiator import httpdbg_initiator
-from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecords
 
 
-def set_hook_for_urllib3(records, method):
+def set_hook_for_urllib3(records: HTTPRecords, method: Callable):
     def hook(*args, **kwargs):
         initiator = None
         try:
@@ -25,13 +25,9 @@ def set_hook_for_urllib3(records, method):
 
             if "url" in callargs:
                 if initiator:
-                    record = HTTPRecord()
-
-                    record.initiator = initiator
-                    record.url = str(callargs["url"])
-                    record.exception = ex
-
-                    records.requests[record.id] = record
+                    records.add_new_record_exception(
+                        initiator, str(callargs["url"]), ex
+                    )
             raise
 
     return hook
