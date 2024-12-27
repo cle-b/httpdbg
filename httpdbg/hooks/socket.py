@@ -413,7 +413,7 @@ def hook_socket(records: HTTPRecords) -> Generator[None, None, None]:
     )
 
     # only for async HTTP requests (not HTTPS) on Windows
-    if (platform.system().lower() == "windows") and (sys.version_info >= (3, 7)):
+    if platform.system().lower() == "windows":
         asyncio.proactor_events._ProactorReadPipeTransport._data_received = decorate(  # type: ignore
             records,
             asyncio.proactor_events._ProactorReadPipeTransport._data_received,  # type: ignore
@@ -455,7 +455,7 @@ def hook_socket(records: HTTPRecords) -> Generator[None, None, None]:
     )
 
     # only for async HTTP requests (not HTTPS) on Windows
-    if (platform.system().lower() == "windows") and (sys.version_info >= (3, 7)):
+    if platform.system().lower() == "windows":
         asyncio.proactor_events._ProactorReadPipeTransport._data_received = undecorate(  # type: ignore
             asyncio.proactor_events._ProactorReadPipeTransport._data_received  # type: ignore
         )

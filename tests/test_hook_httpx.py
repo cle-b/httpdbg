@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
 import platform
-import sys
 
 import httpx
 import pytest
@@ -9,12 +8,6 @@ import pytest
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
 from httpdbg.hooks.all import httprecord
-
-
-@pytest.fixture(scope="module", autouse=True)
-def skip_incompatible_python():
-    if sys.version_info < (3, 7):
-        pytest.skip(reason="requires python3.7 or higher")
 
 
 @pytest.mark.httpx

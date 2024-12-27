@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import platform
-import sys
 
 import pytest
 import requests
@@ -126,8 +125,7 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
             fnc_in_subpackage(f"{httpbin.url}/get")
             fnc_in_init(f"{httpbin.url}/get")
             FakeClient().navigate(f"{httpbin.url}/get")
-            if sys.version_info >= (3, 7):
-                asyncio.run(fnc_async(f"{httpbin.url}/get"))
+            asyncio.run(fnc_async(f"{httpbin.url}/get"))
 
         # function in a package
         assert (
@@ -154,19 +152,17 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
         )
 
         # async function in a package
-        if sys.version_info >= (3, 7):
-            assert (
-                records.initiators[records[4].initiator_id].short_label
-                == 'asyncio.run(fnc_async(f"{httpbin.url}/get"))'
-            )
+        assert (
+            records.initiators[records[4].initiator_id].short_label
+            == 'asyncio.run(fnc_async(f"{httpbin.url}/get"))'
+        )
 
         with httprecord() as records:
             fnc_in_package(f"{httpbin.url}/get")
             fnc_in_subpackage(f"{httpbin.url}/get")
             fnc_in_init(f"{httpbin.url}/get")
             FakeClient().navigate(f"{httpbin.url}/get")
-            if sys.version_info >= (3, 7):
-                asyncio.run(fnc_async(f"{httpbin.url}/get"))
+            asyncio.run(fnc_async(f"{httpbin.url}/get"))
 
         assert (
             records.initiators[records[0].initiator_id].short_label
@@ -184,8 +180,7 @@ def test_initiator_add_package_fnc(httpbin, monkeypatch):
             records.initiators[records[3].initiator_id].short_label
             == "requests.get(url)  # method"
         )
-        if sys.version_info >= (3, 7):
-            assert (
-                records.initiators[records[4].initiator_id].short_label
-                == "await client.get(url)"
-            )
+        assert (
+            records.initiators[records[4].initiator_id].short_label
+            == "await client.get(url)"
+        )
