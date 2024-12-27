@@ -68,6 +68,7 @@ def test_run_pytest_with_exception(httpdbg_host, httpdbg_port, capsys):
 
 @pytest.mark.api
 @pytest.mark.pytest
+@pytest.mark.initiator
 def test_run_pytest_initiator(httpbin, httpdbg_host, httpdbg_port):
     with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
         with httprecord(records):
@@ -80,11 +81,8 @@ def test_run_pytest_initiator(httpbin, httpdbg_host, httpdbg_port):
         ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
+    initiatiors = ret.json()["initiators"]
+    initiator = initiatiors[reqs[list(reqs.keys())[0]]["initiator_id"]]
 
-    assert (
-        reqs[list(reqs.keys())[0]]["initiator"].get("short_label") == "test_demo_pytest"
-    )
-    assert (
-        reqs[list(reqs.keys())[0]]["initiator"].get("long_label")
-        == "tests/demo_run_pytest.py::test_demo_pytest"
-    )
+    assert initiator.get("short_label") == "test_demo_pytest"
+    assert initiator.get("long_label") == "tests/demo_run_pytest.py::test_demo_pytest"

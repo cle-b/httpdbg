@@ -208,7 +208,7 @@ def httpdbg_initiator(
         current_initiator = Initiator(
             get_new_uuid(), instruction, None, short_stack, stack
         )
-        records._initiators[current_initiator.id] = current_initiator
+        records.initiators[current_initiator.id] = current_initiator
 
         os.environ[envname] = current_initiator.id
 

@@ -206,7 +206,7 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                 if http_detected:
                     logger().info("SENDALL - http detected")
                     socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
-                    socketdata.record.initiator = records.get_initiator()
+                    socketdata.record.initiator_id = records.get_initiator()
                     socketdata.record.address = socketdata.address
                     socketdata.record.ssl = socketdata.ssl
                     socketdata.record.request.rawdata = socketdata.rawdata
@@ -251,7 +251,7 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
-                    socketdata.record.initiator = records.get_initiator()
+                    socketdata.record.initiator_id = records.get_initiator()
                     socketdata.record.address = socketdata.address
                     socketdata.record.ssl = socketdata.ssl
                     socketdata.record.request.rawdata = socketdata.rawdata
@@ -315,7 +315,7 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
-                    socketdata.record.initiator = records.get_initiator()
+                    socketdata.record.initiator_id = records.get_initiator()
                     socketdata.record.address = socketdata.address
                     socketdata.record.ssl = socketdata.ssl
                     socketdata.record.request.rawdata = socketdata.rawdata

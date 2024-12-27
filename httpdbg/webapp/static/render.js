@@ -281,12 +281,16 @@ function clean(force_clean = false) {
         hide_elts(".comparison", true);
 
         var tmprequests = {};
+        var tmpinitiators = {};
 
         for (const [request_id, request] of Object.entries(global.requests)) {
             if (request.pin == "checked") {
                 tmprequests[request_id] = request
+                tmpinitiators[request.initiator_id] = global.initiators[request.initiator_id];
             }
         };
+
+        global.initiators = tmpinitiators;
 
         global.requests = {};
 

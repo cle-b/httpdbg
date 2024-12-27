@@ -3,6 +3,7 @@
 const global = {
     "k7": null,
     "requests": {},
+    "initiators": {},
     "connected": false,
     "initiator_collapse": []
 }
@@ -17,6 +18,8 @@ function save_request(request_id, request) {
         request.filter = "---";
     }
     global.requests[request_id] = request;
+
+    global.requests[request_id].initiator = global.initiators[request.initiator_id];
 
     if (global.requests[request_id].in_progress) {
         global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" alt="loading"/>';
@@ -62,6 +65,10 @@ async function get_all_requests() {
                 clean();
             };
 
+            // for the initiators, we can just save them without any verification
+            Object.assign(global.initiators, data.initiators);
+
+            // for the requests, we may have to update them 
             for (const [request_id, request] of Object.entries(data.requests)) {
                 if (!(request_id in global.requests)) {
                     // this is a new request
@@ -109,7 +116,7 @@ async function get_request(request_id) {
             }
 
             // the full stack is not present in request summary
-            global.requests[request_id].initiator = data.initiator;
+            global.requests[request_id].initiator_id = data.initiator_id;
 
             global.requests[request_id].to_refresh = true;
 

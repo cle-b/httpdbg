@@ -214,7 +214,7 @@ class HTTPRecord:
         self.id = get_new_uuid()
         self.address: Tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
-        self.initiator: Initiator = Initiator("", "", None, "", [])
+        self.initiator_id: Union[str, None] = None
         self.exception: Union[Exception, None] = None
         self.request: HTTPRecordRequest = HTTPRecordRequest()
         self.response: HTTPRecordResponse = HTTPRecordResponse()
@@ -298,7 +298,7 @@ class HTTPRecords:
         self.id = get_new_uuid()
         self.requests: Dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
-        self._initiators: Dict[str, Initiator] = {}
+        self.initiators: Dict[str, Initiator] = {}
         self._sockets: Dict[int, SocketRawData] = {}
 
     @property
@@ -311,11 +311,11 @@ class HTTPRecords:
     def __len__(self) -> int:
         return len(self.requests)
 
-    def get_initiator(self) -> Initiator:
+    def get_initiator(self) -> str:
         envname = f"{HTTPDBG_CURRENT_INITIATOR}_{self.id}"
 
         if envname in os.environ:
-            initiator = self._initiators[os.environ[envname]]
+            initiator = self.initiators[os.environ[envname]]
         else:
             fullstack = traceback.format_stack()
             stack: List[str] = []
@@ -340,7 +340,10 @@ class HTTPRecords:
                 initiator.stack,
             )
 
-        return initiator
+        if initiator.id not in self.initiators:
+            self.initiators[initiator.id] = initiator
+
+        return initiator.id
 
     def get_socket_data(
         self, obj, extra_sock=None, force_new=False, request=None
@@ -417,9 +420,11 @@ class HTTPRecords:
     def add_new_record_exception(
         self, initiator: Initiator, url: str, exception: Exception
     ) -> HTTPRecord:
+        if initiator.id not in self.initiators:
+            self.initiators[initiator.id] = initiator
         new_record = HTTPRecord()
         new_record.url = url
-        new_record.initiator = initiator
+        new_record.initiator_id = initiator.id
         new_record.exception = exception
         self.requests[new_record.id] = new_record
         return new_record

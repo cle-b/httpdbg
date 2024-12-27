@@ -40,13 +40,11 @@ def test_httpx_initiator(httpbin, monkeypatch):
             httpx.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
-    http_record = records[0]
+    initiator = records.initiators[records[0].initiator_id]
 
-    assert http_record.initiator.short_label == 'httpx.get(f"{httpbin.url}/get")'
-    assert http_record.initiator.long_label is None
-    assert 'httpx.get(f"{httpbin.url}/get") <===' in "".join(
-        http_record.initiator.stack
-    )
+    assert initiator.short_label == 'httpx.get(f"{httpbin.url}/get")'
+    assert initiator.long_label is None
+    assert 'httpx.get(f"{httpbin.url}/get") <===' in "".join(initiator.stack)
 
 
 @pytest.mark.httpx
@@ -274,13 +272,11 @@ async def test_httpx_initiator_asyncclient(httpbin, monkeypatch):
                 await client.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
-    http_record = records[0]
+    initiator = records.initiators[records[0].initiator_id]
 
-    assert http_record.initiator.short_label == 'await client.get(f"{httpbin.url}/get")'
-    assert http_record.initiator.long_label is None
-    assert 'await client.get(f"{httpbin.url}/get") <===' in "".join(
-        http_record.initiator.stack
-    )
+    assert initiator.short_label == 'await client.get(f"{httpbin.url}/get")'
+    assert initiator.long_label is None
+    assert 'await client.get(f"{httpbin.url}/get") <===' in "".join(initiator.stack)
 
 
 @pytest.mark.httpx

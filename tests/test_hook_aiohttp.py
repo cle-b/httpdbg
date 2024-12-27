@@ -46,15 +46,11 @@ async def test_aiohttp_initiator(httpbin, monkeypatch):
                 await session.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
-    http_record = records[0]
+    initiator = records.initiators[records[0].initiator_id]
 
-    assert (
-        http_record.initiator.short_label == 'await session.get(f"{httpbin.url}/get")'
-    )
-    assert http_record.initiator.long_label is None
-    assert 'await session.get(f"{httpbin.url}/get") <====' in "".join(
-        http_record.initiator.stack
-    )
+    assert initiator.short_label == 'await session.get(f"{httpbin.url}/get")'
+    assert initiator.long_label is None
+    assert 'await session.get(f"{httpbin.url}/get") <====' in "".join(initiator.stack)
 
 
 @pytest.mark.aiohttp
