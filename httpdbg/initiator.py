@@ -7,7 +7,12 @@ from typing import Generator
 from typing import List
 from typing import Tuple
 from typing import Union
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from httpdbg.records import HTTPRecords
+
+from httpdbg.env import HTTPDBG_CURRENT_GROUP
 from httpdbg.env import HTTPDBG_CURRENT_INITIATOR
 from httpdbg.env import HTTPDBG_CURRENT_TAG
 from httpdbg.hooks.utils import getcallargs
@@ -15,26 +20,23 @@ from httpdbg.utils import get_new_uuid
 from httpdbg.log import logger
 
 
-class Initiator(object):
+class Initiator:
     def __init__(
         self,
         id: str,
-        short_label: str,
-        long_label: Union[str, None],
+        label: str,
         short_stack: str,
         stack: List[str],
     ):
         self.id = id
-        self.short_label = short_label
-        self.long_label = long_label
+        self.label = label
         self.short_stack = short_stack
         self.stack = stack
 
     def __eq__(self, other) -> bool:
         if type(other) is Initiator:
             return (
-                self.short_label == other.short_label
-                and self.long_label == other.long_label
+                self.label == other.label
                 and self.short_stack == other.short_stack
                 and self.stack == other.stack
             )
@@ -45,19 +47,27 @@ class Initiator(object):
         if full:
             json = {
                 "id": self.id,
-                "short_label": self.short_label,
-                "long_label": self.long_label,
+                "label": self.label,
                 "short_stack": self.short_stack,
                 "stack": "\n".join(self.stack),
             }
         else:
             json = {
                 "id": self.id,
-                "short_label": self.short_label,
-                "long_label": self.long_label,
+                "label": self.label,
                 "short_stack": self.short_stack,
             }
         return json
+
+
+class Group:
+    def __init__(self, id: str, label: str, full_label: str):
+        self.id = id
+        self.label = label
+        self.full_label = full_label
+
+    def to_json(self) -> dict:
+        return {"id": self.id, "label": self.label, "full_label": self.full_label}
 
 
 def compatible_path(path: str) -> str:
@@ -205,15 +215,16 @@ def httpdbg_initiator(
             short_stack += f"    {k}={v}\n"
         short_stack += ")"
 
-        current_initiator = Initiator(
-            get_new_uuid(), instruction, None, short_stack, stack
-        )
+        current_initiator = Initiator(get_new_uuid(), instruction, short_stack, stack)
         records.initiators[current_initiator.id] = current_initiator
 
         os.environ[envname] = current_initiator.id
 
         try:
-            yield current_initiator
+            with httpdbg_group(
+                records, instruction, short_stack
+            ):  # by default we group the requests by initiator
+                yield current_initiator
         except Exception:
             del os.environ[envname]
             raise
@@ -233,6 +244,7 @@ def httpdbg_tag(tag: str) -> Generator[None, None, None]:
         os.environ[HTTPDBG_CURRENT_TAG] = tag
 
     try:
+        logger().info(f"httpdbg_tag {tag}")
         yield
     except Exception:
         if (not tag_already_set) and (HTTPDBG_CURRENT_TAG in os.environ):
@@ -241,3 +253,30 @@ def httpdbg_tag(tag: str) -> Generator[None, None, None]:
 
     if (not tag_already_set) and (HTTPDBG_CURRENT_TAG in os.environ):
         del os.environ[HTTPDBG_CURRENT_TAG]
+
+
+@contextmanager
+def httpdbg_group(
+    records: "HTTPRecords", label: str, full_label: str
+) -> Generator[None, None, None]:
+
+    group_already_set = HTTPDBG_CURRENT_GROUP in os.environ
+
+    if not group_already_set:
+        logger().info("httpdbg_group (new)")
+        group_id = get_new_uuid()
+        records.groups[group_id] = Group(group_id, label, full_label)
+        os.environ[HTTPDBG_CURRENT_GROUP] = group_id
+
+    try:
+        logger().info(
+            f"httpdbg_group {records.groups} group_id={os.environ[HTTPDBG_CURRENT_GROUP]} label={label} full_label={full_label}"
+        )
+        yield
+    except Exception:
+        if (not group_already_set) and (HTTPDBG_CURRENT_GROUP in os.environ):
+            del os.environ[HTTPDBG_CURRENT_GROUP]
+        raise
+
+    if (not group_already_set) and (HTTPDBG_CURRENT_GROUP in os.environ):
+        del os.environ[HTTPDBG_CURRENT_GROUP]

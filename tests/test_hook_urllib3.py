@@ -40,19 +40,17 @@ def test_urllib3_initiator(httpbin, monkeypatch):
     assert len(records) == 2
 
     assert (
-        records.initiators[records[0].initiator_id].short_label
+        records.initiators[records[0].initiator_id].label
         == 'http.request("GET", f"{httpbin.url}/get")'
     )
-    assert records.initiators[records[0].initiator_id].long_label is None
     assert 'http.request("GET", f"{httpbin.url}/get") <===' in "".join(
         records.initiators[records[0].initiator_id].stack
     )
 
     assert (
-        records.initiators[records[1].initiator_id].short_label
+        records.initiators[records[1].initiator_id].label
         == 'http.request("GET", "/get")'
     )
-    assert records.initiators[records[1].initiator_id].long_label is None
     assert 'http.request("GET", "/get") <===' in "".join(
         records.initiators[records[1].initiator_id].stack
     )
@@ -74,19 +72,17 @@ def test_urllib3_initiator_secure(httpbin_secure, monkeypatch):
     assert len(records) == 2
 
     assert (
-        records.initiators[records[0].initiator_id].short_label
+        records.initiators[records[0].initiator_id].label
         == 'http.request("GET", f"{httpbin_secure.url}/get")'
     )
-    assert records.initiators[records[0].initiator_id].long_label is None
     assert 'http.request("GET", f"{httpbin_secure.url}/get") <===' in "".join(
         records.initiators[records[0].initiator_id].stack
     )
 
     assert (
-        records.initiators[records[1].initiator_id].short_label
+        records.initiators[records[1].initiator_id].label
         == 'http.request("GET", "/get")'
     )
-    assert records.initiators[records[1].initiator_id].long_label is None
     assert 'http.request("GET", "/get") <===' in "".join(
         records.initiators[records[1].initiator_id].stack
     )
@@ -264,11 +260,7 @@ def test_urllib3_v2_request(httpbin, monkeypatch):
 
     assert len(records) == 1
 
-    assert (
-        records[0].initiator.short_label
-        == 'urllib3.request("GET", f"{httpbin.url}/get")'
-    )
-    assert records[0].initiator.long_label is None
+    assert records[0].initiator.label == 'urllib3.request("GET", f"{httpbin.url}/get")'
     assert 'urllib3.request("GET", f"{httpbin.url}/get") <===' in "".join(
         records[0].initiator.stack
     )

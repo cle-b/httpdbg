@@ -33,7 +33,7 @@ function apply_config() {
     }
 
     apply_config_rule_css(httpdbgApp.config.hide_netloc, sheet);
-    apply_config_rule_css(httpdbgApp.config.hide_initiator, sheet);
+    apply_config_rule_css(httpdbgApp.config.hide_group, sheet);
     apply_config_rule_css(httpdbgApp.config.hide_tag, sheet);
 
     apply_config_rule_click(httpdbgApp.config.details_wrap_default);
@@ -48,7 +48,7 @@ function load_config_from_url(apply) {
     const params = new URLSearchParams(window.location.search);
 
     load_config_rule_from_url(httpdbgApp.config.hide_netloc, params);
-    load_config_rule_from_url(httpdbgApp.config.hide_initiator, params);
+    load_config_rule_from_url(httpdbgApp.config.hide_group, params);
     load_config_rule_from_url(httpdbgApp.config.hide_tag, params);
     load_config_rule_from_url(httpdbgApp.config.details_wrap_default, params);
     load_config_rule_from_url(httpdbgApp.config.details_raw_default, params);
@@ -66,7 +66,7 @@ function load_config_from_form(apply) {
     const params = new URLSearchParams(window.location.search);
 
     load_config_rule_from_form(httpdbgApp.config.hide_netloc);
-    load_config_rule_from_form(httpdbgApp.config.hide_initiator);
+    load_config_rule_from_form(httpdbgApp.config.hide_group);
     load_config_rule_from_form(httpdbgApp.config.hide_tag);
     load_config_rule_from_form(httpdbgApp.config.details_wrap_default);
     load_config_rule_from_form(httpdbgApp.config.details_raw_default);

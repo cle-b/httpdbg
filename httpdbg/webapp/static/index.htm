@@ -17,7 +17,7 @@
     <style type="text/css" id="filter"></style>
     <style type="text/css" id="configurationcss"></style>
     <style type="text/css" id="serverstatuscss"></style>
-    <style type="text/css" id="collapseinitiatorcss"></style>
+    <style type="text/css" id="collapsegroupcss"></style>
     <script src="static/mustache.min.js-+-$**HTTPDBG_VERSION**$"></script>
     <script src="static/main.js-+-$**HTTPDBG_VERSION**$"></script>
     <script src="static/api.js-+-$**HTTPDBG_VERSION**$"></script>
@@ -67,7 +67,7 @@
                         <br>
 
                         <input type="checkbox" id="cinitiator" name="hi" onchange="load_config_from_form(true)">
-                        <label for="cinitiator">Hide the initiator rows</label>
+                        <label for="cinitiator">Hide the group rows</label>
 
                         <br>
 
@@ -158,15 +158,15 @@
                     </tr>
                 </thead>
 
-                <script id="template_initiator" type="x-tmpl-mustache">
-                    <tbody id="initiator-{{initiator.id}}" name="initiator" class="initiator-header">
-                        <tr class="initiator">
+                <script id="template_group" type="x-tmpl-mustache">
+                    <tbody id="group-{{id}}" name="group" class="group-header">
+                        <tr class="group">
                             <td class="collapse" onclick="event.stopPropagation();">
-                                <input class="collapse-checkbox" type="checkbox" id="collapse{{initiator.id}}" onclick="collapse_initiator('{{initiator.id}}',this.checked)">
-                                <label class="collapse-icon" for="collapse{{initiator.id}}"><img class="icon" src="static/icons/chevron-direction-top-outline-icon.svg-+-$**HTTPDBG_VERSION**$" alt="click to collapse/expand"/></label>
+                                <input class="collapse-checkbox" type="checkbox" id="collapse{{id}}" onclick="collapse_group('{{id}}',this.checked)">
+                                <label class="collapse-icon" for="collapse{{id}}"><img class="icon" src="static/icons/chevron-direction-top-outline-icon.svg-+-$**HTTPDBG_VERSION**$" alt="click to collapse/expand"/></label>
                             </td>
-                            <td colspan="3" class="initiator-label" title="{{initiator.long_label}}">
-                                {{initiator.short_label}}
+                            <td colspan="3" class="group-label" title="{{full_label}}">
+                                {{label}}
                             </td>
                         </tr>
                     </tbody>
@@ -175,7 +175,7 @@
                 <script id="template_request" type="x-tmpl-mustache">
                     <tr id="request-{{id}}"
                         data-filter="{{filter}}"
-                        data-initiator="{{initiator.id}}"
+                        data-group="{{group_id}}"
                         onclick="select_request(arguments[0], '{{id}}')"
                         onkeypress="shortcut_request(event, '{{id}}')"
                         class="request"

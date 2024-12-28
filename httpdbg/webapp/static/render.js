@@ -5,7 +5,7 @@ var k7_id = null;
 async function refresh_resquests() {
     var table = document.getElementById("requests-list");
     var template_request = document.getElementById("template_request").innerHTML;
-    var template_initiator = document.getElementById("template_initiator").innerHTML;
+    var template_group = document.getElementById("template_group").innerHTML;
 
     if (global.k7 != k7_id) {
         clean();
@@ -24,14 +24,13 @@ async function refresh_resquests() {
 
             var rendered = Mustache.render(template_request, request);
             if (!elt) {
-                var elt_initiator = document.getElementById("initiator-" + request.initiator.id);
-                if (!elt_initiator) {
-                    request.initiator.long_label = request.initiator.long_label || request.initiator.short_stack;
-                    var rendered_initiator = Mustache.render(template_initiator, request);
-                    table.insertAdjacentHTML("beforeend", rendered_initiator);
-                    elt_initiator = document.getElementById("initiator-" + request.initiator.id);
+                var elt_group = document.getElementById("group-" + request.group_id);
+                if (!elt_group) {
+                    var rendered_group = Mustache.render(template_group, global.groups[request.group_id]);
+                    table.insertAdjacentHTML("beforeend", rendered_group);
+                    elt_group = document.getElementById("group-" + request.group_id);
                 };
-                elt_initiator.insertAdjacentHTML("beforeend", rendered);
+                elt_group.insertAdjacentHTML("beforeend", rendered);
             } else {
                 elt.innerHTML = rendered;
             };
@@ -270,7 +269,7 @@ function clean(force_clean = false) {
     var onlynew = document.getElementById("onlynew");
     if (onlynew.checked || force_clean) {
 
-        var initiators = document.getElementsByName("initiator");
+        var initiators = document.getElementsByName("group");
         while (initiators.length > 0) {
             initiators[0].remove();
         }
@@ -282,15 +281,18 @@ function clean(force_clean = false) {
 
         var tmprequests = {};
         var tmpinitiators = {};
+        var tmpgroups = {};
 
         for (const [request_id, request] of Object.entries(global.requests)) {
             if (request.pin == "checked") {
                 tmprequests[request_id] = request
                 tmpinitiators[request.initiator_id] = global.initiators[request.initiator_id];
+                tmpgroups[request.group_id] = global.groups[request.group_id];
             }
         };
 
         global.initiators = tmpinitiators;
+        global.groups = tmpgroups;
 
         global.requests = {};
 
@@ -298,9 +300,9 @@ function clean(force_clean = false) {
             save_request(request_id, request);
         };
 
-        global.initiator_collapse = [];
+        global.group_collapse = [];
 
-        update_collapse_initiator();
+        update_collapse_group();
     }
 }
 

@@ -88,9 +88,5 @@ def test_run_script_initiator(httpbin, httpdbg_host, httpdbg_port):
     initiatiors = ret.json()["initiators"]
     initiator = initiatiors[reqs[list(reqs.keys())[0]]["initiator_id"]]
 
-    assert initiator["short_label"] == "test_run_script_initiator"
-    assert (
-        initiator["long_label"]
-        == "tests/test_mode_script.py::test_run_script_initiator"
-    )
+    assert initiator["label"] == '_ = requests.get(f"{base_url}/get")'
     assert '_ = requests.get(f"{base_url}/get")' in initiator["short_stack"]

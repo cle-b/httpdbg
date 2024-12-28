@@ -4,8 +4,9 @@ const global = {
     "k7": null,
     "requests": {},
     "initiators": {},
+    "groups": {},    
     "connected": false,
-    "initiator_collapse": []
+    "group_collapse": []
 }
 
 function save_request(request_id, request) {
@@ -65,8 +66,9 @@ async function get_all_requests() {
                 clean();
             };
 
-            // for the initiators, we can just save them without any verification
+            // for the initiators and the groups, we can just save them without any verification
             Object.assign(global.initiators, data.initiators);
+            Object.assign(global.groups, data.groups);
 
             // for the requests, we may have to update them 
             for (const [request_id, request] of Object.entries(data.requests)) {

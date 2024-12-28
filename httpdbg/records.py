@@ -9,6 +9,7 @@ import traceback
 from urllib.parse import urlparse
 from typing import Dict, List, Tuple, Union
 
+from httpdbg.env import HTTPDBG_CURRENT_GROUP
 from httpdbg.env import HTTPDBG_CURRENT_INITIATOR
 from httpdbg.env import HTTPDBG_CURRENT_TAG
 from httpdbg.utils import HTTPDBGCookie
@@ -221,6 +222,7 @@ class HTTPRecord:
         self.ssl: Union[bool, None] = None
         self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         self.tag = os.environ.get(HTTPDBG_CURRENT_TAG)
+        self.group_id = os.environ.get(HTTPDBG_CURRENT_GROUP)
         if tbegin:
             self.tbegin = tbegin
 
@@ -295,10 +297,12 @@ class HTTPRecords:
         self.reset()
 
     def reset(self) -> None:
+        logger().info("HTTPRecords.reset")
         self.id = get_new_uuid()
         self.requests: Dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
         self.initiators: Dict[str, Initiator] = {}
+        self.groups: Dict[str, str] = {}
         self._sockets: Dict[int, SocketRawData] = {}
 
     @property
@@ -324,21 +328,8 @@ class HTTPRecords:
                     break
                 stack.append(line)
             long_label = stack[-1]
-            short_label = long_label.split("\n")[1]
-            initiator = Initiator(get_new_uuid(), short_label, None, long_label, stack)
-
-        if ("PYTEST_CURRENT_TEST" in os.environ) and (
-            "HTTPDBG_PYTEST_PLUGIN" not in os.environ
-        ):
-            long_label = " ".join(os.environ["PYTEST_CURRENT_TEST"].split(" ")[:-1])
-            short_label = long_label.split("::")[-1]
-            initiator = Initiator(
-                f"{long_label}{self.id}",
-                short_label,
-                long_label,
-                initiator.short_stack,
-                initiator.stack,
-            )
+            label = long_label.split("\n")[1]
+            initiator = Initiator(get_new_uuid(), label, long_label, stack)
 
         if initiator.id not in self.initiators:
             self.initiators[initiator.id] = initiator

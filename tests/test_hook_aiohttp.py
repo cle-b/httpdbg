@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
 import platform
-import sys
 
 import aiohttp
 import pytest
@@ -42,8 +41,7 @@ async def test_aiohttp_initiator(httpbin, monkeypatch):
     assert len(records) == 1
     initiator = records.initiators[records[0].initiator_id]
 
-    assert initiator.short_label == 'await session.get(f"{httpbin.url}/get")'
-    assert initiator.long_label is None
+    assert initiator.label == 'await session.get(f"{httpbin.url}/get")'
     assert 'await session.get(f"{httpbin.url}/get") <====' in "".join(initiator.stack)
 
 

@@ -34,8 +34,7 @@ def test_requests_initiator(httpbin, monkeypatch):
     assert len(records) == 1
     initiator = records.initiators[records[0].initiator_id]
 
-    assert initiator.short_label == 'requests.get(f"{httpbin.url}/get")'
-    assert initiator.long_label is None
+    assert initiator.label == 'requests.get(f"{httpbin.url}/get")'
     assert 'requests.get(f"{httpbin.url}/get") <===' in "".join(initiator.stack)
 
 
