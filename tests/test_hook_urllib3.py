@@ -256,7 +256,10 @@ def test_urllib3_v2_request(httpbin):
 
     assert len(records) == 1
 
-    assert records.initiators[records[0].initiator_id].label == 'urllib3.request("GET", f"{httpbin.url}/get")'
+    assert (
+        records.initiators[records[0].initiator_id].label
+        == 'urllib3.request("GET", f"{httpbin.url}/get")'
+    )
     assert 'urllib3.request("GET", f"{httpbin.url}/get") <===' in "".join(
         records.initiators[records[0].initiator_id].stack
     )
