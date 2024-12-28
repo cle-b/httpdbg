@@ -23,7 +23,8 @@ def my_fixture():
 
     requests.post(f"{base_url}/post")
 
+
 def test_demo_pytest_fixture_tag(my_fixture):
     base_url = os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"]
 
-    requests.get(f"{base_url}/get")    
+    requests.get(f"{base_url}/get")

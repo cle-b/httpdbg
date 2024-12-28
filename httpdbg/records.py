@@ -15,6 +15,7 @@ from httpdbg.env import HTTPDBG_CURRENT_TAG
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
 from httpdbg.initiator import in_lib
+from httpdbg.initiator import Group
 from httpdbg.initiator import Initiator
 from httpdbg.preview import generate_preview
 from httpdbg.utils import get_new_uuid
@@ -302,7 +303,7 @@ class HTTPRecords:
         self.requests: Dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
         self.initiators: Dict[str, Initiator] = {}
-        self.groups: Dict[str, str] = {}
+        self.groups: Dict[str, Group] = {}
         self._sockets: Dict[int, SocketRawData] = {}
 
     @property

@@ -113,6 +113,7 @@ def test_run_pytest_group(httpbin, httpdbg_host, httpdbg_port):
     assert group["label"] == "test_demo_pytest"
     assert group["full_label"] == "tests/demo_run_pytest.py::test_demo_pytest"
 
+
 @pytest.mark.api
 @pytest.mark.pytest
 @pytest.mark.tag
@@ -128,7 +129,7 @@ def test_run_pytest_tag(httpbin, httpdbg_host, httpdbg_port):
         ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
-    
+
     assert len(reqs) == 2
 
     assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/post"

@@ -13,10 +13,10 @@ from httpdbg.hooks.all import httprecord
     reason="problem with stack view in windows",
 )
 @pytest.mark.initiator
-def test_initiator_script(httpbin, monkeypatch):
-    with monkeypatch.context() as m:
-        with httprecord() as records:
-            requests.get(f"{httpbin.url}/get")
+def test_initiator_script(httpbin):
+
+    with httprecord() as records:
+        requests.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
     initiator = records.initiators[records[0].initiator_id]
@@ -25,7 +25,7 @@ def test_initiator_script(httpbin, monkeypatch):
 
     assert (
         """test_initiator.py", line 19, in test_initiator_script
- 19.             requests.get(f"{httpbin.url}/get")
+ 19.         requests.get(f"{httpbin.url}/get")
 ----------
 requests.api.get(
     url="""
@@ -39,9 +39,9 @@ requests.api.get(
         """test_initiator.py", line 19, 
  15. @pytest.mark.initiator
  16. def test_initiator_script(httpbin, monkeypatch):
- 17.     with monkeypatch.context() as m:
- 18.         with httprecord() as records:
- 19.             requests.get(f"{httpbin.url}/get") <====
+ 17. 
+ 18.     with httprecord() as records:
+ 19.         requests.get(f"{httpbin.url}/get") <====
  20. 
  21.     assert len(records) == 1
  22.     initiator = records.initiators[records[0].initiator_id]
@@ -49,7 +49,7 @@ requests.api.get(
  24.     assert initiator.label == 'requests.get(f"{httpbin.url}/get")'
  25."""  # noqa W291
         in initiator.stack[0]
-    )
+    ), initiator.stack[0]
 
 
 @pytest.mark.initiator
