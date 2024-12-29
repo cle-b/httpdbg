@@ -222,8 +222,8 @@ class HTTPRecord:
         self.response: HTTPRecordResponse = HTTPRecordResponse()
         self.ssl: Union[bool, None] = None
         self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
-        self.tag = os.environ.get(HTTPDBG_CURRENT_TAG)
-        self.group_id = os.environ.get(HTTPDBG_CURRENT_GROUP)
+        self.tag: Union[str, None] = os.environ.get(HTTPDBG_CURRENT_TAG)
+        self.group_id: Union[str, None] = os.environ.get(HTTPDBG_CURRENT_GROUP)
         if tbegin:
             self.tbegin = tbegin
 
