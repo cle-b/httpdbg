@@ -2,7 +2,7 @@
 
 let httpdbgApp = {
     "config": {
-        "hide_initiator": {
+        "hide_group": {
             "checkbox": "cinitiator",
             "param": "hi",
             "css": ".initiator {display: none;}",

@@ -40,45 +40,50 @@ def test_urllib3_initiator(httpbin, monkeypatch):
     assert len(records) == 2
 
     assert (
-        records[0].initiator.short_label == 'http.request("GET", f"{httpbin.url}/get")'
+        records.initiators[records[0].initiator_id].label
+        == 'http.request("GET", f"{httpbin.url}/get")'
     )
-    assert records[0].initiator.long_label is None
     assert 'http.request("GET", f"{httpbin.url}/get") <===' in "".join(
-        records[0].initiator.stack
+        records.initiators[records[0].initiator_id].stack
     )
 
-    assert records[1].initiator.short_label == 'http.request("GET", "/get")'
-    assert records[1].initiator.long_label is None
-    assert 'http.request("GET", "/get") <===' in "".join(records[1].initiator.stack)
+    assert (
+        records.initiators[records[1].initiator_id].label
+        == 'http.request("GET", "/get")'
+    )
+    assert 'http.request("GET", "/get") <===' in "".join(
+        records.initiators[records[1].initiator_id].stack
+    )
 
 
 @pytest.mark.initiator
 @pytest.mark.urllib3
-def test_urllib3_initiator_secure(httpbin_secure, monkeypatch):
-    with monkeypatch.context() as m:
-        m.delenv("PYTEST_CURRENT_TEST")
-        with httprecord() as records:
-            with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
-                http.request("GET", f"{httpbin_secure.url}/get")
-            with urllib3.HTTPSConnectionPool(
-                f"{httpbin_secure.url[8:]}", cert_reqs="CERT_NONE"
-            ) as http:
-                http.request("GET", "/get")
+def test_urllib3_initiator_secure(httpbin_secure):
+    with httprecord() as records:
+        with urllib3.PoolManager(cert_reqs="CERT_NONE") as http:
+            http.request("GET", f"{httpbin_secure.url}/get")
+        with urllib3.HTTPSConnectionPool(
+            f"{httpbin_secure.url[8:]}", cert_reqs="CERT_NONE"
+        ) as http:
+            http.request("GET", "/get")
 
     assert len(records) == 2
 
     assert (
-        records[0].initiator.short_label
+        records.initiators[records[0].initiator_id].label
         == 'http.request("GET", f"{httpbin_secure.url}/get")'
     )
-    assert records[0].initiator.long_label is None
     assert 'http.request("GET", f"{httpbin_secure.url}/get") <===' in "".join(
-        records[0].initiator.stack
+        records.initiators[records[0].initiator_id].stack
     )
 
-    assert records[1].initiator.short_label == 'http.request("GET", "/get")'
-    assert records[1].initiator.long_label is None
-    assert 'http.request("GET", "/get") <===' in "".join(records[1].initiator.stack)
+    assert (
+        records.initiators[records[1].initiator_id].label
+        == 'http.request("GET", "/get")'
+    )
+    assert 'http.request("GET", "/get") <===' in "".join(
+        records.initiators[records[1].initiator_id].stack
+    )
 
 
 @pytest.mark.urllib3
@@ -245,19 +250,16 @@ def test_urllib3_get_empty_request_content(httpbin_both):
     < version.parse("2.0.0"),
     reason="only urllib3 v2",
 )
-def test_urllib3_v2_request(httpbin, monkeypatch):
-    with monkeypatch.context() as m:
-        m.delenv("PYTEST_CURRENT_TEST")
-        with httprecord() as records:
-            urllib3.request("GET", f"{httpbin.url}/get")
+def test_urllib3_v2_request(httpbin):
+    with httprecord() as records:
+        urllib3.request("GET", f"{httpbin.url}/get")
 
     assert len(records) == 1
 
     assert (
-        records[0].initiator.short_label
+        records.initiators[records[0].initiator_id].label
         == 'urllib3.request("GET", f"{httpbin.url}/get")'
     )
-    assert records[0].initiator.long_label is None
     assert 'urllib3.request("GET", f"{httpbin.url}/get") <===' in "".join(
-        records[0].initiator.stack
+        records.initiators[records[0].initiator_id].stack
     )

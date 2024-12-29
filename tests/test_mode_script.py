@@ -73,6 +73,7 @@ def test_run_script_not_a_python_script(httpbin, capsys):
 
 @pytest.mark.api
 @pytest.mark.script
+@pytest.mark.initiator
 def test_run_script_initiator(httpbin, httpdbg_host, httpdbg_port):
     with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
         with httprecord(records):
@@ -84,16 +85,8 @@ def test_run_script_initiator(httpbin, httpdbg_host, httpdbg_port):
         ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
 
     reqs = ret.json()["requests"]
+    initiatiors = ret.json()["initiators"]
+    initiator = initiatiors[reqs[list(reqs.keys())[0]]["initiator_id"]]
 
-    assert (
-        reqs[list(reqs.keys())[0]]["initiator"]["short_label"]
-        == "test_run_script_initiator"
-    )
-    assert (
-        reqs[list(reqs.keys())[0]]["initiator"]["long_label"]
-        == "tests/test_mode_script.py::test_run_script_initiator"
-    )
-    assert (
-        '_ = requests.get(f"{base_url}/get")'
-        in reqs[list(reqs.keys())[0]]["initiator"]["short_stack"]
-    )
+    assert initiator["label"] == '_ = requests.get(f"{base_url}/get")'
+    assert '_ = requests.get(f"{base_url}/get")' in initiator["short_stack"]

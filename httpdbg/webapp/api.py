@@ -21,7 +21,8 @@ class RequestPayload(JSONEncoder):
             "response": None,
             "exception": None,
             "tag": req.tag,
-            "initiator": req.initiator.to_json(),
+            "initiator_id": req.initiator_id,
+            "group_id": req.group_id,
             "in_progress": req.in_progress,
         }
 
@@ -64,7 +65,12 @@ class RequestListPayload(JSONEncoder):
             records, HTTPRecords
         ), "This encoder works only for HTTPRecords object."
 
-        payload = {"id": records.id, "requests": {}}
+        payload = {
+            "id": records.id,
+            "requests": {},
+            "initiators": {},
+            "groups": {},
+        }
 
         for id, req in records.requests.items():
             payload["requests"][id] = {
@@ -76,10 +82,17 @@ class RequestListPayload(JSONEncoder):
                 "reason": req.reason,
                 "verb": req.method,
                 "tag": req.tag,
-                "initiator": req.initiator.to_json(full=False),
+                "initiator_id": req.initiator_id,
+                "group_id": req.group_id,
                 "in_progress": req.in_progress,
                 "tbegin": req.tbegin.isoformat(),
                 "last_update": req.last_update.isoformat(),
             }
+
+        for id, initiator in records.initiators.items():
+            payload["initiators"][id] = initiator.to_json()
+
+        for id, group in records.groups.items():
+            payload["groups"][id] = group.to_json()
 
         return payload

@@ -41,11 +41,11 @@
     font-size: 0.8em;
 }
 
-.initiator-label {
+.group-label {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    background-color: var(--table-initiator);
+    background-color: var(--table-group);
 }
 
 .pin {
@@ -88,12 +88,12 @@
     padding: 6px !important;
 }
 
-.initiator-header {
+.group-header {
     display: none;
 }
 
-.initiator {
-    background-color: var(--table-initiator);
+.group {
+    background-color: var(--table-group);
 }
 
 .request {
@@ -137,7 +137,7 @@
     width: 16px;
     padding: 2px !important;
     transform: rotate(180deg);
-    background-color: var(--table-initiator);
+    background-color: var(--table-group);
     opacity: 0.4;
 }
 

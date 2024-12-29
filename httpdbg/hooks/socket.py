@@ -206,7 +206,7 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                 if http_detected:
                     logger().info("SENDALL - http detected")
                     socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
-                    socketdata.record.initiator = records.get_initiator()
+                    socketdata.record.initiator_id = records.get_initiator()
                     socketdata.record.address = socketdata.address
                     socketdata.record.ssl = socketdata.ssl
                     socketdata.record.request.rawdata = socketdata.rawdata
@@ -251,7 +251,7 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
-                    socketdata.record.initiator = records.get_initiator()
+                    socketdata.record.initiator_id = records.get_initiator()
                     socketdata.record.address = socketdata.address
                     socketdata.record.ssl = socketdata.ssl
                     socketdata.record.request.rawdata = socketdata.rawdata
@@ -315,7 +315,7 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
-                    socketdata.record.initiator = records.get_initiator()
+                    socketdata.record.initiator_id = records.get_initiator()
                     socketdata.record.address = socketdata.address
                     socketdata.record.ssl = socketdata.ssl
                     socketdata.record.request.rawdata = socketdata.rawdata
@@ -413,7 +413,7 @@ def hook_socket(records: HTTPRecords) -> Generator[None, None, None]:
     )
 
     # only for async HTTP requests (not HTTPS) on Windows
-    if (platform.system().lower() == "windows") and (sys.version_info >= (3, 7)):
+    if platform.system().lower() == "windows":
         asyncio.proactor_events._ProactorReadPipeTransport._data_received = decorate(  # type: ignore
             records,
             asyncio.proactor_events._ProactorReadPipeTransport._data_received,  # type: ignore
@@ -455,7 +455,7 @@ def hook_socket(records: HTTPRecords) -> Generator[None, None, None]:
     )
 
     # only for async HTTP requests (not HTTPS) on Windows
-    if (platform.system().lower() == "windows") and (sys.version_info >= (3, 7)):
+    if platform.system().lower() == "windows":
         asyncio.proactor_events._ProactorReadPipeTransport._data_received = undecorate(  # type: ignore
             asyncio.proactor_events._ProactorReadPipeTransport._data_received  # type: ignore
         )

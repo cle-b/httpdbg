@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
 import platform
-import sys
 
 import aiohttp
 import pytest
@@ -9,12 +8,6 @@ import pytest
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
 from httpdbg.hooks.all import httprecord
-
-
-@pytest.fixture(scope="module", autouse=True)
-def skip_incompatible_python():
-    if sys.version_info < (3, 7):
-        pytest.skip(reason="requires python3.7 or higher")
 
 
 @pytest.mark.aiohttp
@@ -46,15 +39,10 @@ async def test_aiohttp_initiator(httpbin, monkeypatch):
                 await session.get(f"{httpbin.url}/get")
 
     assert len(records) == 1
-    http_record = records[0]
+    initiator = records.initiators[records[0].initiator_id]
 
-    assert (
-        http_record.initiator.short_label == 'await session.get(f"{httpbin.url}/get")'
-    )
-    assert http_record.initiator.long_label is None
-    assert 'await session.get(f"{httpbin.url}/get") <====' in "".join(
-        http_record.initiator.stack
-    )
+    assert initiator.label == 'await session.get(f"{httpbin.url}/get")'
+    assert 'await session.get(f"{httpbin.url}/get") <====' in "".join(initiator.stack)
 
 
 @pytest.mark.aiohttp
