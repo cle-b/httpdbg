@@ -330,7 +330,7 @@ class HTTPRecords:
                 stack.append(line)
             long_label = stack[-1]
             label = long_label.split("\n")[1]
-            initiator = Initiator(get_new_uuid(), label, long_label, stack)
+            initiator = Initiator(label, long_label, stack)
 
         if initiator.id not in self.initiators:
             self.initiators[initiator.id] = initiator
