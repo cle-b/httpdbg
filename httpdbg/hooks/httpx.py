@@ -13,20 +13,21 @@ from httpdbg.records import HTTPRecords
 
 def set_hook_for_httpx_async(records: HTTPRecords, method: Callable):
     async def hook(*args, **kwargs):
-        initiator = None
+        initiator_and_group = None
         try:
             with httpdbg_initiator(
                 records, traceback.extract_stack(), method, *args, **kwargs
-            ) as initiator:
+            ) as initiator_and_group:
                 ret = await method(*args, **kwargs)
             return ret
         except Exception as ex:
             callargs = getcallargs(method, *args, **kwargs)
 
             if "url" in callargs:
-                if initiator:
+                if initiator_and_group:
+                    initiator, group = initiator_and_group
                     records.add_new_record_exception(
-                        initiator, str(callargs["url"]), ex
+                        initiator, group, str(callargs["url"]), ex
                     )
             raise
 
@@ -35,20 +36,21 @@ def set_hook_for_httpx_async(records: HTTPRecords, method: Callable):
 
 def set_hook_for_httpx(records: HTTPRecords, method: Callable):
     def hook(*args, **kwargs):
-        initiator = None
+        initiator_and_group = None
         try:
             with httpdbg_initiator(
                 records, traceback.extract_stack(), method, *args, **kwargs
-            ) as initiator:
+            ) as initiator_and_group:
                 ret = method(*args, **kwargs)
             return ret
         except Exception as ex:
             callargs = getcallargs(method, *args, **kwargs)
 
             if "url" in callargs:
-                if initiator:
+                if initiator_and_group:
+                    initiator, group = initiator_and_group
                     records.add_new_record_exception(
-                        initiator, str(callargs["url"]), ex
+                        initiator, group, str(callargs["url"]), ex
                     )
             raise
 

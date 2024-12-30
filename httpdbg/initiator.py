@@ -194,7 +194,7 @@ def extract_short_stack_from_file(
 @contextmanager
 def httpdbg_initiator(
     records, extracted_stack: traceback.StackSummary, original_method, *args, **kwargs
-) -> Generator[Union[Initiator, None], None, None]:
+) -> Generator[Union[Tuple[Initiator, Group], None], None, None]:
     envname = f"{HTTPDBG_CURRENT_INITIATOR}_{records.id}"
 
     if not os.environ.get(envname):
@@ -222,8 +222,8 @@ def httpdbg_initiator(
         try:
             with httpdbg_group(
                 records, instruction, short_stack
-            ):  # by default we group the requests by initiator
-                yield current_initiator
+            ) as group:  # by default we group the requests by initiator
+                yield current_initiator, group
         except Exception:
             del os.environ[envname]
             raise
@@ -257,21 +257,33 @@ def httpdbg_tag(tag: str) -> Generator[None, None, None]:
 @contextmanager
 def httpdbg_group(
     records: "HTTPRecords", label: str, full_label: str
-) -> Generator[None, None, None]:
+) -> Generator[Group, None, None]:
 
-    group_already_set = HTTPDBG_CURRENT_GROUP in os.environ
+    # A group is considered set if the environment variable exists and the group
+    # is recorded.If the environment variable exists but the group is not recorded,
+    # it means httpdbg was called reentrantly, and we need to record the group again
+    # using the same id.
+    group_already_set = (HTTPDBG_CURRENT_GROUP in os.environ) and (
+        os.environ[HTTPDBG_CURRENT_GROUP] in records.groups
+    )
 
     if not group_already_set:
         logger().info("httpdbg_group (new)")
         group = Group(label, full_label)
+        # in case of a reentrant call to httpdbg, we force the group id to be the same
+        if HTTPDBG_CURRENT_GROUP in os.environ:
+            group.id = os.environ[HTTPDBG_CURRENT_GROUP]
+            logger().info("httpdbg_group (reentrant) keep id {group.id}")
         records.groups[group.id] = group
         os.environ[HTTPDBG_CURRENT_GROUP] = group.id
+    else:
+        group = records.groups[os.environ[HTTPDBG_CURRENT_GROUP]]
 
     try:
         logger().info(
             f"httpdbg_group {records.groups} group_id={os.environ[HTTPDBG_CURRENT_GROUP]} label={label} full_label={full_label}"
         )
-        yield
+        yield group
     except Exception:
         if (not group_already_set) and (HTTPDBG_CURRENT_GROUP in os.environ):
             del os.environ[HTTPDBG_CURRENT_GROUP]
