@@ -119,6 +119,7 @@ async function get_request(request_id) {
 
             // the full stack is not present in request summary
             global.requests[request_id].initiator_id = data.initiator_id;
+            global.requests[request_id].exception = data.exception;
 
             global.requests[request_id].to_refresh = true;
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from json import JSONEncoder
+import traceback
 from typing import Any
 from typing import Dict
 
@@ -53,7 +54,11 @@ class RequestPayload(JSONEncoder):
         if req.exception is not None:
             payload["exception"] = {
                 "type": str(type(req.exception)),
-                "message": str(req.exception),
+                "message": "".join(
+                    traceback.format_exception(
+                        type(req.exception), req.exception, req.exception.__traceback__
+                    )
+                ),
             }
 
         return payload

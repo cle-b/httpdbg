@@ -410,13 +410,14 @@ class HTTPRecords:
             del self._sockets[id(obj)]
 
     def add_new_record_exception(
-        self, initiator: Initiator, url: str, exception: Exception
+        self, initiator: Initiator, group: Group, url: str, exception: Exception
     ) -> HTTPRecord:
         if initiator.id not in self.initiators:
             self.initiators[initiator.id] = initiator
         new_record = HTTPRecord()
         new_record.url = url
         new_record.initiator_id = initiator.id
+        new_record.group_id = group.id
         new_record.exception = exception
         self.requests[new_record.id] = new_record
         return new_record
