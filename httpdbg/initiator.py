@@ -23,12 +23,11 @@ from httpdbg.log import logger
 class Initiator:
     def __init__(
         self,
-        id: str,
         label: str,
         short_stack: str,
         stack: List[str],
     ):
-        self.id = id
+        self.id = get_new_uuid()
         self.label = label
         self.short_stack = short_stack
         self.stack = stack
@@ -61,10 +60,10 @@ class Initiator:
 
 
 class Group:
-    def __init__(self, id: str, label: str, full_label: str):
-        self.id = id
-        self.label = label
-        self.full_label = full_label
+    def __init__(self, label: str, full_label: str):
+        self.id: str = get_new_uuid()
+        self.label: str = label
+        self.full_label: str = full_label
 
     def to_json(self) -> dict:
         return {"id": self.id, "label": self.label, "full_label": self.full_label}
@@ -215,7 +214,7 @@ def httpdbg_initiator(
             short_stack += f"    {k}={v}\n"
         short_stack += ")"
 
-        current_initiator = Initiator(get_new_uuid(), instruction, short_stack, stack)
+        current_initiator = Initiator(instruction, short_stack, stack)
         records.initiators[current_initiator.id] = current_initiator
 
         os.environ[envname] = current_initiator.id
@@ -264,9 +263,9 @@ def httpdbg_group(
 
     if not group_already_set:
         logger().info("httpdbg_group (new)")
-        group_id = get_new_uuid()
-        records.groups[group_id] = Group(group_id, label, full_label)
-        os.environ[HTTPDBG_CURRENT_GROUP] = group_id
+        group = Group(label, full_label)
+        records.groups[group.id] = group
+        os.environ[HTTPDBG_CURRENT_GROUP] = group.id
 
     try:
         logger().info(
