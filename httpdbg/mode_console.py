@@ -21,14 +21,16 @@ class InteractiveConsoleWithHistory(code.InteractiveConsole):
 
     def push(self, line):
         if line:  # if the line is empty, we don't add it in the history
-            if self.incomplete_block:
+            if (
+                self.incomplete_block
+            ):  # if the latest instruction is part of a block, we group it with the previous one
                 self.history[-1] += (
                     "\n          " + line
                 )  # to simulate the block indentation
             else:
                 self.history.append(line)
 
-        # if the latest instruction is part of a block, we group it with the previous one
+        # if the latest instruction is part of a block, the label is generic
         label = self.history[-1] if not self.incomplete_block else "(block)"
 
         # in the full label, we keep the last 5 instructions/blocks
