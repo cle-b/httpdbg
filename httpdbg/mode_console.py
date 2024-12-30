@@ -28,7 +28,7 @@ class InteractiveConsoleWithHistory(code.InteractiveConsole):
             else:
                 self.history.append(line)
 
-        # if the latest instruction are part of a block, we group them together
+        # if the latest instruction is part of a block, we group it with the previous one
         label = self.history[-1] if not self.incomplete_block else "(block)"
 
         # in the full label, we keep the last 5 instructions/blocks
