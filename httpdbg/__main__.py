@@ -35,7 +35,7 @@ def pyhttpdbg(params, subparams, test_mode=False):
             elif params.script:
                 run_script(subparams)
             else:
-                run_console(test_mode)
+                run_console(records, test_mode)
 
         if not (params.force_quit or test_mode):
             print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
