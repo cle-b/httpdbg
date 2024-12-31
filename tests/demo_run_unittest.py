@@ -25,6 +25,5 @@ class TestUnittests(unittest.TestCase):
         requests.get("http://example.com")
 
 
-
 if __name__ == "__main__":
     unittest.main()
