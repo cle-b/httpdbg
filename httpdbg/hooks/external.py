@@ -15,6 +15,7 @@ from httpdbg.records import HTTPRecords
 @contextmanager
 def watcher_external(records: HTTPRecords) -> Generator[HTTPRecords, None, None]:
     try:
+        watcher = None
         if HTTPDBG_SUBPROCESS_DIR not in os.environ:
             with tempfile.TemporaryDirectory(
                 prefix="httpdbg"
