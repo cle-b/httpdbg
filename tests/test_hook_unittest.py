@@ -23,40 +23,64 @@ def test_run_unittest(httpbin):
 
     assert records[0].url.endswith("/setup_class")
     assert groups[records[0].group_id].label == "TestUnittests::setUpClass"
-    assert "demo_run_unittest.py::TestUnittests::setUpClass" in groups[records[0].group_id].full_label
+    assert (
+        "demo_run_unittest.py::TestUnittests::setUpClass"
+        in groups[records[0].group_id].full_label
+    )
     assert records[0].tag is None
 
     assert records[1].url.endswith("/setup")
     assert groups[records[1].group_id].label == "TestUnittests::test_case1"
-    assert "demo_run_unittest.py::TestUnittests::test_case1" in groups[records[1].group_id].full_label
+    assert (
+        "demo_run_unittest.py::TestUnittests::test_case1"
+        in groups[records[1].group_id].full_label
+    )
     assert records[1].tag == "setUp"
 
     assert records[2].url.endswith("/testcase1")
     assert groups[records[2].group_id].label == "TestUnittests::test_case1"
-    assert "demo_run_unittest.py::TestUnittests::test_case1" in groups[records[2].group_id].full_label
+    assert (
+        "demo_run_unittest.py::TestUnittests::test_case1"
+        in groups[records[2].group_id].full_label
+    )
     assert records[2].tag is None
 
     assert records[3].url.endswith("/teardown")
     assert groups[records[3].group_id].label == "TestUnittests::test_case1"
-    assert "demo_run_unittest.py::TestUnittests::test_case1" in groups[records[3].group_id].full_label
+    assert (
+        "demo_run_unittest.py::TestUnittests::test_case1"
+        in groups[records[3].group_id].full_label
+    )
     assert records[3].tag == "tearDown"
 
     assert records[4].url.endswith("/setup")
     assert groups[records[4].group_id].label == "TestUnittests::test_case2"
-    assert "demo_run_unittest.py::TestUnittests::test_case2" in groups[records[4].group_id].full_label
+    assert (
+        "demo_run_unittest.py::TestUnittests::test_case2"
+        in groups[records[4].group_id].full_label
+    )
     assert records[4].tag == "setUp"
 
     assert records[5].url.endswith("/testcase2")
     assert groups[records[5].group_id].label == "TestUnittests::test_case2"
-    assert "demo_run_unittest.py::TestUnittests::test_case2" in groups[records[5].group_id].full_label
+    assert (
+        "demo_run_unittest.py::TestUnittests::test_case2"
+        in groups[records[5].group_id].full_label
+    )
     assert records[5].tag is None
 
     assert records[6].url.endswith("/teardown")
     assert groups[records[6].group_id].label == "TestUnittests::test_case2"
-    assert "demo_run_unittest.py::TestUnittests::test_case2" in groups[records[6].group_id].full_label
+    assert (
+        "demo_run_unittest.py::TestUnittests::test_case2"
+        in groups[records[6].group_id].full_label
+    )
     assert records[6].tag == "tearDown"
 
     assert records[7].url.endswith("/teardown_class")
     assert groups[records[7].group_id].label == "TestUnittests::tearDownClass"
-    assert "demo_run_unittest.py::TestUnittests::tearDownClass" in groups[records[7].group_id].full_label
+    assert (
+        "demo_run_unittest.py::TestUnittests::tearDownClass"
+        in groups[records[7].group_id].full_label
+    )
     assert records[7].tag is None
