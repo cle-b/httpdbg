@@ -30,7 +30,7 @@ def test_run_pytest_tag(httpbin):
     assert records[0].tag == "my_fixture"
 
     assert records[1].url.endswith("/get")
-    assert groups[records[0].group_id].label == "test_demo_pytest_fixture_tag"
+    assert groups[records[1].group_id].label == "test_demo_pytest_fixture_tag"
     assert (
         "demo_run_pytest.py::test_demo_pytest_fixture_tag"
         in groups[records[1].group_id].full_label
