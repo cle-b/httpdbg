@@ -6,6 +6,14 @@ import requests
 BASE_URL = os.environ.get("HTTPDBG_TEST_UNITTEST_BASE_URL", "http://localhost:4909/")
 
 
+def setUpModule():
+    requests.get(f"{BASE_URL}/setup_module")
+
+
+def tearDownModule():
+    requests.get(f"{BASE_URL}/teardown_module")
+
+
 class TestUnittests(unittest.TestCase):
 
     @classmethod
