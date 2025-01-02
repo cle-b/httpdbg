@@ -102,12 +102,12 @@ def test_initiator_pytest(httpbin):
 )
 def test_initiator_add_package_fnc(httpbin):
     # all cases must be tested in the same test
-    with httprecord(initiators=["initiator_pck"]) as records:
-        from initiator_pck.initiator2.mod2 import fnc_in_subpackage
-        from initiator_pck.mod1 import fnc_in_package
-        from initiator_pck import fnc_async
-        from initiator_pck.initiator2.initiator3 import fnc_in_init
-        from initiator_pck.initiator2.mod2 import FakeClient
+    with httprecord(initiators=["tests.initiator_pck"]) as records:
+        from tests.initiator_pck.initiator2.mod2 import fnc_in_subpackage
+        from tests.initiator_pck.mod1 import fnc_in_package
+        from tests.initiator_pck import fnc_async
+        from tests.initiator_pck.initiator2.initiator3 import fnc_in_init
+        from tests.initiator_pck.initiator2.mod2 import FakeClient
 
         fnc_in_package(f"{httpbin.url}/get")
         fnc_in_subpackage(f"{httpbin.url}/get")

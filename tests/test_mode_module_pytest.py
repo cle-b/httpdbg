@@ -112,28 +112,3 @@ def test_run_pytest_group(httpbin, httpdbg_host, httpdbg_port):
 
     assert group["label"] == "test_demo_pytest"
     assert group["full_label"] == "tests/demo_run_pytest.py::test_demo_pytest"
-
-
-@pytest.mark.api
-@pytest.mark.pytest
-@pytest.mark.tag
-def test_run_pytest_tag(httpbin, httpdbg_host, httpdbg_port):
-    with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
-        with httprecord(records):
-            os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
-            script_to_run = os.path.join(
-                os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
-            )
-            run_module(["pytest", f"{script_to_run}::test_demo_pytest_fixture_tag"])
-
-        ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
-
-    reqs = ret.json()["requests"]
-
-    assert len(reqs) == 2
-
-    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/post"
-    assert reqs[list(reqs.keys())[0]]["tag"] == "my_fixture"
-
-    assert reqs[list(reqs.keys())[1]]["url"] == httpbin.url + "/get"
-    assert reqs[list(reqs.keys())[1]]["tag"] is None

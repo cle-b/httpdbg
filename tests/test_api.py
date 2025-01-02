@@ -6,8 +6,8 @@ import pytest
 from httpdbg.hooks.all import httprecord
 from httpdbg.server import httpdbg_srv
 
-from utils import get_request_content_up
-from utils import get_request_details
+from tests.utils import get_request_content_up
+from tests.utils import get_request_details
 
 
 @pytest.mark.api
