@@ -88,6 +88,7 @@ You can use any package as an initiator, this is not limited to HTTP requests.
 | httpx          | supported                           |
 | aiohttp        | supported                           |
 | pytest         | supported                           |
+| unittest       | supported                           |
 | _your_package_ | yes, with the arg _-i your_package_ |
 
 ## configuration
