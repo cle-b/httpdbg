@@ -1,15 +1,17 @@
 "use strict";
 
 const global = {
-    "k7": null,
-    "requests": {},
-    "initiators": {},
-    "groups": {},    
-    "connected": false,
-    "group_collapse": []
+    session: null,
+    sessions: {},
+    requests: {},
+    initiators: {},
+    groups: {},    
+    connected: false,
+    group_collapse: [],
+    groupby: "default"
 }
 
-function save_request(request_id, request) {
+function save_request(request_id, request, session_id) {
     request.loaded = false;
     request.to_refresh = true;
     if (request.pin == undefined) {
@@ -19,6 +21,8 @@ function save_request(request_id, request) {
         request.filter = "---";
     }
     global.requests[request_id] = request;
+
+    global.requests[request_id].session_id = session_id;
 
     global.requests[request_id].initiator = global.initiators[request.initiator_id];
 
@@ -47,12 +51,12 @@ async function get_all_requests() {
 
     var requests_already_loaded = 0
     for (const [request_id, request] of Object.entries(global.requests)) {
-        if (request.loaded) {
+        if (request.loaded && (global.session == request.session_id)) {
             requests_already_loaded += 1;
         }
     }
     var url = "/requests?" + new URLSearchParams({
-        "id": global.k7,
+        "id": global.session,
         "requests_already_loaded": requests_already_loaded,
     })
 
@@ -61,8 +65,9 @@ async function get_all_requests() {
         .then(data => {
             global.connected = true;
 
-            if (data.id != global.k7) {
-                global.k7 = data.id;
+            if (data.session.id != global.session) {
+                global.session = data.session.id;
+                global.sessions[data.session.id] = data.session;
                 clean();
             };
 
@@ -74,11 +79,11 @@ async function get_all_requests() {
             for (const [request_id, request] of Object.entries(data.requests)) {
                 if (!(request_id in global.requests)) {
                     // this is a new request
-                    save_request(request_id, request);
+                    save_request(request_id, request, data.session.id);
                 } else {
                     if (global.requests[request_id].last_update < request.last_update) {
                         // this request has been updated (probably a "big" file) 
-                        save_request(request_id, request);
+                        save_request(request_id, request, data.session.id);
                     }
                 };
             };

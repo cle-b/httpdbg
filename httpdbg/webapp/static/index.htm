@@ -36,6 +36,13 @@
                 </button>
                 <input type="checkbox" id="onlynew" name="cleannew" checked>
                 <label for="onlynew">force clean for new session</label>
+                |
+                <label for="groupby-select">group by</label>
+                <select id="groupby-select" onchange="update_group_by(this)">
+                    <option value="default" selected>default</option>
+                    <option value="initiator">initiator</option>
+                    <option value="session">session</option>
+                </select>
             </div>
             <div class="menu-right">
                 httpdbg
@@ -145,21 +152,21 @@
                             <img class="icon icon-filter"
                                 src="static/icons/filter-outline-icon.svg-+-$**HTTPDBG_VERSION**$"
                                 alt="filter for url" />
-                            &nbsp;                                
+                            &nbsp;
                             <label for="filter-url" class="visuallyhidden">
                                 filter for url
                             </label>
                             <input type="text" value="" id="filter-url" title="match the url or the request payload"
                                 onkeyup="update_filter_url()" oncut="update_filter_url()" onpaste="update_filter_url()"
                                 onchange="update_filter_url()">
-                            &nbsp;                                
+                            &nbsp;
                             <span id="filter-requests-count">0/0 requests</span>
                         </th>
                     </tr>
                 </thead>
 
                 <script id="template_group" type="x-tmpl-mustache">
-                    <tbody id="group-{{id}}" name="group" class="group-header">
+                    <tbody id="group-{{id}}" name="group" class="group-header" data-orderby="{{tbegin}}">
                         <tr class="group">
                             <td class="collapse" onclick="event.stopPropagation();">
                                 <input class="collapse-checkbox" type="checkbox" id="collapse{{id}}" onclick="collapse_group('{{id}}',this.checked)">
@@ -176,6 +183,7 @@
                     <tr id="request-{{id}}"
                         data-filter="{{filter}}"
                         data-group="{{group_id}}"
+                        data-orderby="{{tbegin}}"
                         onclick="select_request(arguments[0], '{{id}}')"
                         onkeypress="shortcut_request(event, '{{id}}')"
                         class="request"

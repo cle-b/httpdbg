@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from collections.abc import Callable
 from contextlib import contextmanager
+import datetime
 import os
 import platform
 import traceback
@@ -31,6 +33,7 @@ class Initiator:
         self.label = label
         self.short_stack = short_stack
         self.stack = stack
+        self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
 
     def __eq__(self, other) -> bool:
         if type(other) is Initiator:
@@ -49,12 +52,14 @@ class Initiator:
                 "label": self.label,
                 "short_stack": self.short_stack,
                 "stack": "\n".join(self.stack),
+                "tbegin": self.tbegin.isoformat(),
             }
         else:
             json = {
                 "id": self.id,
                 "label": self.label,
                 "short_stack": self.short_stack,
+                "tbegin": self.tbegin.isoformat(),
             }
         return json
 
@@ -64,9 +69,15 @@ class Group:
         self.id: str = get_new_uuid()
         self.label: str = label
         self.full_label: str = full_label
+        self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
 
     def to_json(self) -> dict:
-        return {"id": self.id, "label": self.label, "full_label": self.full_label}
+        return {
+            "id": self.id,
+            "label": self.label,
+            "full_label": self.full_label,
+            "tbegin": self.tbegin.isoformat(),
+        }
 
 
 def compatible_path(path: str) -> str:
@@ -193,9 +204,13 @@ def extract_short_stack_from_file(
 
 @contextmanager
 def httpdbg_initiator(
-    records, extracted_stack: traceback.StackSummary, original_method, *args, **kwargs
+    records: "HTTPRecords",
+    extracted_stack: traceback.StackSummary,
+    original_method: Callable,
+    *args,
+    **kwargs,
 ) -> Generator[Union[Tuple[Initiator, Group], None], None, None]:
-    envname = f"{HTTPDBG_CURRENT_INITIATOR}_{records.id}"
+    envname = f"{HTTPDBG_CURRENT_INITIATOR}_{records.session.id}"
 
     if not os.environ.get(envname):
         # temporary set a fake initiator env variable to avoid a recursion error
