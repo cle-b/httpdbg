@@ -286,8 +286,8 @@ function show_raw_data(elt, show_raw_text, raw_text, parsed_text) {
 }
 
 function clean(force_clean = false, ui_only = false) {
-    var onlynew = document.getElementById("onlynew");
-    if (onlynew.checked || force_clean) {
+    var ckeepsession = document.getElementById("ckeepsession");
+    if ((!ckeepsession.checked) || force_clean) {
 
         var initiators = document.getElementsByName("group");
         while (initiators.length > 0) {

@@ -1,36 +1,41 @@
 "use strict";
 
 let httpdbgApp = {
-    "config": {
-        "hide_group": {
-            "checkbox": "cinitiator",
-            "param": "hi",
-            "css": ".initiator {display: none;}",
-            "value": false
+    config: {
+        keep_previous_sessions: {
+            checkbox: "ckeepsession",
+            param: "kp",
+            value: false
         },
-        "hide_netloc": {
-            "checkbox": "curl",
-            "param": "hn",
-            "css": ".netloc {display: none;}",
-            "value": false
+        hide_group: {
+            checkbox: "cinitiator",
+            param: "hi",
+            css: ".group {display: none;}",
+            value: false
         },
-        "hide_tag": {
-            "checkbox": "ctag",
-            "param": "ht",
-            "css": ".tag {display: none;}",
-            "value": false
+        hide_netloc: {
+            checkbox: "curl",
+            param: "hn",
+            css: ".netloc {display: none;}",
+            value: false
+        },
+        hide_tag: {
+            checkbox: "ctag",
+            param: "ht",
+            css: ".tag {display: none;}",
+            value: false
         },        
-        "details_wrap_default": {
-            "checkbox": "cwrap",
-            "param": "wl",
-            "elt_name": "ckwraptext",
-            "value": false
+        details_wrap_default: {
+            checkbox: "cwrap",
+            param: "wl",
+            elt_name: "ckwraptext",
+            value: false
         },
-        "details_raw_default": {
-            "checkbox": "craw",
-            "param": "rd",
-            "elt_name": "ckrawdata",
-            "value": false
+        details_raw_default: {
+            checkbox: "craw",
+            param: "rd",
+            elt_name: "ckrawdata",
+            value: false
         }
     }
 }
@@ -75,10 +80,6 @@ window.addEventListener('keydown', (event) => {
 
     if (keys_history.endsWith("rs")) {
         opentab_stack();
-    }
-
-    if (keys_history.endsWith("oc")) {
-        config();
     }
 
     if (keys_history.endsWith("oh")) {

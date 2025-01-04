@@ -57,8 +57,8 @@ a:link {
   text-decoration: none;
 }
 
-#configuration {
-  display: none;
+#configform {
+  display: inline;
 }
 
 #help {
