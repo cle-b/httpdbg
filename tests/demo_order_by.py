@@ -5,6 +5,7 @@ import requests
 
 BASE_URL = os.environ.get("HTTPDBG_TEST_UNITTEST_BASE_URL", "http://localhost:4909/")
 
+
 def test_w1():
     requests.get(f"{BASE_URL}/w1_0")
     time.sleep(5)
