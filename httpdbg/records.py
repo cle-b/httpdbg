@@ -5,6 +5,7 @@ import datetime
 import os
 import socket
 import ssl
+import sys
 import traceback
 from urllib.parse import urlparse
 from typing import Dict, List, Tuple, Union
@@ -293,13 +294,21 @@ class HTTPRecord:
         return max(self.request.last_update, self.response.last_update)
 
 
+class HTTPRecordsSessionInfo:
+
+    def __init__(self):
+        self.id: str = get_new_uuid()
+        self.command_line: str = " ".join(sys.argv[1:]) if sys.argv[1:] else "console"
+        self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
+
+
 class HTTPRecords:
     def __init__(self) -> None:
         self.reset()
 
     def reset(self) -> None:
         logger().info("HTTPRecords.reset")
-        self.id = get_new_uuid()
+        self.session: HTTPRecordsSessionInfo = HTTPRecordsSessionInfo()
         self.requests: Dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
         self.initiators: Dict[str, Initiator] = {}
@@ -317,7 +326,7 @@ class HTTPRecords:
         return len(self.requests)
 
     def get_initiator(self) -> str:
-        envname = f"{HTTPDBG_CURRENT_INITIATOR}_{self.id}"
+        envname = f"{HTTPDBG_CURRENT_INITIATOR}_{self.session.id}"
 
         if envname in os.environ:
             initiator = self.initiators[os.environ[envname]]

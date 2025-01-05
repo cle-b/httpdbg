@@ -11,6 +11,7 @@ from urllib.parse import urlparse, parse_qs
 from httpdbg import __version__
 from httpdbg.log import logger
 from httpdbg.webapp.api import RequestListPayload, RequestPayload
+from httpdbg.records import HTTPRecords
 
 
 @contextmanager
@@ -22,7 +23,10 @@ def silently_catch_error():
 
 
 class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
-    def __init__(self, records, *args, **kwargs):
+
+    def __init__(
+        self: "HttpbgHTTPRequestHandler", records: HTTPRecords, *args, **kwargs
+    ):
         self.records = records
         super().__init__(*args, **kwargs)
 
@@ -42,7 +46,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
             if serve(url):
                 break
 
-    def serve_static(self, url):
+    def serve_static(self: "HttpbgHTTPRequestHandler", url):
         base_path = os.path.dirname(os.path.realpath(__file__))
 
         if not (
@@ -99,13 +103,13 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def serve_requests(self, url):
+    def serve_requests(self: "HttpbgHTTPRequestHandler", url):
         if not (url.path.lower() == "/requests"):
             return False
 
         query = parse_qs(url.query)
 
-        if query.get("id", [""])[0] == self.records.id:
+        if query.get("id", [""])[0] == self.records.session.id:
             self.records.requests_already_loaded = int(
                 query.get("requests_already_loaded", [0])[0]
             )
@@ -122,7 +126,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def serve_request(self, url):
+    def serve_request(self: "HttpbgHTTPRequestHandler", url):
         regexp = r"/request/([\w\-]+)"
 
         if re.fullmatch(regexp, url.path) is None:
@@ -145,7 +149,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def serve_request_content_up(self, url):
+    def serve_request_content_up(self: "HttpbgHTTPRequestHandler", url):
         regexp = r"/request/([\w\-]+)/up"
 
         if re.fullmatch(regexp, url.path) is None:
@@ -162,15 +166,11 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "application/octet-stream")
         self.send_header_no_cache()
         self.end_headers()
-        self.wfile.write(
-            req.request.content.encode("utf-8")
-            if isinstance(req.request.content, str)
-            else req.request.content
-        )
+        self.wfile.write(req.request.content)
 
         return True
 
-    def serve_request_content_down(self, url):
+    def serve_request_content_down(self: "HttpbgHTTPRequestHandler", url):
         regexp = r"/request/([\w\-]+)/down"
 
         if re.fullmatch(regexp, url.path) is None:
@@ -191,7 +191,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def serve_not_found(self, *kwargs):
+    def serve_not_found(self: "HttpbgHTTPRequestHandler", *kwargs):
         self.send_response(404)
         self.send_header_no_cache()
         self.end_headers()
@@ -199,11 +199,11 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def log_message(self, format, *args):
+    def log_message(self: "HttpbgHTTPRequestHandler", format, *args):
         pass
 
     def send_header_no_cache(self):
         self.send_header("Cache-Control", "max-age=0, no-cache, no-store, private")
 
-    def send_header_with_cache(self, seconds):
+    def send_header_with_cache(self: "HttpbgHTTPRequestHandler", seconds):
         self.send_header("Cache-Control", f"max-age={seconds}")

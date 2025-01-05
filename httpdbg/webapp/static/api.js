@@ -1,15 +1,17 @@
 "use strict";
 
 const global = {
-    "k7": null,
-    "requests": {},
-    "initiators": {},
-    "groups": {},    
-    "connected": false,
-    "group_collapse": []
+    session: null,
+    sessions: {},
+    requests: {},
+    initiators: {},
+    groups: {},    
+    connected: false,
+    group_collapse: [],
+    groupby: "default"
 }
 
-function save_request(request_id, request) {
+function save_request(request_id, request, session_id) {
     request.loaded = false;
     request.to_refresh = true;
     if (request.pin == undefined) {
@@ -18,25 +20,26 @@ function save_request(request_id, request) {
     if (request.filter == undefined) {
         request.filter = "---";
     }
-    global.requests[request_id] = request;
+    request.session_id = session_id;
+    request.initiator = global.initiators[request.initiator_id];
 
-    global.requests[request_id].initiator = global.initiators[request.initiator_id];
-
-    if (global.requests[request_id].in_progress) {
-        global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" alt="loading"/>';
+    if (request.in_progress) {
+        request.status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" alt="loading"/>';
     } else {
-        switch (global.requests[request_id].status_code) {
+        switch (request.status_code) {
             case 0:
-                global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="loading"/>';
+                request.status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="loading"/>';
                 break;
             case -1:
-                global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/math-multiplication-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="load failed"/>';
+                request.status_code_view = '<img class="icon" src="static/icons/math-multiplication-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="load failed"/>';
                 break;
             default:
-                global.requests[request_id].status_code_view = global.requests[request_id].status_code;
+                request.status_code_view = request.status_code;
                 break;
         }
     }
+
+    global.requests[request_id] = request;    
 
     if (!request.pin) {
         get_request(request_id);
@@ -47,12 +50,12 @@ async function get_all_requests() {
 
     var requests_already_loaded = 0
     for (const [request_id, request] of Object.entries(global.requests)) {
-        if (request.loaded) {
+        if (request.loaded && (global.session == request.session_id)) {
             requests_already_loaded += 1;
         }
     }
     var url = "/requests?" + new URLSearchParams({
-        "id": global.k7,
+        "id": global.session,
         "requests_already_loaded": requests_already_loaded,
     })
 
@@ -61,9 +64,10 @@ async function get_all_requests() {
         .then(data => {
             global.connected = true;
 
-            if (data.id != global.k7) {
-                global.k7 = data.id;
-                clean();
+            if (data.session.id != global.session) {
+                clean();                
+                global.session = data.session.id;
+                global.sessions[data.session.id] = data.session;                
             };
 
             // for the initiators and the groups, we can just save them without any verification
@@ -74,11 +78,11 @@ async function get_all_requests() {
             for (const [request_id, request] of Object.entries(data.requests)) {
                 if (!(request_id in global.requests)) {
                     // this is a new request
-                    save_request(request_id, request);
+                    save_request(request_id, request, data.session.id);
                 } else {
                     if (global.requests[request_id].last_update < request.last_update) {
                         // this request has been updated (probably a "big" file) 
-                        save_request(request_id, request);
+                        save_request(request_id, request, data.session.id);
                     }
                 };
             };

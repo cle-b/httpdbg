@@ -30,19 +30,39 @@
     <header>
         <nav id="navbar">
             <div class="menu-left">
-                <button id="trash" type="button" onclick="clean(true)">
+                <button id="trash" type="button" onclick="clean(true)" title="Delete all unpinned requests.">
                     <img class="icon" src="static/icons/recycle-bin-line-icon.svg-+-$**HTTPDBG_VERSION**$"
-                        alt="clean the requests list" />
+                        alt="Delete all unpinned requests." />
                 </button>
-                <input type="checkbox" id="onlynew" name="cleannew" checked>
-                <label for="onlynew">force clean for new session</label>
+                <form id="configform" onsubmit="return false;">
+                    -
+                    <input type="checkbox" id="ckeepsession" name="kp" onchange="load_config_from_form(true)">
+                    <label for="ckeepsession" title="If you choose to keep previous sessions, the requests will not be deleted when starting a new session.">keep previous sessions</label>
+                    -
+                    <label for="groupby-select">group by</label>
+                    <select id="groupby-select" name="gb" onchange="update_group_by(this.value);load_config_from_form(true)">
+                        <option value="default" selected>default</option>
+                        <option value="initiator">initiator</option>
+                        <option value="session">session</option>
+                    </select>
+                    - <span title="Customize the request list view.">hide</span>
+                    <input type="checkbox" id="cinitiator" name="hi" onchange="load_config_from_form(true)">
+                    <label for="cinitiator"
+                        title="Hide the groups.&#10;Be aware that the order of the requests will not be affected.">group</label>
+                    <input type="checkbox" id="ctag" name="ht" onchange="load_config_from_form(true)">
+                    <label for="ctag" title="Hide the tags.">tag</label>
+                    <input type="checkbox" id="curl" name="hn" onchange="load_config_from_form(true)">
+                    <label for="curl" title="Hide the network location and the scheme in the url.">netloc</label>
+                    - <span title="Customize the requests's payload view.">payload</span>
+                    <input type="checkbox" id="cwrap" name="wl" onchange="load_config_from_form(true)">
+                    <label for="cwrap">wrap lines</label>
+                    <input type="checkbox" id="craw" name="rd" onchange="load_config_from_form(true)">
+                    <label for="craw" title="Avoid formatting the payload content based on its content type.">raw
+                        data</label>
+                </form>
             </div>
             <div class="menu-right">
-                httpdbg
-                <button onclick="config()" title="open configuration">
-                    <img class="icon" src="static/icons/engine-gears-icon.svg-+-$**HTTPDBG_VERSION**$"
-                        alt="open configuration" />
-                </button>
+                <span title="httpdbg v$**HTTPDBG_VERSION**$">httpdbg</span>
                 <button onclick="help()" title="open help">
                     <img class="icon" src="static/icons/question-mark-round-line-icon.svg-+-$**HTTPDBG_VERSION**$"
                         alt="open help" />
@@ -51,58 +71,20 @@
         </nav>
     </header>
 
-    <div id="configuration">
-        <h4>configuration</h4>
-
-        <form id="configform" onsubmit="return false;">
-
-            <div class="grid-container-configuration">
-                <div>
-                    <fieldset>
-                        <legend>list of requests</legend>
-
-                        <input type="checkbox" id="curl" name="hn" onchange="load_config_from_form(true)">
-                        <label for="curl">Hide the netloc in the url</label>
-
-                        <br>
-
-                        <input type="checkbox" id="cinitiator" name="hi" onchange="load_config_from_form(true)">
-                        <label for="cinitiator">Hide the group rows</label>
-
-                        <br>
-
-                        <input type="checkbox" id="ctag" name="ht" onchange="load_config_from_form(true)">
-                        <label for="ctag">Hide the tags</label>
-                    </fieldset>
-                </div>
-                <div>
-                    <fieldset>
-                        <legend>request's details</legend>
-                        <input type="checkbox" id="cwrap" name="wl" onchange="load_config_from_form(true)">
-                        <label for="cwrap">Wrap lines</label>
-
-                        <br>
-
-                        <input type="checkbox" id="craw" name="rd" onchange="load_config_from_form(true)">
-                        <label for="craw">Raw data</label>
-                    </fieldset>
-                </div>
-            </div>
-
-            <br>
-
-            <input type="submit" value="OK" onclick="save_config_to_url(true)">
-
-        </form>
-        <br>
-    </div>
-
     <div id="help">
+        <h4>About</h4>
+        httpdbg v$**HTTPDBG_VERSION**$
+        <br>
+        <a href="https://httpdbg.readthedocs.io/">Documentation</a>
+        <br>
+        <a href="https://pypi.org/project/httpdbg/">PyPI package</a>
+        <br>
+        <a href="https://github.com/cle-b/httpdbg">Source code</a>
+        <br>
         <h4>Help</h4>
 
         <h5>Shorcuts</h5>
         <ul>
-            <li>Press <kbd>O</kbd> <kbd>C</kbd> to open the configuration panel.</li>
             <li>Press <kbd>O</kbd> <kbd>H</kbd> to open this help.</li>
         </ul>
 
@@ -123,9 +105,7 @@
             <li>Press <kbd>R</kbd> <kbd>S</kbd> to open the stack tab.</li>
         </ul>
 
-        <h4>About</h4>
-        httpdbg v$**HTTPDBG_VERSION**$ - <a href="https://pypi.org/project/httpdbg/">PyPI</a> <a
-            href="https://github.com/cle-b/httpdbg">Source code</a>
+        <br>
     </div>
 
     <div class="grid-container">
@@ -145,22 +125,22 @@
                             <img class="icon icon-filter"
                                 src="static/icons/filter-outline-icon.svg-+-$**HTTPDBG_VERSION**$"
                                 alt="filter for url" />
-                            &nbsp;                                
+                            &nbsp;
                             <label for="filter-url" class="visuallyhidden">
                                 filter for url
                             </label>
                             <input type="text" value="" id="filter-url" title="match the url or the request payload"
                                 onkeyup="update_filter_url()" oncut="update_filter_url()" onpaste="update_filter_url()"
                                 onchange="update_filter_url()">
-                            &nbsp;                                
+                            &nbsp;
                             <span id="filter-requests-count">0/0 requests</span>
                         </th>
                     </tr>
                 </thead>
 
                 <script id="template_group" type="x-tmpl-mustache">
-                    <tbody id="group-{{id}}" name="group" class="group-header">
-                        <tr class="group">
+                    <tbody id="group-{{id}}" name="group" class="group-header" data-orderby="{{tbegin}}">
+                        <tr class="group" data-orderby="{{tbegin}}">
                             <td class="collapse" onclick="event.stopPropagation();">
                                 <input class="collapse-checkbox" type="checkbox" id="collapse{{id}}" onclick="collapse_group('{{id}}',this.checked)">
                                 <label class="collapse-icon" for="collapse{{id}}"><img class="icon" src="static/icons/chevron-direction-top-outline-icon.svg-+-$**HTTPDBG_VERSION**$" alt="click to collapse/expand"/></label>
@@ -176,6 +156,7 @@
                     <tr id="request-{{id}}"
                         data-filter="{{filter}}"
                         data-group="{{group_id}}"
+                        data-orderby="{{tbegin}}"
                         onclick="select_request(arguments[0], '{{id}}')"
                         onkeypress="shortcut_request(event, '{{id}}')"
                         class="request"
@@ -390,6 +371,7 @@
     <script>
         load_config_from_url(true);
         update_filter_url();
+        update_group_by(httpdbgApp.config.group_by.value);
         pol_new_data();
         enable_refresh();
         opentab_headers();

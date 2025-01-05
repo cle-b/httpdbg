@@ -120,16 +120,19 @@ options:
 
 ### web interace 
 
-Clic on the **&#9881;** button on the top right of the page.
+Some options are available to customize the UI:
 
-Some options are available:
-  * Hide the netloc in the url
-  * Hide the initiator rows
-  * Hide the tags
+  * Change the strategy to group the requests.
+  * Hide the scheme and the network location in the url.
+  * Hide the group rows.
+  * Hide the tags.
+  * ...
+
+You can also pin a request or delete all unpinned requests.
 
 To keep your configuration, bookmark the page with the full search query.
 
-Fox example, if you want to hide the initiator rows by default, the url will be:
+Fox example, if you want to hide the group rows by default, the url will be:
 ```
 http://localhost:4909/?hi=on
 ```

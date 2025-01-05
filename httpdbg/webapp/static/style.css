@@ -20,8 +20,8 @@
   --preview-code-border: #777777;
   --column-border: #dadada;
   --kdb-border: #000000;
-  --tag-bg-color:  #cf4b8f;
-  --tag-text:  #ffffff;
+  --tag-bg-color: #cf4b8f;
+  --tag-text: #ffffff;
 }
 
 body {
@@ -57,8 +57,8 @@ a:link {
   text-decoration: none;
 }
 
-#configuration {
-  display: none;
+#configform {
+  display: inline;
 }
 
 #help {

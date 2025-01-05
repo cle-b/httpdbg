@@ -1,16 +1,16 @@
 "use strict";
 
-var k7_id = null;
+var session_id = null;
 
 async function refresh_resquests() {
     var table = document.getElementById("requests-list");
     var template_request = document.getElementById("template_request").innerHTML;
     var template_group = document.getElementById("template_group").innerHTML;
 
-    if (global.k7 != k7_id) {
+    if (global.session != session_id) {
         clean();
     };
-    k7_id = global.k7;
+    session_id = global.session;
 
     for (const [request_id, request] of Object.entries(global.requests)) {
         if (request.to_refresh) {
@@ -22,15 +22,17 @@ async function refresh_resquests() {
             }
             request.title += "\n\nclick to select -/- ctrl+click to compare to";
 
+            let groupby = get_groupby(global.groupby, request);
+
             var rendered = Mustache.render(template_request, request);
             if (!elt) {
-                var elt_group = document.getElementById("group-" + request.group_id);
+                var elt_group = document.getElementById("group-" + groupby.id);
                 if (!elt_group) {
-                    var rendered_group = Mustache.render(template_group, global.groups[request.group_id]);
-                    table.insertAdjacentHTML("beforeend", rendered_group);
-                    elt_group = document.getElementById("group-" + request.group_id);
+                    var rendered_group = Mustache.render(template_group, groupby);
+                    ordered_insert(table, "tbody", groupby.tbegin, rendered_group);
+                    elt_group = document.getElementById("group-" + groupby.id);
                 };
-                elt_group.insertAdjacentHTML("beforeend", rendered);
+                ordered_insert(elt_group, "tr", request.tbegin, rendered);
             } else {
                 elt.innerHTML = rendered;
             };
@@ -39,6 +41,26 @@ async function refresh_resquests() {
         }
     };
     filter_requests_count();
+}
+
+function ordered_insert(parent, selector, tbegin, rendered) {
+    // we list all the requests/groups to be sure to insert the new request/group 
+    // in the right place based on the datetime when the request began
+    var inserted = false;
+
+    const elements = Array.from(parent.querySelectorAll(selector)).reverse(); // most of the time, the item will be inserted at the end
+    for (const elt_item of elements) {
+        const elt_item_tbegin = elt_item.getAttribute('data-orderby');
+        if (elt_item_tbegin < tbegin) {
+            elt_item.insertAdjacentHTML("afterend", rendered);
+            inserted = true;
+            break;
+        }
+    }
+    if (!inserted) {
+        // if the new item hasn't been inserted yet, we add it as the first child element of the parent
+        parent.insertAdjacentHTML("afterbegin", rendered);
+    }
 }
 
 
@@ -265,9 +287,9 @@ function show_raw_data(elt, show_raw_text, raw_text, parsed_text) {
     elt.textContent = preview;
 }
 
-function clean(force_clean = false) {
-    var onlynew = document.getElementById("onlynew");
-    if (onlynew.checked || force_clean) {
+function clean(force_clean = false, ui_only = false) {
+    var ckeepsession = document.getElementById("ckeepsession");
+    if ((!ckeepsession.checked) || force_clean) {
 
         var initiators = document.getElementsByName("group");
         while (initiators.length > 0) {
@@ -279,28 +301,35 @@ function clean(force_clean = false) {
         empty_content("[name='compareto']", "");
         hide_elts(".comparison", true);
 
-        var tmprequests = {};
-        var tmpinitiators = {};
-        var tmpgroups = {};
-
-        for (const [request_id, request] of Object.entries(global.requests)) {
-            if (request.pin == "checked") {
-                tmprequests[request_id] = request
-                tmpinitiators[request.initiator_id] = global.initiators[request.initiator_id];
-                tmpgroups[request.group_id] = global.groups[request.group_id];
+        if (ui_only) {
+            // if we refresh only the ui, we must change the update flag for all existing requests to force a refresh    
+            for (const [request_id, request] of Object.entries(global.requests)) {
+                global.requests[request_id].to_refresh = true;
             }
-        };
+        } else {
+            var tmprequests = {};
+            var tmpinitiators = {};
+            var tmpgroups = {};
 
-        global.initiators = tmpinitiators;
-        global.groups = tmpgroups;
+            for (const [request_id, request] of Object.entries(global.requests)) {
+                if (request.pin == "checked") {
+                    tmprequests[request_id] = request
+                    tmpinitiators[request.initiator_id] = global.initiators[request.initiator_id];
+                    tmpgroups[request.group_id] = global.groups[request.group_id];
+                }
+            };
 
-        global.requests = {};
+            global.initiators = tmpinitiators;
+            global.groups = tmpgroups;
 
-        for (const [request_id, request] of Object.entries(tmprequests)) {
-            save_request(request_id, request);
-        };
+            global.requests = {};
 
-        global.group_collapse = [];
+            for (const [request_id, request] of Object.entries(tmprequests)) {
+                save_request(request_id, request, request.session_id);
+            };
+
+            global.group_collapse = [];
+        }
 
         update_collapse_group();
     }
@@ -394,4 +423,44 @@ function parse_raw_text(raw_text, content_type) {
 
 function prepare_for_filter(txt) {
     return encodeURI(txt.replace(/\s+/g, '').toLowerCase());
+}
+
+function update_group_by(value) {
+    // we save the group by strategy
+    global.groupby = value;
+
+    // we delete all the groups/requests in the table to force the refresh
+    clean(true, true);
+}
+
+
+function get_groupby(strategy, request) {
+    // by default, we keep the group strategy adapted to the session itself (by tests, by initiators etc.)
+    let groupby;
+
+    // the user can choose to group the requests by session or by initiator
+    switch (strategy) {
+        case "session":
+            const session = global.sessions[request.session_id];
+            groupby = {
+                id: session.id,
+                label: session.command_line,
+                full_label: "session " + session.id,
+                tbegin: session.tbegin,
+            }
+            break;
+        case "initiator":
+            const initiator = global.initiators[request.initiator_id];
+            groupby = {
+                id: initiator.id,
+                label: initiator.label,
+                full_label: initiator.short_stack,
+                tbegin: initiator.tbegin,
+            }
+            break;
+        default:
+            groupby = global.groups[request.group_id];
+            break;
+    }
+    return groupby;
 }
