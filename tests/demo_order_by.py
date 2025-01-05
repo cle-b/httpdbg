@@ -3,7 +3,7 @@ import time
 
 import requests
 
-BASE_URL = os.environ.get("HTTPDBG_TEST_UNITTEST_BASE_URL", "http://localhost:4909/")
+BASE_URL = os.environ.get("HTTPDBG_TEST_ORDERBY_BASE_URL", "http://localhost:4909/")
 
 
 def test_w1():
