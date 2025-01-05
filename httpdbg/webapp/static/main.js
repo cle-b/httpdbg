@@ -3,36 +3,48 @@
 let httpdbgApp = {
     config: {
         keep_previous_sessions: {
-            checkbox: "ckeepsession",
+            id: "ckeepsession",
+            type: "checkbox",
             param: "kp",
             value: false
         },
+        group_by: {
+            id: "groupby-select",
+            type: "select",            
+            param: "gb",
+            value: "default"
+        },
         hide_group: {
-            checkbox: "cinitiator",
+            id: "cinitiator",
+            type: "checkbox",            
             param: "hi",
             css: ".group {display: none;}",
             value: false
         },
         hide_netloc: {
-            checkbox: "curl",
+            id: "curl",
+            type: "checkbox",            
             param: "hn",
             css: ".netloc {display: none;}",
             value: false
         },
         hide_tag: {
-            checkbox: "ctag",
+            id: "ctag",
+            type: "checkbox",            
             param: "ht",
             css: ".tag {display: none;}",
             value: false
         },        
         details_wrap_default: {
-            checkbox: "cwrap",
+            id: "cwrap",
+            type: "checkbox",            
             param: "wl",
             elt_name: "ckwraptext",
             value: false
         },
         details_raw_default: {
-            checkbox: "craw",
+            id: "craw",
+            type: "checkbox",            
             param: "rd",
             elt_name: "ckrawdata",
             value: false

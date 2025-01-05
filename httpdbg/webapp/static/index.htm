@@ -30,22 +30,22 @@
     <header>
         <nav id="navbar">
             <div class="menu-left">
-                <button id="trash" type="button" onclick="clean(true)">
+                <button id="trash" type="button" onclick="clean(true)" title="Delete all unpinned requests.">
                     <img class="icon" src="static/icons/recycle-bin-line-icon.svg-+-$**HTTPDBG_VERSION**$"
-                        alt="clean the requests list" />
+                        alt="Delete all unpinned requests." />
                 </button>
                 <form id="configform" onsubmit="return false;">
                     -
                     <input type="checkbox" id="ckeepsession" name="kp" onchange="load_config_from_form(true)">
-                    <label for="ckeepsession" title="The requests are not deleted for each new session.">keep previous sessions</label>
+                    <label for="ckeepsession" title="If you choose to keep previous sessions, the requests will not be deleted when starting a new session.">keep previous sessions</label>
                     -
                     <label for="groupby-select">group by</label>
-                    <select id="groupby-select" onchange="update_group_by(this)">
+                    <select id="groupby-select" name="gb" onchange="load_config_from_form(true)">
                         <option value="default" selected>default</option>
                         <option value="initiator">initiator</option>
                         <option value="session">session</option>
                     </select>
-                    - <span title="Customize the URL list view.">hide</span>
+                    - <span title="Customize the request list view.">hide</span>
                     <input type="checkbox" id="cinitiator" name="hi" onchange="load_config_from_form(true)">
                     <label for="cinitiator"
                         title="Hide the groups.&#10;Be aware that the order of the requests will not be affected.">group</label>

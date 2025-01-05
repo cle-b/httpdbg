@@ -423,9 +423,9 @@ function prepare_for_filter(txt) {
     return encodeURI(txt.replace(/\s+/g, '').toLowerCase());
 }
 
-function update_group_by(select) {
+function update_group_by(value) {
     // we save the group by strategy
-    global.groupby = select.value;
+    global.groupby = value;
 
     // we delete all the groups/requests in the table to force the refresh
     clean(true, true);
