@@ -438,7 +438,7 @@ function get_groupby(strategy, request) {
     // by default, we keep the group strategy adapted to the session itself (by tests, by initiators etc.)
     let groupby;
 
-    // the user can choose to see group the requests by session or by initiator
+    // the user can choose to group the requests by session or by initiator
     switch (strategy) {
         case "session":
             const session = global.sessions[request.session_id];
