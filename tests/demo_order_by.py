@@ -7,7 +7,8 @@ BASE_URL = os.environ.get("HTTPDBG_TEST_UNITTEST_BASE_URL", "http://localhost:49
 
 
 def test_w1():
-    requests.get(f"{BASE_URL}/w1_0")
+    time.sleep(1)
+    requests.get(f"{BASE_URL}/w1_1")
     time.sleep(5)
     requests.get(f"{BASE_URL}/w1_5")
 
@@ -26,3 +27,4 @@ def test_w3():
 
 def test_w4():
     requests.get(f"{BASE_URL}/w4_0")
+    time.sleep(11)

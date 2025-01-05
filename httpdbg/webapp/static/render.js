@@ -29,10 +29,10 @@ async function refresh_resquests() {
                 var elt_group = document.getElementById("group-" + groupby.id);
                 if (!elt_group) {
                     var rendered_group = Mustache.render(template_group, groupby);
-                    ordered_insert(table, "tbody[name='group']", groupby.tbegin, rendered_group);
+                    ordered_insert(table, "tbody", groupby.tbegin, rendered_group);
                     elt_group = document.getElementById("group-" + groupby.id);
                 };
-                ordered_insert(elt_group, "tr.request", request.tbegin, rendered);
+                ordered_insert(elt_group, "tr", request.tbegin, rendered);
             } else {
                 elt.innerHTML = rendered;
             };
@@ -47,17 +47,19 @@ function ordered_insert(parent, selector, tbegin, rendered) {
     // we list all the requests/groups to be sure to insert the new request/group 
     // in the right place based on the datetime when the request began
     var inserted = false;
-    for (const elt_item of parent.querySelectorAll(selector)) {
+
+    const elements = Array.from(parent.querySelectorAll(selector)).reverse(); // most of the time, the item will be inserted at the end
+    for (const elt_item of elements) {
         const elt_item_tbegin = elt_item.getAttribute('data-orderby');
-        if (elt_item_tbegin > tbegin) {
-            elt_item.insertAdjacentHTML("beforebegin", rendered);
+        if (elt_item_tbegin < tbegin) {
+            elt_item.insertAdjacentHTML("afterend", rendered);
             inserted = true;
             break;
         }
     }
     if (!inserted) {
-        // just in case we have not yet inserted the new request, we add it at the end of the group
-        parent.insertAdjacentHTML("beforeend", rendered);
+        // if the new item hasn't been inserted yet, we add it as the first child element of the parent
+        parent.insertAdjacentHTML("afterbegin", rendered);
     }
 }
 

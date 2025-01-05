@@ -140,7 +140,7 @@
 
                 <script id="template_group" type="x-tmpl-mustache">
                     <tbody id="group-{{id}}" name="group" class="group-header" data-orderby="{{tbegin}}">
-                        <tr class="group">
+                        <tr class="group" data-orderby="{{tbegin}}">
                             <td class="collapse" onclick="event.stopPropagation();">
                                 <input class="collapse-checkbox" type="checkbox" id="collapse{{id}}" onclick="collapse_group('{{id}}',this.checked)">
                                 <label class="collapse-icon" for="collapse{{id}}"><img class="icon" src="static/icons/chevron-direction-top-outline-icon.svg-+-$**HTTPDBG_VERSION**$" alt="click to collapse/expand"/></label>
