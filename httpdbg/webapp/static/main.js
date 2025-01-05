@@ -10,41 +10,41 @@ let httpdbgApp = {
         },
         group_by: {
             id: "groupby-select",
-            type: "select",            
+            type: "select",
             param: "gb",
             value: "default"
         },
         hide_group: {
             id: "cinitiator",
-            type: "checkbox",            
+            type: "checkbox",
             param: "hi",
             css: ".group {display: none;}",
             value: false
         },
         hide_netloc: {
             id: "curl",
-            type: "checkbox",            
+            type: "checkbox",
             param: "hn",
             css: ".netloc {display: none;}",
             value: false
         },
         hide_tag: {
             id: "ctag",
-            type: "checkbox",            
+            type: "checkbox",
             param: "ht",
             css: ".tag {display: none;}",
             value: false
-        },        
+        },
         details_wrap_default: {
             id: "cwrap",
-            type: "checkbox",            
+            type: "checkbox",
             param: "wl",
             elt_name: "ckwraptext",
             value: false
         },
         details_raw_default: {
             id: "craw",
-            type: "checkbox",            
+            type: "checkbox",
             param: "rd",
             elt_name: "ckrawdata",
             value: false
