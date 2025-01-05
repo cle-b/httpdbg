@@ -35,7 +35,6 @@ function apply_config() {
     apply_config_rule(httpdbgApp.config.keep_previous_sessions);
 
     apply_config_rule_select(httpdbgApp.config.group_by);
-    update_group_by(httpdbgApp.config.group_by.value);
 
     apply_config_rule_css(httpdbgApp.config.hide_netloc, sheet);
     apply_config_rule_css(httpdbgApp.config.hide_group, sheet);

@@ -40,7 +40,7 @@
                     <label for="ckeepsession" title="If you choose to keep previous sessions, the requests will not be deleted when starting a new session.">keep previous sessions</label>
                     -
                     <label for="groupby-select">group by</label>
-                    <select id="groupby-select" name="gb" onchange="load_config_from_form(true)">
+                    <select id="groupby-select" name="gb" onchange="update_group_by(this.value);load_config_from_form(true)">
                         <option value="default" selected>default</option>
                         <option value="initiator">initiator</option>
                         <option value="session">session</option>
@@ -371,6 +371,7 @@
     <script>
         load_config_from_url(true);
         update_filter_url();
+        update_group_by(httpdbgApp.config.group_by.value);
         pol_new_data();
         enable_refresh();
         opentab_headers();
