@@ -20,27 +20,26 @@ function save_request(request_id, request, session_id) {
     if (request.filter == undefined) {
         request.filter = "---";
     }
-    global.requests[request_id] = request;
+    request.session_id = session_id;
+    request.initiator = global.initiators[request.initiator_id];
 
-    global.requests[request_id].session_id = session_id;
-
-    global.requests[request_id].initiator = global.initiators[request.initiator_id];
-
-    if (global.requests[request_id].in_progress) {
-        global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" alt="loading"/>';
+    if (request.in_progress) {
+        request.status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" alt="loading"/>';
     } else {
-        switch (global.requests[request_id].status_code) {
+        switch (request.status_code) {
             case 0:
-                global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="loading"/>';
+                request.status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="loading"/>';
                 break;
             case -1:
-                global.requests[request_id].status_code_view = '<img class="icon" src="static/icons/math-multiplication-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="load failed"/>';
+                request.status_code_view = '<img class="icon" src="static/icons/math-multiplication-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="load failed"/>';
                 break;
             default:
-                global.requests[request_id].status_code_view = global.requests[request_id].status_code;
+                request.status_code_view = request.status_code;
                 break;
         }
     }
+
+    global.requests[request_id] = request;    
 
     if (!request.pin) {
         get_request(request_id);
@@ -66,9 +65,9 @@ async function get_all_requests() {
             global.connected = true;
 
             if (data.session.id != global.session) {
+                clean();                
                 global.session = data.session.id;
-                global.sessions[data.session.id] = data.session;
-                clean();
+                global.sessions[data.session.id] = data.session;                
             };
 
             // for the initiators and the groups, we can just save them without any verification

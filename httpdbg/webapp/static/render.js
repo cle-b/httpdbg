@@ -325,7 +325,7 @@ function clean(force_clean = false, ui_only = false) {
             global.requests = {};
 
             for (const [request_id, request] of Object.entries(tmprequests)) {
-                save_request(request_id, request);
+                save_request(request_id, request, request.session_id);
             };
 
             global.group_collapse = [];
