@@ -51,7 +51,7 @@ function update_collapse_group() {
     }
 
     for (let group_id of global.group_collapse) {
-        sheet.insertRule('[data-group="' + group_id + '"] {display: none;}');
+        sheet.insertRule('[data-groupby="' + group_id + '"] {display: none;}');
     }
 }
 

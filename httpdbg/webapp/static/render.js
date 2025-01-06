@@ -24,6 +24,8 @@ async function refresh_resquests() {
 
             let groupby = get_groupby(global.groupby, request);
 
+            request.groupby_id = groupby.id;
+
             var rendered = Mustache.render(template_request, request);
             if (!elt) {
                 var elt_group = document.getElementById("group-" + groupby.id);
