@@ -1,0 +1,16 @@
+.config-checkbox {
+    display: none;
+}
+
+.config-checkbox-checked,
+.config-checkbox-unchecked {
+    display: none;
+}
+
+.config-checkbox:checked+label .config-checkbox-checked {
+    display: inline;
+}
+
+.config-checkbox:not(:checked)+label .config-checkbox-unchecked {
+    display: inline;
+}
