@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="static/table.css-+-$**HTTPDBG_VERSION**$">
     <link rel="stylesheet" href="static/column.css-+-$**HTTPDBG_VERSION**$">
     <link rel="stylesheet" href="static/detail.css-+-$**HTTPDBG_VERSION**$">
+    <link rel="stylesheet" href="static/configuration.css-+-$**HTTPDBG_VERSION**$">
     <style type="text/css" id="filter"></style>
     <style type="text/css" id="configurationcss"></style>
     <style type="text/css" id="serverstatuscss"></style>
@@ -45,20 +46,42 @@
                         <option value="initiator">initiator</option>
                         <option value="session">session</option>
                     </select>
-                    - <span title="Customize the request list view.">hide</span>
-                    <input type="checkbox" id="cinitiator" name="hi" onchange="load_config_from_form(true)">
+                    -
+                    <input class="config-checkbox" type="checkbox" id="cinitiator" name="hi" onchange="load_config_from_form(true)">
                     <label for="cinitiator"
-                        title="Hide the groups.&#10;Be aware that the order of the requests will not be affected.">group</label>
-                    <input type="checkbox" id="ctag" name="ht" onchange="load_config_from_form(true)">
-                    <label for="ctag" title="Hide the tags.">tag</label>
-                    <input type="checkbox" id="curl" name="hn" onchange="load_config_from_form(true)">
-                    <label for="curl" title="Hide the network location and the scheme in the url.">netloc</label>
+                        title="Hide the groups.&#10;Be aware that the order of the requests will not be affected.">
+                        <img class="icon config-checkbox-unchecked" src="static/icons/eye-icon.svg-+-$**HTTPDBG_VERSION**$"/>
+                        <img class="icon config-checkbox-checked" src="static/icons/eye-blind-icon.svg-+-$**HTTPDBG_VERSION**$"/>
+                        group
+                    </label>
+
+                    <input class="config-checkbox" type="checkbox" id="ctag" name="ht" onchange="load_config_from_form(true)">
+                    <label for="ctag" title="Hide the tags.">
+                        <img class="icon config-checkbox-unchecked" src="static/icons/eye-icon.svg-+-$**HTTPDBG_VERSION**$"/>
+                        <img class="icon config-checkbox-checked" src="static/icons/eye-blind-icon.svg-+-$**HTTPDBG_VERSION**$"/>
+                        tag
+                    </label>
+
+                    <input class="config-checkbox" type="checkbox" id="curl" name="hn" onchange="load_config_from_form(true)">
+                    <label for="curl" title="Hide the network location and the scheme in the url.">
+                        <img class="icon config-checkbox-unchecked" src="static/icons/eye-icon.svg-+-$**HTTPDBG_VERSION**$"/>
+                        <img class="icon config-checkbox-checked" src="static/icons/eye-blind-icon.svg-+-$**HTTPDBG_VERSION**$"/>
+                        netloc
+                    </label>
+
                     - <span title="Customize the requests's payload view.">payload</span>
-                    <input type="checkbox" id="cwrap" name="wl" onchange="load_config_from_form(true)">
-                    <label for="cwrap">wrap lines</label>
-                    <input type="checkbox" id="craw" name="rd" onchange="load_config_from_form(true)">
-                    <label for="craw" title="Avoid formatting the payload content based on its content type.">raw
-                        data</label>
+                    <input class="config-checkbox" type="checkbox" id="cwrap" name="wl" onchange="load_config_from_form(true)">
+                    <label for="cwrap">
+                        <img class="icon config-checkbox-unchecked" src="static/icons/lock-open-line-icon.svg-+-$**HTTPDBG_VERSION**$"/>
+                        <img class="icon config-checkbox-checked" src="static/icons/lock-line-icon.svg-+-$**HTTPDBG_VERSION**$"/>
+                        wrap lines
+                    </label>
+                    <input class="config-checkbox" type="checkbox" id="craw" name="rd" onchange="load_config_from_form(true)">
+                    <label for="craw" title="Avoid formatting the payload content based on its content type.">
+                        <img class="icon config-checkbox-unchecked" src="static/icons/lock-open-line-icon.svg-+-$**HTTPDBG_VERSION**$"/>
+                        <img class="icon config-checkbox-checked" src="static/icons/lock-line-icon.svg-+-$**HTTPDBG_VERSION**$"/>
+                        raw data
+                    </label>
                 </form>
             </div>
             <div class="menu-right">
