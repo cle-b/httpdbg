@@ -82,7 +82,7 @@ def set_hook_for_ssl_wrap_socket(records: HTTPRecords, method: Callable):
                 initiator, group, is_new = initiator_and_group
                 if is_new:
                     initiator.tbegin = tbegin
-                    group.tbegin = tbegin                    
+                    group.tbegin = tbegin
                     records.add_new_record_exception(initiator, group, "http:///", ex)
             raise
 
@@ -114,7 +114,7 @@ def set_hook_for_sslcontext_wrap_socket(records: HTTPRecords, method: Callable):
                 initiator, group, is_new = initiator_and_group
                 if is_new:
                     initiator.tbegin = tbegin
-                    group.tbegin = tbegin                    
+                    group.tbegin = tbegin
                     records.add_new_record_exception(initiator, group, "http:///", ex)
             raise
 
@@ -146,7 +146,7 @@ def set_hook_for_socket_wrap_bio(records: HTTPRecords, method: Callable):
                 initiator, group, is_new = initiator_and_group
                 if is_new:
                     initiator.tbegin = tbegin
-                    group.tbegin = tbegin                    
+                    group.tbegin = tbegin
                     records.add_new_record_exception(initiator, group, "http:///", ex)
             raise
 
