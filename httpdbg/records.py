@@ -6,7 +6,6 @@ import os
 import socket
 import ssl
 import sys
-import traceback
 from urllib.parse import urlparse
 from typing import Dict, List, Tuple, Union
 
@@ -15,7 +14,6 @@ from httpdbg.env import HTTPDBG_CURRENT_INITIATOR
 from httpdbg.env import HTTPDBG_CURRENT_TAG
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
-from httpdbg.initiator import in_lib
 from httpdbg.initiator import Group
 from httpdbg.initiator import Initiator
 from httpdbg.preview import generate_preview
@@ -217,7 +215,9 @@ class HTTPRecord:
         self.id = get_new_uuid()
         self.address: Tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
-        self.initiator_id: Union[str, None] = None
+        self.initiator_id: Union[str, None] = os.environ.get(
+            f"{HTTPDBG_CURRENT_INITIATOR}"
+        )
         self.exception: Union[Exception, None] = None
         self.request: HTTPRecordRequest = HTTPRecordRequest()
         self.response: HTTPRecordResponse = HTTPRecordResponse()
@@ -324,27 +324,6 @@ class HTTPRecords:
 
     def __len__(self) -> int:
         return len(self.requests)
-
-    def get_initiator(self) -> str:
-        envname = f"{HTTPDBG_CURRENT_INITIATOR}_{self.session.id}"
-
-        if envname in os.environ:
-            initiator = self.initiators[os.environ[envname]]
-        else:
-            fullstack = traceback.format_stack()
-            stack: List[str] = []
-            for line in fullstack[6:]:
-                if in_lib(line):
-                    break
-                stack.append(line)
-            long_label = stack[-1]
-            label = long_label.split("\n")[1]
-            initiator = Initiator(label, long_label, stack)
-
-        if initiator.id not in self.initiators:
-            self.initiators[initiator.id] = initiator
-
-        return initiator.id
 
     def get_socket_data(
         self, obj, extra_sock=None, force_new=False, request=None

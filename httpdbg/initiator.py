@@ -112,7 +112,9 @@ def get_current_instruction(
             n_stack -= 1
             framesummary = extracted_stack[n_stack - 1]
 
-        while "httpdbg/hooks" in framesummary.filename:
+        while ("httpdbg/hooks" in framesummary.filename) or (
+            "httpdbg\\hooks" in framesummary.filename
+        ):
             n_stack -= 1
             framesummary = extracted_stack[n_stack - 1]
 
@@ -209,44 +211,73 @@ def httpdbg_initiator(
     original_method: Callable,
     *args,
     **kwargs,
-) -> Generator[Union[Tuple[Initiator, Group], None], None, None]:
-    envname = f"{HTTPDBG_CURRENT_INITIATOR}_{records.session.id}"
+) -> Generator[Union[Tuple[Initiator, Group, bool], None], None, None]:
+    # An initiator is considered set if the environment variable exists and the initiator
+    # is recorded.If the environment variable exists but the initiatir is not recorded,
+    # it means httpdbg was called reentrantly, and we need to record the initiator again
+    # using the same id.
+    initiator_already_set = (HTTPDBG_CURRENT_INITIATOR in os.environ) and (
+        os.environ[HTTPDBG_CURRENT_INITIATOR] in records.initiators
+    )
+    try:
+        if not initiator_already_set:
+            original_initiator_id = None
+            if HTTPDBG_CURRENT_INITIATOR not in os.environ:
+                # temporary set a fake initiator env variable to avoid a recursion error
+                #  RecursionError: maximum recursion depth exceeded while calling a Python object
+                # TL;DR When we construct the short_stack string, a recursion error occurs if there
+                # is an object from a class where a hooked method is called in __repr__ or __str__.
+                os.environ[HTTPDBG_CURRENT_INITIATOR] = "blabla"
+            else:
+                original_initiator_id = os.environ[HTTPDBG_CURRENT_INITIATOR]
 
-    if not os.environ.get(envname):
-        # temporary set a fake initiator env variable to avoid a recursion error
-        #  RecursionError: maximum recursion depth exceeded while calling a Python object
-        # TL;DR When we construct the short_stack string, a recursion error occurs if there
-        # is an object from a class where a hooked method is called in __repr__ or __str__.
-        os.environ[envname] = "blabla"
+            # in any case, we create an Initiator
 
-        callargs = getcallargs(original_method, *args, **kwargs)
-        instruction, short_stack, stack = get_current_instruction(extracted_stack)
+            callargs = getcallargs(original_method, *args, **kwargs)
+            instruction, short_stack, stack = get_current_instruction(extracted_stack)
 
-        short_stack += (
-            f"----------\n{original_method.__module__}.{original_method.__name__}(\n"
-        )
-        for k, v in callargs.items():
-            short_stack += f"    {k}={v}\n"
-        short_stack += ")"
+            str_module = (
+                f"{original_method.__module__}."
+                if hasattr(original_method, "__module__")
+                else ""
+            )
+            str_name = (
+                f"{original_method.__name__}"
+                if hasattr(original_method, "__name__")
+                else str(original_method)
+            )
+            short_stack += f"----------\n{str_module}{str_name}(\n"
+            for k, v in callargs.items():
+                short_stack += f"    {k}={v}\n"
+            short_stack += ")"
 
-        current_initiator = Initiator(instruction, short_stack, stack)
-        records.initiators[current_initiator.id] = current_initiator
+            current_initiator = Initiator(instruction, short_stack, stack)
 
-        os.environ[envname] = current_initiator.id
+            if original_initiator_id:
+                # if we already have an initiator id (reentrant call) we change the initiator id
+                # to keep the same
+                current_initiator.id = original_initiator_id
 
-        try:
-            with httpdbg_group(
-                records, instruction, short_stack
-            ) as group:  # by default we group the requests by initiator
-                yield current_initiator, group
-        except Exception:
-            del os.environ[envname]
-            raise
+            records.initiators[current_initiator.id] = current_initiator
 
-        del os.environ[envname]
+            os.environ[HTTPDBG_CURRENT_INITIATOR] = current_initiator.id
 
-    else:
-        yield None
+        else:
+            current_initiator = records.initiators[
+                os.environ[HTTPDBG_CURRENT_INITIATOR]
+            ]
+
+        with httpdbg_group(
+            records, current_initiator.label, current_initiator.short_stack
+        ) as group:  # by default we group the requests by initiator
+            yield current_initiator, group, initiator_already_set is False
+    except Exception:
+        if (not initiator_already_set) and (HTTPDBG_CURRENT_INITIATOR in os.environ):
+            del os.environ[HTTPDBG_CURRENT_INITIATOR]
+        raise
+
+    if (not initiator_already_set) and (HTTPDBG_CURRENT_INITIATOR in os.environ):
+        del os.environ[HTTPDBG_CURRENT_INITIATOR]
 
 
 @contextmanager

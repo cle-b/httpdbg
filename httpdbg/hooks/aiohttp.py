@@ -25,10 +25,11 @@ def set_hook_for_aiohttp_async(records: HTTPRecords, method: Callable):
 
             if "str_or_url" in callargs:
                 if initiator_and_group:
-                    initiator, group = initiator_and_group
-                    records.add_new_record_exception(
-                        initiator, group, str(callargs["str_or_url"]), ex
-                    )
+                    initiator, group, is_new = initiator_and_group
+                    if is_new:
+                        records.add_new_record_exception(
+                            initiator, group, str(callargs["str_or_url"]), ex
+                        )
             raise
 
     return hook
