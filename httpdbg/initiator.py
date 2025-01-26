@@ -112,7 +112,9 @@ def get_current_instruction(
             n_stack -= 1
             framesummary = extracted_stack[n_stack - 1]
 
-        while "httpdbg/hooks" in framesummary.filename:
+        while ("httpdbg/hooks" in framesummary.filename) or (
+            "httpdbg\\hooks" in framesummary.filename
+        ):
             n_stack -= 1
             framesummary = extracted_stack[n_stack - 1]
 
