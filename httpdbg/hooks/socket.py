@@ -3,15 +3,18 @@ import asyncio
 import asyncio.proactor_events
 from collections.abc import Callable
 from contextlib import contextmanager
+import datetime
 import platform
 import socket
 import ssl
 import sys
+import traceback
 from typing import Generator
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
+from httpdbg.initiator import httpdbg_initiator
 from httpdbg.records import HTTPRecord
 from httpdbg.records import HTTPRecords
 from httpdbg.log import logger
@@ -33,20 +36,29 @@ def set_hook_for_socket_init(records: HTTPRecords, method: Callable):
 # what: A connection to a remote socket is initiated.
 # action: A new entry is added to the temporary raw socket storage list.
 def set_hook_for_socket_connect(records: HTTPRecords, method: Callable):
-    def hook(self, address):
+    def hook(self, *args, **kwargs):
+        tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         socketdata = records.get_socket_data(self, force_new=True)
         if socketdata:
             logger().info(
-                f"CONNECT - self={self} id={id(self)} socketdata={socketdata} address={address}"
+                f"CONNECT - self={self} id={id(self)} socketdata={socketdata} args={args} kwargs={kwargs}"
             )
         try:
-            r = method(self, address)
+            r = method(self, *args, **kwargs)
         except Exception as ex:
             if not isinstance(
                 ex, (BlockingIOError, OSError)
             ):  # BlockingIOError for async, OSError for ipv6
-                initiator = records.get_initiator()
-                records.add_new_record_exception(initiator, "", ex)
+                with httpdbg_initiator(
+                    records, traceback.extract_stack(), method, *args, **kwargs
+                ) as initiator_and_group:
+                    initiator, group, is_new = initiator_and_group
+                    if is_new:
+                        initiator.tbegin = tbegin
+                        group.tbegin = tbegin
+                        records.add_new_record_exception(
+                            initiator, group, "http:///", ex
+                        )
             raise
 
         return r
@@ -60,11 +72,18 @@ def set_hook_for_socket_connect(records: HTTPRecords, method: Callable):
 # action: Link the socket and the sslsocket
 def set_hook_for_ssl_wrap_socket(records: HTTPRecords, method: Callable):
     def hook(sock, *args, **kwargs):
+        tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         try:
             sslsocket = method(sock, *args, **kwargs)
         except Exception as ex:
-            initiator = records.get_initiator()
-            records.add_new_record_exception(initiator, "", ex)
+            with httpdbg_initiator(
+                records, traceback.extract_stack(), method, *args, **kwargs
+            ) as initiator_and_group:
+                initiator, group, is_new = initiator_and_group
+                if is_new:
+                    initiator.tbegin = tbegin
+                    group.tbegin = tbegin                    
+                    records.add_new_record_exception(initiator, group, "http:///", ex)
             raise
 
         logger().info(
@@ -85,11 +104,18 @@ def set_hook_for_ssl_wrap_socket(records: HTTPRecords, method: Callable):
 # action: Link the socket and the sslsocket
 def set_hook_for_sslcontext_wrap_socket(records: HTTPRecords, method: Callable):
     def hook(self, sock, *args, **kwargs):
+        tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         try:
             sslsocket = method(self, sock, *args, **kwargs)
         except Exception as ex:
-            initiator = records.get_initiator()
-            records.add_new_record_exception(initiator, "", ex)
+            with httpdbg_initiator(
+                records, traceback.extract_stack(), method, *args, **kwargs
+            ) as initiator_and_group:
+                initiator, group, is_new = initiator_and_group
+                if is_new:
+                    initiator.tbegin = tbegin
+                    group.tbegin = tbegin                    
+                    records.add_new_record_exception(initiator, group, "http:///", ex)
             raise
 
         logger().info(
@@ -110,11 +136,18 @@ def set_hook_for_sslcontext_wrap_socket(records: HTTPRecords, method: Callable):
 # action: Record a new SocketRawData if necessary
 def set_hook_for_socket_wrap_bio(records: HTTPRecords, method: Callable):
     def hook(self, *args, **kwargs):
+        tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         try:
             sslobject = method(self, *args, **kwargs)
         except Exception as ex:
-            initiator = records.get_initiator()
-            records.add_new_record_exception(initiator, "", ex)
+            with httpdbg_initiator(
+                records, traceback.extract_stack(), method, *args, **kwargs
+            ) as initiator_and_group:
+                initiator, group, is_new = initiator_and_group
+                if is_new:
+                    initiator.tbegin = tbegin
+                    group.tbegin = tbegin                    
+                    records.add_new_record_exception(initiator, group, "http:///", ex)
             raise
 
         logger().info(
@@ -196,7 +229,6 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
             logger().info(
                 f"SENDALL - self={self} id={id(self)} socketdata={socketdata} bytes={(b''+bytes)[:20]} type={type(bytes)} len={len(bytes)} args={args} kwargs={kwargs}"
             )
-
         if socketdata:
             if socketdata.record:
                 socketdata.record.request.rawdata += bytes
@@ -205,15 +237,23 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     logger().info("SENDALL - http detected")
-                    socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
-                    socketdata.record.initiator_id = records.get_initiator()
-                    socketdata.record.address = socketdata.address
-                    socketdata.record.ssl = socketdata.ssl
-                    socketdata.record.request.rawdata = socketdata.rawdata
-                    records.requests[socketdata.record.id] = socketdata.record
+                    with httpdbg_initiator(
+                        records, traceback.extract_stack(), method, *args, **kwargs
+                    ) as initiator_and_group:
+                        initiator, group, is_new = initiator_and_group
+                        if is_new:
+                            tbegin = socketdata.tbegin - datetime.timedelta(
+                                milliseconds=1
+                            )
+                            initiator.tbegin = tbegin
+                            group.tbegin = tbegin
+                        socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
+                        socketdata.record.address = socketdata.address
+                        socketdata.record.ssl = socketdata.ssl
+                        socketdata.record.request.rawdata = socketdata.rawdata
+                        records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
                     records._sockets[id(self)] = None
-
         try:
             return method(self, bytes, *args, **kwargs)
         except Exception as ex:
@@ -250,12 +290,21 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                 socketdata.rawdata += bytes[:size]
                 http_detected = socketdata.http_detected()
                 if http_detected:
-                    socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
-                    socketdata.record.initiator_id = records.get_initiator()
-                    socketdata.record.address = socketdata.address
-                    socketdata.record.ssl = socketdata.ssl
-                    socketdata.record.request.rawdata = socketdata.rawdata
-                    records.requests[socketdata.record.id] = socketdata.record
+                    with httpdbg_initiator(
+                        records, traceback.extract_stack(), method, *args, **kwargs
+                    ) as initiator_and_group:
+                        initiator, group, is_new = initiator_and_group
+                        if is_new:
+                            tbegin = socketdata.tbegin - datetime.timedelta(
+                                milliseconds=1
+                            )
+                            initiator.tbegin = tbegin
+                            group.tbegin = tbegin
+                        socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
+                        socketdata.record.address = socketdata.address
+                        socketdata.record.ssl = socketdata.ssl
+                        socketdata.record.request.rawdata = socketdata.rawdata
+                        records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
                     records._sockets[id(self)] = None
         return size
@@ -314,12 +363,21 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                 socketdata.rawdata += bytes(buf[:size])
                 http_detected = socketdata.http_detected()
                 if http_detected:
-                    socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
-                    socketdata.record.initiator_id = records.get_initiator()
-                    socketdata.record.address = socketdata.address
-                    socketdata.record.ssl = socketdata.ssl
-                    socketdata.record.request.rawdata = socketdata.rawdata
-                    records.requests[socketdata.record.id] = socketdata.record
+                    with httpdbg_initiator(
+                        records, traceback.extract_stack(), method, *args, **kwargs
+                    ) as initiator_and_group:
+                        initiator, group, is_new = initiator_and_group
+                        if is_new:
+                            tbegin = socketdata.tbegin - datetime.timedelta(
+                                milliseconds=1
+                            )
+                            initiator.tbegin = tbegin
+                            group.tbegin = tbegin
+                        socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
+                        socketdata.record.address = socketdata.address
+                        socketdata.record.ssl = socketdata.ssl
+                        socketdata.record.request.rawdata = socketdata.rawdata
+                        records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
                     records.sockets[id(self)] = None
         return size
@@ -376,8 +434,8 @@ def hook_socket(records: HTTPRecords) -> Generator[None, None, None]:
     socket.socket.send = decorate(records, socket.socket.send, set_hook_for_socket_send)
 
     if (sys.version_info.major == 3) and (sys.version_info.minor < 12):
-        ssl.wrap_socket = decorate(
-            records, ssl.wrap_socket, set_hook_for_ssl_wrap_socket
+        ssl.wrap_socket = decorate(  # type: ignore[attr-defined]
+            records, ssl.wrap_socket, set_hook_for_ssl_wrap_socket  # type: ignore[attr-defined]
         )
 
     ssl.SSLContext.wrap_socket = decorate(
@@ -436,7 +494,7 @@ def hook_socket(records: HTTPRecords) -> Generator[None, None, None]:
     socket.socket.send = undecorate(socket.socket.send)
 
     if (sys.version_info.major == 3) and (sys.version_info.minor < 12):
-        ssl.wrap_socket = undecorate(ssl.wrap_socket)
+        ssl.wrap_socket = undecorate(ssl.wrap_socket)  # type: ignore[attr-defined]
 
     ssl.SSLContext.wrap_socket = undecorate(ssl.SSLContext.wrap_socket)
     ssl.SSLContext.wrap_bio = undecorate(ssl.SSLContext.wrap_bio)

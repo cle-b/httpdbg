@@ -25,10 +25,11 @@ def set_hook_for_requests(records: HTTPRecords, method: Callable):
 
             if "url" in callargs:
                 if initiator_and_group:
-                    initiator, group = initiator_and_group
-                    records.add_new_record_exception(
-                        initiator, group, str(callargs["url"]), ex
-                    )
+                    initiator, group, is_new = initiator_and_group
+                    if is_new:
+                        records.add_new_record_exception(
+                            initiator, group, str(callargs["url"]), ex
+                        )
             raise
 
     return hook
