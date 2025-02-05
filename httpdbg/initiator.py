@@ -239,14 +239,14 @@ def httpdbg_initiator(
             str_module = (
                 f"{original_method.__module__}."
                 if hasattr(original_method, "__module__")
-                else "***"
+                else ""
             )
             str_name = (
                 f"{original_method.__name__}"
                 if hasattr(original_method, "__name__")
                 else "***"
             )
-            short_stack += f"----------\n{str_module}.{str_name}(\n"
+            short_stack += f"----------\n{str_module}{str_name}(\n"
             for k, v in callargs.items():
                 short_stack += f"    {k}={v}\n"
             short_stack += ")"
