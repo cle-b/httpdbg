@@ -16,7 +16,7 @@ class HttpdbgRecorder:
 
     def __init__(self):
         self._running: bool = False
-        self.fname: str = f"{os.environ['HTTPDBG_MULTIPROCESS_DIR']}/{uuid.uuid1()}"
+        self.fname: str = os.path.join(os.environ['HTTPDBG_MULTIPROCESS_DIR'], uuid.uuid1())
         self.context = None
         self.records: Union[HTTPRecords, None] = None
 
