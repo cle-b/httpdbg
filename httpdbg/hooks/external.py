@@ -29,7 +29,7 @@ def watcher_external(records: HTTPRecords) -> Generator[HTTPRecords, None, None]
                 remove_environment_variable = True
                 os.environ[HTTPDBG_MULTIPROCESS_DIR] = httpdbg_multiprocess_dir
 
-                # we use a custom sitecustomize.py script to record the request in the subprocesses. 
+                # we use a custom sitecustomize.py script to record the request in the subprocesses.
                 # It doesn't work if the subprocess is created using the "fork" method
                 # instead of the "spawn" method.
                 template = os.path.join(
