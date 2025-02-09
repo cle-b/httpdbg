@@ -3,11 +3,16 @@ import os
 import pytest
 
 from httpdbg import httprecord
+from httpdbg.env import HTTPDBG_MULTIPROCESS_DIR
 from httpdbg.mode_script import run_script
 
 
 @pytest.mark.script
 def test_run_script_multithread(httpbin):
+
+    if HTTPDBG_MULTIPROCESS_DIR in os.environ:
+        del os.environ[HTTPDBG_MULTIPROCESS_DIR]
+
     with httprecord() as records:
         os.environ["HTTPDBG_TEST_MULTITHREAD_BASE_URL"] = httpbin.url
         script_to_run = os.path.join(
@@ -24,6 +29,10 @@ def test_run_script_multithread(httpbin):
 
 @pytest.mark.script
 def test_run_script_multiprocess(httpbin):
+
+    if HTTPDBG_MULTIPROCESS_DIR in os.environ:
+        del os.environ[HTTPDBG_MULTIPROCESS_DIR]
+
     with httprecord() as records:
         os.environ["HTTPDBG_TEST_MULTIPROCESS_BASE_URL"] = httpbin.url
         script_to_run = os.path.join(

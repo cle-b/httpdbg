@@ -16,13 +16,10 @@ from httpdbg.records import HTTPRecords
 
 @contextmanager
 def watcher_external(records: HTTPRecords) -> Generator[HTTPRecords, None, None]:
-    remove_environment_variable = False
-
     if HTTPDBG_MULTIPROCESS_DIR not in os.environ:
         with tempfile.TemporaryDirectory(prefix="httpdbg") as httpdbg_multiprocess_dir:
 
             logger().info(f"watcher_external {httpdbg_multiprocess_dir}")
-            remove_environment_variable = True
             os.environ[HTTPDBG_MULTIPROCESS_DIR] = httpdbg_multiprocess_dir
 
             # we use a custom sitecustomize.py script to record the request in the subprocesses.
@@ -52,10 +49,6 @@ def watcher_external(records: HTTPRecords) -> Generator[HTTPRecords, None, None]
                 yield records
             finally:
                 watcher.shutdown()
-                if remove_environment_variable and (
-                    HTTPDBG_MULTIPROCESS_DIR in os.environ
-                ):
-                    del os.environ[HTTPDBG_MULTIPROCESS_DIR]
     else:
         yield records
 
@@ -77,7 +70,7 @@ class WatcherSubprocessDirThread(threading.Thread):
                 self.records.groups.update(newrecords.groups)
 
     def run(self):
-        while self._running and (HTTPDBG_MULTIPROCESS_DIR in os.environ):
+        while self._running:
             self.load_dump()
             time.sleep(self.delay)
 
