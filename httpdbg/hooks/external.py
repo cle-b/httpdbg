@@ -62,8 +62,8 @@ class WatcherSubprocessDirThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def load_dump(self):
-        for dump in glob.glob("*.httpdbgrecords", root_dir=self.directory):
-            with open(os.path.join(self.directory, dump), "rb") as dumpfile:
+        for dump in glob.glob(os.path.join(self.directory, "*.httpdbgrecords")):
+            with open(dump, "rb") as dumpfile:
                 newrecords: HTTPRecords = pickle.load(dumpfile)
                 self.records.requests.update(newrecords.requests)
                 self.records.initiators.update(newrecords.initiators)
