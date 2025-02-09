@@ -67,8 +67,8 @@ def test_run_script_no_args(httpbin, capsys):
 
 @pytest.mark.script
 def test_run_script_not_a_python_script(httpbin, capsys):
-    with pytest.raises(SystemExit):
-        run_script(["not_a_path_to_a_python_script"])
+    # should not raise an exception
+    run_script(["not_a_path_to_a_python_script"])
 
 
 @pytest.mark.api
