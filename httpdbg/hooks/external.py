@@ -17,7 +17,7 @@ from httpdbg.records import HTTPRecords
 @contextmanager
 def watcher_external(records: HTTPRecords) -> Generator[HTTPRecords, None, None]:
     if HTTPDBG_MULTIPROCESS_DIR not in os.environ:
-        with tempfile.TemporaryDirectory(prefix="httpdbg") as httpdbg_multiprocess_dir:
+        with tempfile.TemporaryDirectory(prefix="httpdbg_") as httpdbg_multiprocess_dir:
 
             logger().info(f"watcher_external {httpdbg_multiprocess_dir}")
             os.environ[HTTPDBG_MULTIPROCESS_DIR] = httpdbg_multiprocess_dir

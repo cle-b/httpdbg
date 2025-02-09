@@ -31,7 +31,7 @@ class HttpdbgRecorder:
         if self.records and len(self.records.requests) > 0:
             with open(f"{self.fname}.httpdbgrecords.tmp", "wb") as f:
                 pickle.dump(self.records, f)
-            os.rename(
+            os.replace(
                 f"{self.fname}.httpdbgrecords.tmp", f"{self.fname}.httpdbgrecords"
             )
 
