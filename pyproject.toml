@@ -46,9 +46,6 @@ no_implicit_optional = false
 disable_error_code= ["method-assign",]
 files = ["httpdbg"]
 
-[project.optional-dependencies]
-pytest = ["pytest-httpdbg>=0.6.0"]
-
 [project.urls]
 Source = "https://github.com/cle-b/httpdbg/"
 Documentation = "https://httpdbg.readthedocs.io/"

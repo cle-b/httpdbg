@@ -43,20 +43,6 @@ You can trace all the HTTP requests performed by a script
 pyhttpdbg --script filename.py [arg1 --arg2 ...]
 ```
 
-### pytest
-
-You can trace all the HTTP requests performed during your tests
-
-```console
-pyhttpdbg -m pytest [arg1 --arg2 ...]
-```
-
-If you use the `pytest-xdist` plugin to execute your tests in parallel, then you must install the `pytest-httpdbg` plugin if you want to trace the requests done by the pytest workers.
-
-```console
-pip install httpdbg[pytest]
-```
-
 ### module
 
 You can trace all the HTTP requests performed by a library module run as a script using the `-m` command line argument.
@@ -66,6 +52,16 @@ For example, you can view which HTTP requests are performed by `pip` when you in
 ```console
 pyhttpdbg -m pip install hookdns --upgrade
 ```
+
+### test frameworks
+
+You can trace all HTTP requests made during your tests (pytest, unittest).
+
+```console
+pyhttpdbg -m pytest [arg1 --arg2 ...]
+```
+
+In that case, the requests will be grouped by test, and any requests made within a fixture or the setup/teardown methods will be identified by a tag.
 
 ## Initiators
 
