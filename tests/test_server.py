@@ -1,40 +1,51 @@
 # -*- coding: utf-8 -*-
+import pytest
 import requests
 
-import pytest
-
-from httpdbg.exception import HttpdbgException
 from httpdbg.hooks.all import httprecord
-from httpdbg.server import httpdbg_srv
 
 
-@pytest.mark.server
-@pytest.mark.parametrize("host", ["localhost", "0.0.0.0"])
-def test_server_host(httpbin, host, httpdbg_port):
-    with httpdbg_srv(host, httpdbg_port) as records:
-        with httprecord(records):
-            requests.get(httpbin.url + "/get")
+@pytest.mark.cm
+def test_httprecord(httpbin_both):
+    with httprecord(client=True, server=True) as records:
+        requests.get(f"{httpbin_both.url}/get", verify=False)
 
-        ret = requests.get(f"http://localhost:{httpdbg_port}/requests")
+    assert len(records) == 2
 
-    reqs = ret.json()["requests"]
+    for http_record in records:
+        assert http_record.url == f"{httpbin_both.url}/get"
+        assert http_record.method.upper() == "GET"
+        assert http_record.status_code == 200
+        assert http_record.reason.upper() == "OK"
 
-    assert len(reqs) == 1
-    assert reqs[list(reqs.keys())[0]]["url"] == httpbin.url + "/get"
-
-
-@pytest.mark.server
-def test_server_host_exception_host(httpdbg_port):
-    host = "1.2.3.4"
-    with pytest.raises(HttpdbgException):
-        with httpdbg_srv(host, httpdbg_port):
-            pass
+    assert records[0].is_client != records[1].is_client
 
 
-@pytest.mark.server
-def test_server_host_exception_port():
-    host = "127.0.0.1"
-    port = 123456789
-    with pytest.raises(HttpdbgException):
-        with httpdbg_srv(host, port):
-            pass
+@pytest.mark.cm
+def test_httprecord_client_only(httpbin_both):
+    with httprecord() as records:
+        requests.get(f"{httpbin_both.url}/get", verify=False)
+
+    assert len(records) == 1
+
+    http_record = records[0]
+    assert http_record.url == f"{httpbin_both.url}/get"
+    assert http_record.method.upper() == "GET"
+    assert http_record.status_code == 200
+    assert http_record.reason.upper() == "OK"
+    assert records[0].is_client is True
+
+
+@pytest.mark.cm
+def test_httprecord_server_only(httpbin_both):
+    with httprecord(client=False, server=True) as records:
+        requests.get(f"{httpbin_both.url}/get", verify=False)
+
+    assert len(records) == 1
+
+    http_record = records[0]
+    assert http_record.url == f"{httpbin_both.url}/get"
+    assert http_record.method.upper() == "GET"
+    assert http_record.status_code == 200
+    assert http_record.reason.upper() == "OK"
+    assert records[0].is_client is False

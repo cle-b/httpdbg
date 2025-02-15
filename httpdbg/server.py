@@ -12,7 +12,7 @@ from httpdbg.webapp import HttpbgHTTPRequestHandler
 @contextmanager
 def httpdbg_srv(host: str, port: int) -> Generator[HTTPRecords, None, None]:
     server = None
-    records = HTTPRecords()
+    records = HTTPRecords(True, True)
     try:
         try:
             server = ServerThread(host, port, records)
@@ -40,6 +40,9 @@ class ServerThread(threading.Thread):
             HttpbgHTTPRequestHandler(records, *args, **kwargs)
 
         self.srv = HTTPServer((host, port), http_request_handler)
+        records.ignore.append(
+            (str(self.srv.server_address[0]), self.srv.server_address[1])
+        )
 
     def run(self):
         self.srv.serve_forever()
