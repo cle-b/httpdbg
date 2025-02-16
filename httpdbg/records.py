@@ -363,10 +363,11 @@ class HTTPRecords:
 
         if id(obj) in self._sockets:
             socketdata = self._sockets[id(obj)]
-            if request and socketdata.record and socketdata.record.is_client:
+            if request:
                 if (
                     socketdata
                     and socketdata.record
+                    and socketdata.record.is_client
                     and socketdata.record.response.rawdata
                 ):
                     # the socket is reused for a new request
