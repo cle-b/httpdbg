@@ -31,6 +31,7 @@ def test_run_pytest_from_pyhttpdbg_entry_point(httpbin, monkeypatch):
 @pytest.mark.pytest
 def test_run_pytest(httpbin, httpdbg_host, httpdbg_port):
     with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
+        records.server = False
         with httprecord(records):
             os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
             script_to_run = os.path.join(
@@ -51,6 +52,7 @@ def test_run_pytest(httpbin, httpdbg_host, httpdbg_port):
 @pytest.mark.pytest
 def test_run_pytest_with_exception(httpdbg_host, httpdbg_port, capsys):
     with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
+        records.server = False
         with httprecord(records):
             script_to_run = os.path.join(
                 os.path.dirname(os.path.realpath(__file__)), "demo_run_pytest.py"
@@ -71,6 +73,7 @@ def test_run_pytest_with_exception(httpdbg_host, httpdbg_port, capsys):
 @pytest.mark.initiator
 def test_run_pytest_initiator(httpbin, httpdbg_host, httpdbg_port):
     with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
+        records.server = False
         with httprecord(records):
             os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
             script_to_run = os.path.join(
@@ -97,6 +100,7 @@ def test_run_pytest_initiator(httpbin, httpdbg_host, httpdbg_port):
 @pytest.mark.group
 def test_run_pytest_group(httpbin, httpdbg_host, httpdbg_port):
     with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
+        records.server = False
         with httprecord(records):
             os.environ["HTTPDBG_TEST_PYTEST_BASE_URL"] = httpbin.url
             script_to_run = os.path.join(
