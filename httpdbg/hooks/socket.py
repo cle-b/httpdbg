@@ -184,12 +184,7 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                 f"RECV_INTO - self={self} id={id(self)} socketdata={socketdata} args={args} kwargs={kwargs}"
             )
 
-        try:
-            nbytes = method(self, buffer, *args, **kwargs)
-        except Exception as ex:
-            if socketdata and socketdata.record:
-                socketdata.record.exception = ex
-            raise
+        nbytes = method(self, buffer, *args, **kwargs)
 
         if socketdata:
             if socketdata.record:
@@ -241,12 +236,7 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
                 f"RECV - self={self} id={id(self)} socketdata={socketdata} bufsize={bufsize} args={args} kwargs={kwargs}"
             )
 
-        try:
-            buffer = method(self, bufsize, *args, **kwargs)
-        except Exception as ex:
-            if socketdata and socketdata.record:
-                socketdata.record.exception = ex
-            raise
+        buffer = method(self, bufsize, *args, **kwargs)
 
         if socketdata and socketdata.record:
             socketdata.record.receive_data(buffer)
@@ -298,12 +288,8 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
                     records._sockets[id(self)] = None
-        try:
-            return method(self, data, *args, **kwargs)
-        except Exception as ex:
-            if socketdata and socketdata.record:
-                socketdata.record.exception = ex
-            raise
+
+        return method(self, data, *args, **kwargs)
 
     return hook
 
@@ -320,12 +306,7 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                 f"SEND - self={self} id={id(self)} socketdata={socketdata} bytes={(b''+data)[:20]} args={args} kwargs={kwargs}"
             )
 
-        try:
-            size = method(self, data, *args, **kwargs)
-        except Exception as ex:
-            if socketdata and socketdata.record:
-                socketdata.record.exception = ex
-            raise
+        size = method(self, data, *args, **kwargs)
 
         if socketdata:
             if socketdata.record:
@@ -399,12 +380,7 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
         if socketdata:
             logger().info(f"WRITE * - socketdata={socketdata}")
 
-        try:
-            size = method(self, buf, *args, **kwargs)
-        except Exception as ex:
-            if socketdata and socketdata.record:
-                socketdata.record.exception = ex
-            raise
+        size = method(self, buf, *args, **kwargs)
 
         if socketdata:
             if socketdata.record:
@@ -446,13 +422,7 @@ def set_hook_for_sslobject_read(records: HTTPRecords, method: Callable):
         if socketdata:
             logger().info(f"READ * - socketdata={socketdata}")
 
-        try:
-            r = method(self, *args, **kwargs)
-        except Exception as ex:
-            if not isinstance(ex, ssl.SSLWantReadError):
-                if socketdata and socketdata.record:
-                    socketdata.record.exception = ex
-            raise
+        r = method(self, *args, **kwargs)
 
         if socketdata and socketdata.record:
             allargs = getcallargs(method, self, *args, **kwargs)
