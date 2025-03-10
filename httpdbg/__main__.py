@@ -29,7 +29,8 @@ def pyhttpdbg(params, subparams, test_mode=False):
     sys.path.insert(0, "")  # to mimic the default python command behavior
 
     with httpdbg_srv(params.host, params.port) as records:
-        with httprecord(records, params.initiator):
+        records.server = params.record_server
+        with httprecord(records, params.initiator, server=params.record_server):
             if params.module:
                 run_module(subparams)
             elif params.script:

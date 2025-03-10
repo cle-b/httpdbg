@@ -363,18 +363,24 @@ class HTTPRecords:
 
         if id(obj) in self._sockets:
             socketdata = self._sockets[id(obj)]
-            if request:
-                if (
-                    socketdata
-                    and socketdata.record
-                    and socketdata.record.is_client
-                    and socketdata.record.response.rawdata
-                ):
-                    # the socket is reused for a new request
-                    self._sockets[id(obj)] = SocketRawData(
-                        id(obj), socketdata.address, socketdata.ssl
-                    )
-                    socketdata = self._sockets[id(obj)]
+            if (
+                request
+                and socketdata
+                and socketdata.record
+                and socketdata.record.is_client
+                and socketdata.record.response.rawdata
+            ) or (
+                (not request)
+                and socketdata
+                and socketdata.record
+                and (not socketdata.record.is_client)
+                and socketdata.record.request.rawdata
+            ):
+                # the socket is reused for a new request
+                self._sockets[id(obj)] = SocketRawData(
+                    id(obj), socketdata.address, socketdata.ssl
+                )
+                socketdata = self._sockets[id(obj)]
         else:
             if isinstance(obj, socket.socket):
                 try:

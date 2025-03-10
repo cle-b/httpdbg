@@ -28,7 +28,7 @@ def httprecord(
     if records is None:
         records = HTTPRecords(client=client, server=server, ignore=ignore)
 
-    with watcher_external(records):
+    with watcher_external(records, initiators, server):
         with hook_socket(records):
             with hook_httpx(records):
                 with hook_requests(records):

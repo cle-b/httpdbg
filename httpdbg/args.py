@@ -36,6 +36,12 @@ def read_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
         "--initiator", "-i", action="append", help="add a new initiator (package)"
     )
 
+    parser.add_argument(
+        "--record-server",
+        action="store_true",
+        help="record HTTP client and server requests",
+    )
+
     server_state = parser.add_mutually_exclusive_group()
 
     server_state.add_argument(
