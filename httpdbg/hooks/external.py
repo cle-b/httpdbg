@@ -7,6 +7,8 @@ import pickle
 import tempfile
 import time
 import threading
+from typing import List
+from typing import Union
 
 from httpdbg.env import HTTPDBG_MULTIPROCESS_DIR
 from httpdbg.log import logger
@@ -15,7 +17,9 @@ from httpdbg.records import HTTPRecords
 
 @contextmanager
 def watcher_external(
-    records: HTTPRecords, initiators: list[str] | None = None, server: bool = False
+    records: HTTPRecords,
+    initiators: Union[List[str], None] = None,
+    server: bool = False,
 ) -> Generator[HTTPRecords, None, None]:
     if HTTPDBG_MULTIPROCESS_DIR not in os.environ:
         with tempfile.TemporaryDirectory(prefix="httpdbg_") as httpdbg_multiprocess_dir:
