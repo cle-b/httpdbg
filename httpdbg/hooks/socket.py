@@ -189,7 +189,7 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
         if socketdata:
             if socketdata.record:
                 logger().info(
-                    f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:min(20,nbytes)]}"
+                    f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:min(20, nbytes)]}"
                 )
                 socketdata.record.receive_data(buffer[:nbytes])
             else:
@@ -198,7 +198,7 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                 if http_detected:
                     logger().info("RECV_INTO - http detected")
                     logger().info(
-                        f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:min(20,nbytes)]}"
+                        f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:min(20, nbytes)]}"
                     )
                     with httpdbg_initiator(
                         records,
@@ -431,7 +431,13 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     with httpdbg_initiator(
-                        records, traceback.extract_stack(), method, self, buf, *args, **kwargs
+                        records,
+                        traceback.extract_stack(),
+                        method,
+                        self,
+                        buf,
+                        *args,
+                        **kwargs,
                     ) as initiator_and_group:
                         initiator, group, is_new = initiator_and_group
                         if is_new:
