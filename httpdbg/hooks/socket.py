@@ -308,6 +308,7 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                         records,
                         traceback.extract_stack(),
                         method,
+                        self,
                         data,
                         *args,
                         **kwargs,
@@ -358,6 +359,7 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                         records,
                         traceback.extract_stack(),
                         method,
+                        self,
                         data,
                         *args,
                         **kwargs,
@@ -429,7 +431,7 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     with httpdbg_initiator(
-                        records, traceback.extract_stack(), method, buf, *args, **kwargs
+                        records, traceback.extract_stack(), method, self, buf, *args, **kwargs
                     ) as initiator_and_group:
                         initiator, group, is_new = initiator_and_group
                         if is_new:
