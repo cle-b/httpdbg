@@ -25,7 +25,6 @@ from httpdbg.log import logger
 # action: If an entry exists in the temporary raw socket storage list, it is removed.
 def set_hook_for_socket_init(records: HTTPRecords, method: Callable):
     def hook(self, *args, **kwargs):
-        logger().debug(f"set_hook_for_socket_init {self}")
         records.del_socket_data(self)
 
         return method(self, *args, **kwargs)
@@ -38,7 +37,6 @@ def set_hook_for_socket_init(records: HTTPRecords, method: Callable):
 # action: A new entry is added to the temporary raw socket storage list.
 def set_hook_for_socket_connect(records: HTTPRecords, method: Callable):
     def hook(self, *args, **kwargs):
-        logger().debug("set_hook_for_socket_connect")
         tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         socketdata = records.get_socket_data(self, force_new=True)
         if socketdata:
@@ -75,7 +73,6 @@ def set_hook_for_socket_connect(records: HTTPRecords, method: Callable):
 # action: Link the socket and the sslsocket
 def set_hook_for_ssl_wrap_socket(records: HTTPRecords, method: Callable):
     def hook(sock, *args, **kwargs):
-        logger().debug("set_hook_for_ssl_wrap_socket")
         tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         try:
             sslsocket = method(sock, *args, **kwargs)
@@ -111,7 +108,6 @@ def set_hook_for_ssl_wrap_socket(records: HTTPRecords, method: Callable):
 # action: Link the socket and the sslsocket
 def set_hook_for_sslcontext_wrap_socket(records: HTTPRecords, method: Callable):
     def hook(self, sock, *args, **kwargs):
-        logger().debug("set_hook_for_sslcontext_wrap_socket")
         tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         try:
             sslsocket = method(self, sock, *args, **kwargs)
@@ -147,7 +143,6 @@ def set_hook_for_sslcontext_wrap_socket(records: HTTPRecords, method: Callable):
 # action: Record a new SocketRawData if necessary
 def set_hook_for_socket_wrap_bio(records: HTTPRecords, method: Callable):
     def hook(self, *args, **kwargs):
-        logger().debug("set_hook_for_socket_wrap_bio")
         tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         try:
             sslobject = method(self, *args, **kwargs)
@@ -183,7 +178,6 @@ def set_hook_for_socket_wrap_bio(records: HTTPRecords, method: Callable):
 # action: Append the data to an existing SocketRawData
 def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
     def hook(self, buffer, *args, **kwargs):
-        logger().debug("set_hook_for_socket_recv_into")
         socketdata = records.get_socket_data(self)
         if socketdata:
             logger().info(
@@ -237,7 +231,6 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
 # action: Append the data to an existing SocketRawData
 def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
     def hook(self, bufsize, *args, **kwargs):
-        logger().debug("set_hook_for_socket_recv")
         socketdata = records.get_socket_data(self)
         if socketdata:
             logger().info(
@@ -292,7 +285,6 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
 # and record it if this is case, otherwise delete the temporay SocketRawData.
 def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
     def hook(self, data, *args, **kwargs):
-        logger().debug("set_hook_for_socket_sendall")
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
             logger().info(
@@ -341,7 +333,6 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
 # and record it if this is case, otherwise delete the temporay SocketRawData.
 def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
     def hook(self, data, *args, **kwargs):
-        logger().debug("set_hook_for_socket_send")
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
             logger().info(
