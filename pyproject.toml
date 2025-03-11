@@ -7,7 +7,7 @@ name = "httpdbg"
 authors = [
     {name = "cle-b", email = "cle@tictac.pm"},
 ]
-description="A very simple tool to debug HTTP(S) client requests"
+description="A very simple tool to debug HTTP(S) client and server requests."
 readme="README.md"
 requires-python = ">=3.9"
 license = {text = "Apache-2.0"}
