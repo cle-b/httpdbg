@@ -1,6 +1,6 @@
 # httpdbg
 
-`httpdbg` is a tool for Python developers to easily debug the HTTP(S) client requests in a Python program.
+`httpdbg` is a tool for Python developers to easily debug the HTTP(S) client and server requests in a Python program.
 
 To use it, execute your program using the `pyhttpdbg` command instead of `python` and that's it. Open a browser to `http://localhost:4909` to view the requests:
 
@@ -75,7 +75,7 @@ pyhttpdbg -i api_client_pck --script my_script.py
 
 You can use any package as an initiator, this is not limited to HTTP requests.
 
-### Already supported packages
+### Already supported packages for HTTP client
 
 | packages       | status                              | 
 |----------------|-------------------------------------|
@@ -140,6 +140,12 @@ All the requests recorded are available on the web interface.
 The requests:
  * are still available in the web page even if the python process stopped (except if you force quit before the requests have been loaded by the web page).
  * are automatically cleaned if a new execution is detected.
+
+## limitations
+
+Theoretically, if your HTTP client or server uses a standard Python socket, the HTTP requests will be recorded.
+
+Support for recording requests on the server side is new in `httpdbg 1.0.0` and is currently limited. For example, it doesn't work with `FastAPI`, which uses `uvloop`, but it does work with `Uvicorn` if the loop is `asyncio`. Work is in progress to improve this.
 
 ## documentation
 
