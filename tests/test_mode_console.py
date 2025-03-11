@@ -35,7 +35,6 @@ def test_run_console_from_pyhttpdbg_entry_point_default(
 
 def test_run_console(httpbin, httpdbg_host, httpdbg_port):
     with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
-        records.server = False
         with httprecord(records):
             new_console = run_console(records, test_mode=True)
             new_console.push("import requests")
