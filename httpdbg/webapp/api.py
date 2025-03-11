@@ -26,6 +26,7 @@ class RequestPayload(JSONEncoder):
             "initiator_id": req.initiator_id,
             "group_id": req.group_id,
             "in_progress": req.in_progress,
+            "is_server": not req.is_client,
         }
 
         payload["request"] = {
@@ -95,6 +96,7 @@ class RequestListPayload(JSONEncoder):
                 "initiator_id": req.initiator_id,
                 "group_id": req.group_id,
                 "in_progress": req.in_progress,
+                "is_server": not req.is_client,
                 "tbegin": req.tbegin.isoformat(),
                 "last_update": req.last_update.isoformat(),
             }

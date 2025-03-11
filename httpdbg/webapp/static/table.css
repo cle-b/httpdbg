@@ -41,6 +41,10 @@
     font-size: 0.8em;
 }
 
+.tag-server {
+    background-color: var(--tag-server-bg-color) !important;
+}
+
 .group-label {
     white-space: nowrap;
     overflow: hidden;

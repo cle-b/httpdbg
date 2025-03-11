@@ -228,8 +228,6 @@ class HTTPRecord:
         self.tag: Union[str, None] = os.environ.get(HTTPDBG_CURRENT_TAG)
         self.group_id: Union[str, None] = os.environ.get(HTTPDBG_CURRENT_GROUP)
         self.is_client: bool = is_client
-        if not is_client:
-            self.tag = "server"
         if tbegin:
             self.tbegin = tbegin
 

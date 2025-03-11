@@ -37,9 +37,9 @@ def read_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
     )
 
     parser.add_argument(
-        "--record-server",
+        "--only-client",
         action="store_true",
-        help="record HTTP client and server requests",
+        help="record only HTTP client requests",
     )
 
     server_state = parser.add_mutually_exclusive_group()
