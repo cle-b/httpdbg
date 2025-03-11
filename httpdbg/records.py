@@ -325,9 +325,9 @@ class HTTPRecords:
         ignore: Union[List[Tuple[str, int]], None] = None,
     ) -> None:
         self.reset()
+        self.client: bool = client
+        self.server: bool = server
         self.ignore: List[Tuple[str, int]] = []
-        self.client = client
-        self.server = server
         if ignore:
             self.ignore = ignore
 
