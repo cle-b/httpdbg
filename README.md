@@ -16,6 +16,8 @@ pip install httpdbg
 
 ## usage
 
+By default, both client and server requests are recorded. To record only client requests, use the `--only-client` command line argument.
+
 ### interactive console
 
 Open an interactive console using the command `pyhttpdbg`.
@@ -94,7 +96,9 @@ No configuration is necessary to start but some few settings are available for p
 ### command line
 
 ```console
-usage: pyhttpdbg [-h] [--host HOST] [--port PORT] [--version] [--initiator INITIATOR] [--keep-up | --force-quit]
+usage: pyhttpdbg [-h] [--host HOST] [--port PORT] [--version]
+                 [--initiator INITIATOR] [--only-client]
+                 [--keep-up | --force-quit]                 
                  [--console | --module MODULE | --script SCRIPT]
 
 httdbg - a very simple tool to debug HTTP(S) client requests
@@ -106,6 +110,7 @@ options:
   --version, -v         print the httpdbg version
   --initiator INITIATOR, -i INITIATOR
                         add a new initiator (package)
+  --only-client         record only HTTP client requests
   --keep-up, -k         keep the server up even if the requests have been read
   --force-quit, -q      stop the server even if the requests have not been read
   --console             run a python console (default)
