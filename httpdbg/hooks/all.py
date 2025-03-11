@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 from typing import Generator
 from typing import List
+from typing import Tuple
 from typing import Union
 
 from httpdbg.hooks.aiohttp import hook_aiohttp
@@ -18,12 +19,16 @@ from httpdbg.records import HTTPRecords
 
 @contextmanager
 def httprecord(
-    records: HTTPRecords = None, initiators: Union[List[str], None] = None
+    records: HTTPRecords = None,
+    initiators: Union[List[str], None] = None,
+    client: bool = True,
+    server: bool = False,
+    ignore: Union[List[Tuple[str, int]], None] = None,
 ) -> Generator[HTTPRecords, None, None]:
     if records is None:
-        records = HTTPRecords()
+        records = HTTPRecords(client=client, server=server, ignore=ignore)
 
-    with watcher_external(records):
+    with watcher_external(records, initiators, server):
         with hook_socket(records):
             with hook_httpx(records):
                 with hook_requests(records):

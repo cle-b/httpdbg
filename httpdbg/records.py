@@ -211,7 +211,9 @@ class HTTPRecordResponse(HTTPRecordReqResp):
 
 
 class HTTPRecord:
-    def __init__(self, tbegin: datetime.datetime = None) -> None:
+    def __init__(
+        self, tbegin: datetime.datetime = None, is_client: bool = True
+    ) -> None:
         self.id = get_new_uuid()
         self.address: Tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
@@ -225,6 +227,7 @@ class HTTPRecord:
         self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         self.tag: Union[str, None] = os.environ.get(HTTPDBG_CURRENT_TAG)
         self.group_id: Union[str, None] = os.environ.get(HTTPDBG_CURRENT_GROUP)
+        self.is_client: bool = is_client
         if tbegin:
             self.tbegin = tbegin
 
@@ -293,6 +296,18 @@ class HTTPRecord:
     def last_update(self) -> datetime.datetime:
         return max(self.request.last_update, self.response.last_update)
 
+    def receive_data(self, data: bytes):
+        if self.is_client:
+            self.response.rawdata += data
+        else:
+            self.request.rawdata += data
+
+    def send_data(self, data: bytes):
+        if self.is_client:
+            self.request.rawdata += data
+        else:
+            self.response.rawdata += data
+
 
 class HTTPRecordsSessionInfo:
 
@@ -303,8 +318,18 @@ class HTTPRecordsSessionInfo:
 
 
 class HTTPRecords:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        client: bool = True,
+        server: bool = False,
+        ignore: Union[List[Tuple[str, int]], None] = None,
+    ) -> None:
         self.reset()
+        self.client: bool = client
+        self.server: bool = server
+        self.ignore: List[Tuple[str, int]] = []
+        if ignore:
+            self.ignore = ignore
 
     def reset(self) -> None:
         logger().info("HTTPRecords.reset")
@@ -336,25 +361,33 @@ class HTTPRecords:
 
         if id(obj) in self._sockets:
             socketdata = self._sockets[id(obj)]
-            if request:
-                if (
-                    socketdata
-                    and socketdata.record
-                    and socketdata.record.response.rawdata
-                ):
-                    # the socket is reused for a new request
-                    self._sockets[id(obj)] = SocketRawData(
-                        id(obj), socketdata.address, socketdata.ssl
-                    )
-                    socketdata = self._sockets[id(obj)]
+            if (
+                request
+                and socketdata
+                and socketdata.record
+                and socketdata.record.is_client
+                and socketdata.record.response.rawdata
+            ) or (
+                (not request)
+                and socketdata
+                and socketdata.record
+                and (not socketdata.record.is_client)
+                and socketdata.record.request.rawdata
+            ):
+                # the socket is reused for a new request
+                self._sockets[id(obj)] = SocketRawData(
+                    id(obj), socketdata.address, socketdata.ssl
+                )
+                socketdata = self._sockets[id(obj)]
         else:
             if isinstance(obj, socket.socket):
                 try:
                     address = obj.getsockname()
-                    self._sockets[id(obj)] = SocketRawData(
-                        id(obj), address, isinstance(obj, ssl.SSLSocket)
-                    )
-                    socketdata = self._sockets[id(obj)]
+                    if address not in self.ignore:
+                        self._sockets[id(obj)] = SocketRawData(
+                            id(obj), address, isinstance(obj, ssl.SSLSocket)
+                        )
+                        socketdata = self._sockets[id(obj)]
                 except OSError:
                     # OSError: [WinError 10022] An invalid argument was supplied
                     pass
@@ -370,12 +403,13 @@ class HTTPRecords:
                             if hasattr(extra_sock, "getsockname")
                             else ("", 0)  # wrap_bio
                         )
-                        self._sockets[id(obj)] = SocketRawData(
-                            id(obj),
-                            address,
-                            isinstance(obj, (ssl.SSLObject, ssl.SSLSocket)),
-                        )
-                        socketdata = self._sockets[id(obj)]
+                        if address not in self.ignore:
+                            self._sockets[id(obj)] = SocketRawData(
+                                id(obj),
+                                address,
+                                isinstance(obj, (ssl.SSLObject, ssl.SSLSocket)),
+                            )
+                            socketdata = self._sockets[id(obj)]
                     except OSError:
                         # OSError: [WinError 10022] An invalid argument was supplied
                         pass

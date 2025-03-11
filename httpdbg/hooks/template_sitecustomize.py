@@ -10,6 +10,9 @@ import uuid
 from httpdbg.hooks.all import httprecord
 from httpdbg import HTTPRecords
 
+HTTPDBG_INITIATORS = []  # type: ignore
+HTTPDBG_RECORD_SERVER = False
+
 
 class HttpdbgRecorder:
     """Records the HTTP requests in subprocesses and saves them to disk."""
@@ -37,7 +40,9 @@ class HttpdbgRecorder:
 
     def start(self):
         """Start recording."""
-        self.context = httprecord()
+        self.context = httprecord(
+            initiators=HTTPDBG_INITIATORS, server=HTTPDBG_RECORD_SERVER
+        )
         self.records = self.context.__enter__()
         self._running = True
         self._thread = threading.Thread(target=self._save_to_disk_loop, daemon=True)

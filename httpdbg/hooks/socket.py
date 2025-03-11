@@ -49,16 +49,17 @@ def set_hook_for_socket_connect(records: HTTPRecords, method: Callable):
             if not isinstance(
                 ex, (BlockingIOError, OSError)
             ):  # BlockingIOError for async, OSError for ipv6
-                with httpdbg_initiator(
-                    records, traceback.extract_stack(), method, *args, **kwargs
-                ) as initiator_and_group:
-                    initiator, group, is_new = initiator_and_group
-                    if is_new:
-                        initiator.tbegin = tbegin
-                        group.tbegin = tbegin
-                        records.add_new_record_exception(
-                            initiator, group, "http:///", ex
-                        )
+                if records.client:
+                    with httpdbg_initiator(
+                        records, traceback.extract_stack(), method, *args, **kwargs
+                    ) as initiator_and_group:
+                        initiator, group, is_new = initiator_and_group
+                        if is_new:
+                            initiator.tbegin = tbegin
+                            group.tbegin = tbegin
+                            records.add_new_record_exception(
+                                initiator, group, "http:///", ex
+                            )
             raise
 
         return r
@@ -76,14 +77,17 @@ def set_hook_for_ssl_wrap_socket(records: HTTPRecords, method: Callable):
         try:
             sslsocket = method(sock, *args, **kwargs)
         except Exception as ex:
-            with httpdbg_initiator(
-                records, traceback.extract_stack(), method, *args, **kwargs
-            ) as initiator_and_group:
-                initiator, group, is_new = initiator_and_group
-                if is_new:
-                    initiator.tbegin = tbegin
-                    group.tbegin = tbegin
-                    records.add_new_record_exception(initiator, group, "http:///", ex)
+            if records.client:
+                with httpdbg_initiator(
+                    records, traceback.extract_stack(), method, *args, **kwargs
+                ) as initiator_and_group:
+                    initiator, group, is_new = initiator_and_group
+                    if is_new:
+                        initiator.tbegin = tbegin
+                        group.tbegin = tbegin
+                        records.add_new_record_exception(
+                            initiator, group, "http:///", ex
+                        )
             raise
 
         logger().info(
@@ -108,14 +112,17 @@ def set_hook_for_sslcontext_wrap_socket(records: HTTPRecords, method: Callable):
         try:
             sslsocket = method(self, sock, *args, **kwargs)
         except Exception as ex:
-            with httpdbg_initiator(
-                records, traceback.extract_stack(), method, *args, **kwargs
-            ) as initiator_and_group:
-                initiator, group, is_new = initiator_and_group
-                if is_new:
-                    initiator.tbegin = tbegin
-                    group.tbegin = tbegin
-                    records.add_new_record_exception(initiator, group, "http:///", ex)
+            if records.client:
+                with httpdbg_initiator(
+                    records, traceback.extract_stack(), method, *args, **kwargs
+                ) as initiator_and_group:
+                    initiator, group, is_new = initiator_and_group
+                    if is_new:
+                        initiator.tbegin = tbegin
+                        group.tbegin = tbegin
+                        records.add_new_record_exception(
+                            initiator, group, "http:///", ex
+                        )
             raise
 
         logger().info(
@@ -140,14 +147,17 @@ def set_hook_for_socket_wrap_bio(records: HTTPRecords, method: Callable):
         try:
             sslobject = method(self, *args, **kwargs)
         except Exception as ex:
-            with httpdbg_initiator(
-                records, traceback.extract_stack(), method, *args, **kwargs
-            ) as initiator_and_group:
-                initiator, group, is_new = initiator_and_group
-                if is_new:
-                    initiator.tbegin = tbegin
-                    group.tbegin = tbegin
-                    records.add_new_record_exception(initiator, group, "http:///", ex)
+            if records.client:
+                with httpdbg_initiator(
+                    records, traceback.extract_stack(), method, *args, **kwargs
+                ) as initiator_and_group:
+                    initiator, group, is_new = initiator_and_group
+                    if is_new:
+                        initiator.tbegin = tbegin
+                        group.tbegin = tbegin
+                        records.add_new_record_exception(
+                            initiator, group, "http:///", ex
+                        )
             raise
 
         logger().info(
@@ -174,18 +184,48 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                 f"RECV_INTO - self={self} id={id(self)} socketdata={socketdata} args={args} kwargs={kwargs}"
             )
 
-        try:
-            nbytes = method(self, buffer, *args, **kwargs)
-        except Exception as ex:
-            if socketdata and socketdata.record:
-                socketdata.record.exception = ex
-            raise
+        nbytes = method(self, buffer, *args, **kwargs)
 
-        if socketdata and socketdata.record:
-            logger().info(
-                f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:20]}"
-            )
-            socketdata.record.response.rawdata += buffer[:nbytes]
+        if socketdata:
+            if socketdata.record:
+                logger().info(
+                    f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:20]}"
+                )
+                socketdata.record.receive_data(buffer[:nbytes])
+            else:
+                socketdata.rawdata += buffer[:nbytes]
+                http_detected = socketdata.http_detected()
+                if http_detected:
+                    logger().info("RECV_INTO - http detected")
+                    logger().info(
+                        f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:20]}"
+                    )
+                    with httpdbg_initiator(
+                        records,
+                        traceback.extract_stack(),
+                        method,
+                        self,
+                        buffer,
+                        *args,
+                        **kwargs,
+                    ) as initiator_and_group:
+                        initiator, group, is_new = initiator_and_group
+                        if is_new:
+                            tbegin = socketdata.tbegin - datetime.timedelta(
+                                milliseconds=1
+                            )
+                            initiator.tbegin = tbegin
+                            group.tbegin = tbegin
+                        socketdata.record = HTTPRecord(
+                            tbegin=socketdata.tbegin, is_client=False
+                        )
+                        socketdata.record.address = socketdata.address
+                        socketdata.record.ssl = socketdata.ssl
+                        socketdata.record.receive_data(socketdata.rawdata)
+                        if records.server:
+                            records.requests[socketdata.record.id] = socketdata.record
+                elif http_detected is False:  # if None, there is nothing to do
+                    records._sockets[id(self)] = None
 
         return nbytes
 
@@ -203,15 +243,42 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
                 f"RECV - self={self} id={id(self)} socketdata={socketdata} bufsize={bufsize} args={args} kwargs={kwargs}"
             )
 
-        try:
-            buffer = method(self, bufsize, *args, **kwargs)
-        except Exception as ex:
-            if socketdata and socketdata.record:
-                socketdata.record.exception = ex
-            raise
+        buffer = method(self, bufsize, *args, **kwargs)
 
-        if socketdata and socketdata.record:
-            socketdata.record.response.rawdata += buffer
+        if socketdata:
+            if socketdata.record:
+                socketdata.record.receive_data(buffer)
+            else:
+                socketdata.rawdata += buffer
+                http_detected = socketdata.http_detected()
+                if http_detected:
+                    logger().info("RECV - http detected")
+                    with httpdbg_initiator(
+                        records,
+                        traceback.extract_stack(),
+                        method,
+                        self,
+                        bufsize,
+                        *args,
+                        **kwargs,
+                    ) as initiator_and_group:
+                        initiator, group, is_new = initiator_and_group
+                        if is_new:
+                            tbegin = socketdata.tbegin - datetime.timedelta(
+                                milliseconds=1
+                            )
+                            initiator.tbegin = tbegin
+                            group.tbegin = tbegin
+                        socketdata.record = HTTPRecord(
+                            tbegin=socketdata.tbegin, is_client=False
+                        )
+                        socketdata.record.address = socketdata.address
+                        socketdata.record.ssl = socketdata.ssl
+                        socketdata.record.receive_data(socketdata.rawdata)
+                        if records.server:
+                            records.requests[socketdata.record.id] = socketdata.record
+                elif http_detected is False:  # if None, there is nothing to do
+                    records._sockets[id(self)] = None
 
         return buffer
 
@@ -223,22 +290,28 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
 # action: Append the data to an existing SocketRawData. Check if this is an HTTP request.
 # and record it if this is case, otherwise delete the temporay SocketRawData.
 def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
-    def hook(self, bytes, *args, **kwargs):
+    def hook(self, data, *args, **kwargs):
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
             logger().info(
-                f"SENDALL - self={self} id={id(self)} socketdata={socketdata} bytes={(b''+bytes)[:20]} type={type(bytes)} len={len(bytes)} args={args} kwargs={kwargs}"
+                f"SENDALL - self={self} id={id(self)} socketdata={socketdata} data={(b''+bytes(data))[:20]} type={type(data)} args={args} kwargs={kwargs}"
             )
         if socketdata:
             if socketdata.record:
-                socketdata.record.request.rawdata += bytes
+                socketdata.record.send_data(data)
             else:
-                socketdata.rawdata += bytes
+                socketdata.rawdata += data
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     logger().info("SENDALL - http detected")
                     with httpdbg_initiator(
-                        records, traceback.extract_stack(), method, *args, **kwargs
+                        records,
+                        traceback.extract_stack(),
+                        method,
+                        self,
+                        data,
+                        *args,
+                        **kwargs,
                     ) as initiator_and_group:
                         initiator, group, is_new = initiator_and_group
                         if is_new:
@@ -250,16 +323,13 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                         socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
                         socketdata.record.address = socketdata.address
                         socketdata.record.ssl = socketdata.ssl
-                        socketdata.record.request.rawdata = socketdata.rawdata
-                        records.requests[socketdata.record.id] = socketdata.record
+                        socketdata.record.send_data(socketdata.rawdata)
+                        if records.client:
+                            records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
                     records._sockets[id(self)] = None
-        try:
-            return method(self, bytes, *args, **kwargs)
-        except Exception as ex:
-            if socketdata and socketdata.record:
-                socketdata.record.exception = ex
-            raise
+
+        return method(self, data, *args, **kwargs)
 
     return hook
 
@@ -269,29 +339,30 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
 # action: Append the data to an existing SocketRawData. Check if this is an HTTP request.
 # and record it if this is case, otherwise delete the temporay SocketRawData.
 def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
-    def hook(self, bytes, *args, **kwargs):
+    def hook(self, data, *args, **kwargs):
         socketdata = records.get_socket_data(self, request=True)
         if socketdata:
             logger().info(
-                f"SEND - self={self} id={id(self)} socketdata={socketdata} bytes={(b''+bytes)[:20]} args={args} kwargs={kwargs}"
+                f"SEND - self={self} id={id(self)} socketdata={socketdata} bytes={(b''+data)[:20]} args={args} kwargs={kwargs}"
             )
 
-        try:
-            size = method(self, bytes, *args, **kwargs)
-        except Exception as ex:
-            if socketdata and socketdata.record:
-                socketdata.record.exception = ex
-            raise
+        size = method(self, data, *args, **kwargs)
 
         if socketdata:
             if socketdata.record:
-                socketdata.record.request.rawdata += bytes[:size]
+                socketdata.record.send_data(data[:size])
             else:
-                socketdata.rawdata += bytes[:size]
+                socketdata.rawdata += data[:size]
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     with httpdbg_initiator(
-                        records, traceback.extract_stack(), method, *args, **kwargs
+                        records,
+                        traceback.extract_stack(),
+                        method,
+                        self,
+                        data,
+                        *args,
+                        **kwargs,
                     ) as initiator_and_group:
                         initiator, group, is_new = initiator_and_group
                         if is_new:
@@ -303,8 +374,9 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                         socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
                         socketdata.record.address = socketdata.address
                         socketdata.record.ssl = socketdata.ssl
-                        socketdata.record.request.rawdata = socketdata.rawdata
-                        records.requests[socketdata.record.id] = socketdata.record
+                        socketdata.record.send_data(socketdata.rawdata)
+                        if records.client:
+                            records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
                     records._sockets[id(self)] = None
         return size
@@ -349,22 +421,23 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
         if socketdata:
             logger().info(f"WRITE * - socketdata={socketdata}")
 
-        try:
-            size = method(self, buf, *args, **kwargs)
-        except Exception as ex:
-            if socketdata and socketdata.record:
-                socketdata.record.exception = ex
-            raise
+        size = method(self, buf, *args, **kwargs)
 
         if socketdata:
             if socketdata.record:
-                socketdata.record.request.rawdata += bytes(buf[:size])
+                socketdata.record.send_data(bytes(buf[:size]))
             else:
                 socketdata.rawdata += bytes(buf[:size])
                 http_detected = socketdata.http_detected()
                 if http_detected:
                     with httpdbg_initiator(
-                        records, traceback.extract_stack(), method, *args, **kwargs
+                        records,
+                        traceback.extract_stack(),
+                        method,
+                        self,
+                        buf,
+                        *args,
+                        **kwargs,
                     ) as initiator_and_group:
                         initiator, group, is_new = initiator_and_group
                         if is_new:
@@ -376,8 +449,9 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                         socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
                         socketdata.record.address = socketdata.address
                         socketdata.record.ssl = socketdata.ssl
-                        socketdata.record.request.rawdata = socketdata.rawdata
-                        records.requests[socketdata.record.id] = socketdata.record
+                        socketdata.record.send_data(socketdata.rawdata)
+                        if records.client:
+                            records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
                     records.sockets[id(self)] = None
         return size
@@ -395,20 +469,14 @@ def set_hook_for_sslobject_read(records: HTTPRecords, method: Callable):
         if socketdata:
             logger().info(f"READ * - socketdata={socketdata}")
 
-        try:
-            r = method(self, *args, **kwargs)
-        except Exception as ex:
-            if not isinstance(ex, ssl.SSLWantReadError):
-                if socketdata and socketdata.record:
-                    socketdata.record.exception = ex
-            raise
+        r = method(self, *args, **kwargs)
 
         if socketdata and socketdata.record:
             allargs = getcallargs(method, self, *args, **kwargs)
             if allargs.get("buffer"):
-                socketdata.record.response.rawdata += bytes(allargs.get("buffer"))[:r]
+                socketdata.record.receive_data(bytes(allargs.get("buffer"))[:r])
             else:
-                socketdata.record.response.rawdata += bytes(r)[: allargs.get("len")]
+                socketdata.record.receive_data(bytes(r)[: allargs.get("len")])
 
         return r
 
