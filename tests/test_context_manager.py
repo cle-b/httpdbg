@@ -116,49 +116,49 @@ def test_context_manager_reentrant_group(httpbin):
     requests.get(httpbin.url + "/get")
 
     with httprecord() as records1:
-        requests.get(httpbin.url + "/get/a1")
+        requests.get(httpbin.url + "/get?a1")
         with httprecord() as records2:
-            requests.get(httpbin.url + "/get/b1")
-            requests.get(httpbin.url + "/get/b2")
+            requests.get(httpbin.url + "/get?b1")
+            requests.get(httpbin.url + "/get?b2")
             with httprecord() as records3:
-                requests.get(httpbin.url + "/get/c1")
-        requests.get(httpbin.url + "/get/a2")
+                requests.get(httpbin.url + "/get?c1")
+        requests.get(httpbin.url + "/get?a2")
 
     requests.get(httpbin.url + "/get")
 
     assert (
         records1.groups[records1[0].group_id].label
-        == 'requests.get(httpbin.url + "/get/a1")'
+        == 'requests.get(httpbin.url + "/get?a1")'
     )
     assert (
         records1.groups[records1[1].group_id].label
-        == 'requests.get(httpbin.url + "/get/b1")'
+        == 'requests.get(httpbin.url + "/get?b1")'
     )
     assert (
         records1.groups[records1[2].group_id].label
-        == 'requests.get(httpbin.url + "/get/b2")'
+        == 'requests.get(httpbin.url + "/get?b2")'
     )
     assert (
         records1.groups[records1[3].group_id].label
-        == 'requests.get(httpbin.url + "/get/c1")'
+        == 'requests.get(httpbin.url + "/get?c1")'
     )
     assert (
         records1.groups[records1[4].group_id].label
-        == 'requests.get(httpbin.url + "/get/a2")'
+        == 'requests.get(httpbin.url + "/get?a2")'
     )
     assert (
         records2.groups[records2[0].group_id].label
-        == 'requests.get(httpbin.url + "/get/b1")'
+        == 'requests.get(httpbin.url + "/get?b1")'
     )
     assert (
         records2.groups[records2[1].group_id].label
-        == 'requests.get(httpbin.url + "/get/b2")'
+        == 'requests.get(httpbin.url + "/get?b2")'
     )
     assert (
         records2.groups[records2[2].group_id].label
-        == 'requests.get(httpbin.url + "/get/c1")'
+        == 'requests.get(httpbin.url + "/get?c1")'
     )
     assert (
         records3.groups[records3[0].group_id].label
-        == 'requests.get(httpbin.url + "/get/c1")'
+        == 'requests.get(httpbin.url + "/get?c1")'
     )
