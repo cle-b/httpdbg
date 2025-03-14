@@ -1,5 +1,5 @@
-import time
 import contextlib
+import time
 import threading
 
 from flask import Flask
