@@ -65,8 +65,32 @@ pyhttpdbg -m pytest [arg1 --arg2 ...]
 
 In that case, the requests will be grouped by test, and any requests made within a fixture or the setup/teardown methods will be identified by a tag.
 
-## Initiators
 
+### HTTP server
+
+You can trace all HTTP requests received by your HTTP server.
+
+```console
+pyhttpdbg -m flask --app demoflask run
+.... - - .--. -.. -... --. .... - - .--. -.. -... --. .... - - .--. -.. -... --.
+  httpdbg - HTTP(S) requests available at http://localhost:4909/
+.... - - .--. -.. -... --. .... - - .--. -.. -... --. .... - - .--. -.. -... --.
+ * Serving Flask app 'demoflask'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+127.0.0.1 - - [14/Mar/2025 17:47:42] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [14/Mar/2025 17:47:50] "GET /hello/Ben HTTP/1.1" 200 -
+127.0.0.1 - - [14/Mar/2025 17:47:56] "GET /oups HTTP/1.1" 404 -
+```
+
+![httpdbg 1.1.0 - pyhttpdbg -m flask --app demoflask run](https://github.com/cle-b/httpdbg/blob/main/ui_server.png?raw=true)
+
+This feature is new and not fully implemented. See [limitations(limitations).] for more details.
+
+## initiators and groups
+ 
 An initiator is the function/method that is at the origin of the HTTP requests. By default, we already support some packages but you can add your own initiators. 
 
 To add a new package in the list of initiators, you can use the `-i` command line argument:
@@ -77,17 +101,34 @@ pyhttpdbg -i api_client_pck --script my_script.py
 
 You can use any package as an initiator, this is not limited to HTTP requests.
 
-### Already supported packages for HTTP client
+### supported HTTP client
 
-| packages       | status                              | 
-|----------------|-------------------------------------|
-| requests       | supported                           |
-| urllib3        | supported                           |
-| httpx          | supported                           |
-| aiohttp        | supported                           |
-| pytest         | supported                           |
-| unittest       | supported                           |
-| _your_package_ | yes, with the arg _-i your_package_ |
+The initiator is the highest-level method used to make the request through the client. The group and the initiator are identical. If a request to a URL generates multiple requests, as in the case of redirection, all these requests will be grouped together.
+
+| packages       | status                              | initiator | group     |
+|----------------|-------------------------------------|-----------|-----------|
+| requests       | supported                           | yes       | yes       |
+| urllib3        | supported                           | yes       | yes       |
+| httpx          | supported                           | yes       | yes       |
+| aiohttp        | supported                           | yes       | yes       |
+| _your_package_ | yes, with the arg _-i your_package_ | yes       | yes       |
+
+### supported HTTP server
+
+The initiator is the low-level socket method that receives the data. The group is the endpoint method used to handle the request. A client request made within the endpoint method will be included in this group.
+
+| packages       | status                              | initiator | group     |
+|----------------|-------------------------------------|-----------|-----------|
+| flask          | supported                           | no        | yes       |
+
+### supported test framework
+
+The requests are grouped by tests.
+
+| packages       | status                              | initiator | group     |
+|----------------|-------------------------------------|-----------|-----------|
+| pytest         | supported                           | no        | yes       |
+| unittest       | supported                           | no        | yes       |
 
 ## configuration
 
