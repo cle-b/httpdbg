@@ -87,7 +87,7 @@ Press CTRL+C to quit
 
 ![httpdbg 1.1.0 - pyhttpdbg -m flask --app demoflask run](https://github.com/cle-b/httpdbg/blob/main/ui_server.png?raw=true)
 
-This feature is new and not fully implemented. See [limitations(limitations).] for more details.
+This feature is new and not fully implemented. See [limitations](#limitations) for more details.
 
 ## initiators and groups
  
