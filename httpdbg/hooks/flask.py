@@ -11,7 +11,6 @@ from httpdbg.initiator import httpdbg_endpoint
 from httpdbg.records import HTTPRecords
 
 
-
 def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
 
     @wraps(method)
