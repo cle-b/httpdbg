@@ -24,13 +24,13 @@ def test_initiator_script(httpbin):
     assert initiator.label == 'requests.get(f"{httpbin.url}/get")'
 
     assert (
-        """test_initiator.py", line 19, in test_initiator_script
+        '''test_initiator.py", line 19, in test_initiator_script
  19.         requests.get(f"{httpbin.url}/get")
 ----------
 requests.api.get(
-    url="""
+    url="'''
         + f"{httpbin.url}/get"
-        + """
+        + """",
 )"""
         in initiator.short_stack
     )

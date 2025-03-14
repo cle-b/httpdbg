@@ -42,7 +42,7 @@ def assert_unittest_records(records):
     groups = records.groups
 
     i_req = 0
-    assert records[i_req].url.endswith("/setup_module")
+    assert records[i_req].url.endswith("/get?setup_module")
     assert groups[records[i_req].group_id].label == "setUpModule (demo_run_unittest)"
     assert (
         "demo_run_unittest.py::setUpModule"
@@ -51,7 +51,7 @@ def assert_unittest_records(records):
     assert records[i_req].tag is None
 
     i_req = 1
-    assert records[i_req].url.endswith("/setup_class")
+    assert records[i_req].url.endswith("/get?setup_class")
     assert groups[records[i_req].group_id].label == "TestUnittests::setUpClass"
     assert (
         "demo_run_unittest.py::TestUnittests::setUpClass"
@@ -60,7 +60,7 @@ def assert_unittest_records(records):
     assert records[i_req].tag is None
 
     i_req = 2
-    assert records[i_req].url.endswith("/setup")
+    assert records[i_req].url.endswith("/get?setup")
     assert groups[records[i_req].group_id].label == "TestUnittests::test_case1"
     assert (
         "demo_run_unittest.py::TestUnittests::test_case1"
@@ -69,7 +69,7 @@ def assert_unittest_records(records):
     assert records[i_req].tag == "setUp"
 
     i_req = 3
-    assert records[i_req].url.endswith("/testcase1")
+    assert records[i_req].url.endswith("/get?testcase1")
     assert groups[records[i_req].group_id].label == "TestUnittests::test_case1"
     assert (
         "demo_run_unittest.py::TestUnittests::test_case1"
@@ -78,7 +78,7 @@ def assert_unittest_records(records):
     assert records[i_req].tag is None
 
     i_req = 4
-    assert records[i_req].url.endswith("/teardown")
+    assert records[i_req].url.endswith("/get?teardown")
     assert groups[records[i_req].group_id].label == "TestUnittests::test_case1"
     assert (
         "demo_run_unittest.py::TestUnittests::test_case1"
@@ -87,7 +87,7 @@ def assert_unittest_records(records):
     assert records[i_req].tag == "tearDown"
 
     i_req = 5
-    assert records[i_req].url.endswith("/setup")
+    assert records[i_req].url.endswith("/get?setup")
     assert groups[records[i_req].group_id].label == "TestUnittests::test_case2"
     assert (
         "demo_run_unittest.py::TestUnittests::test_case2"
@@ -96,7 +96,7 @@ def assert_unittest_records(records):
     assert records[i_req].tag == "setUp"
 
     i_req = 6
-    assert records[i_req].url.endswith("/testcase2")
+    assert records[i_req].url.endswith("/get?testcase2")
     assert groups[records[i_req].group_id].label == "TestUnittests::test_case2"
     assert (
         "demo_run_unittest.py::TestUnittests::test_case2"
@@ -105,7 +105,7 @@ def assert_unittest_records(records):
     assert records[i_req].tag is None
 
     i_req = 7
-    assert records[i_req].url.endswith("/teardown")
+    assert records[i_req].url.endswith("/get?teardown")
     assert groups[records[i_req].group_id].label == "TestUnittests::test_case2"
     assert (
         "demo_run_unittest.py::TestUnittests::test_case2"
@@ -114,7 +114,7 @@ def assert_unittest_records(records):
     assert records[i_req].tag == "tearDown"
 
     i_req = 8
-    assert records[i_req].url.endswith("/teardown_class")
+    assert records[i_req].url.endswith("/get?teardown_class")
     assert groups[records[i_req].group_id].label == "TestUnittests::tearDownClass"
     assert (
         "demo_run_unittest.py::TestUnittests::tearDownClass"
@@ -123,7 +123,7 @@ def assert_unittest_records(records):
     assert records[i_req].tag is None
 
     i_req = 9
-    assert records[i_req].url.endswith("/teardown_module")
+    assert records[i_req].url.endswith("/get?teardown_module")
     assert groups[records[i_req].group_id].label == "tearDownModule (demo_run_unittest)"
     assert (
         "demo_run_unittest.py::tearDownModule"
