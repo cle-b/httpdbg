@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections.abc import Callable
 from contextlib import contextmanager
+from functools import wraps
 from typing import Generator
 
 from httpdbg.hooks.utils import getcallargs
@@ -9,7 +10,6 @@ from httpdbg.hooks.utils import undecorate
 from httpdbg.initiator import httpdbg_endpoint
 from httpdbg.records import HTTPRecords
 
-from functools import wraps
 
 
 def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
