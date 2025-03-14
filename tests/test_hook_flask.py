@@ -30,8 +30,8 @@ def create_app():
 
     @app.route("/boum")
     def boum():
-        1/0
-    
+        1 / 0
+
     return app
 
 
@@ -117,6 +117,7 @@ def test_flask_not_found(httpdbg_port):
     full_label = group.full_label.replace(" ", "").replace("\t", "").replace("\n", "")
     assert "not_found(e=" in full_label
 
+
 def test_flask_internal_server_error(httpdbg_port):
 
     with httprecord(client=False, server=True) as records:
@@ -132,6 +133,7 @@ def test_flask_internal_server_error(httpdbg_port):
     assert b"Internal Server Error" in record.response.content
     assert "def handle_exception" in group.label
     assert "division by zero" in group.full_label
+
 
 def test_flask_client_request_in_endpoint(httpdbg_port, httpbin):
 
