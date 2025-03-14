@@ -2,6 +2,7 @@
 from collections.abc import Callable
 from contextlib import contextmanager
 import datetime
+import inspect
 import os
 import platform
 import traceback
@@ -204,6 +205,36 @@ def extract_short_stack_from_file(
     return instruction, short_stack
 
 
+def construct_call_str(original_method, *args, **kwargs):
+
+    def print_v(v):
+        if isinstance(v, str):
+            return f'"{v}"'
+        else:
+            return v
+
+    callargs = getcallargs(original_method, *args, **kwargs)
+
+    str_module = (
+        f"{original_method.__module__}."
+        if hasattr(original_method, "__module__")
+        else ""
+    )
+    str_name = (
+        f"{original_method.__name__}" if hasattr(original_method, "__name__") else "***"
+    )
+
+    if callargs:
+        r = f"{str_module}{str_name}(\n"
+        for k, v in callargs.items():
+            r += f"    {k}={print_v(v)},\n"
+        r += ")"
+    else:
+        r = f"{str_module}{str_name}()"
+
+    return r
+
+
 @contextmanager
 def httpdbg_initiator(
     records: "HTTPRecords",
@@ -232,24 +263,10 @@ def httpdbg_initiator(
                 original_initiator_id = os.environ[HTTPDBG_CURRENT_INITIATOR]
 
             # in any case, we create an Initiator
-
-            callargs = getcallargs(original_method, *args, **kwargs)
             instruction, short_stack, stack = get_current_instruction(extracted_stack)
-
-            str_module = (
-                f"{original_method.__module__}."
-                if hasattr(original_method, "__module__")
-                else ""
+            short_stack += "----------\n" + construct_call_str(
+                original_method, *args, **kwargs
             )
-            str_name = (
-                f"{original_method.__name__}"
-                if hasattr(original_method, "__name__")
-                else "***"
-            )
-            short_stack += f"----------\n{str_module}{str_name}(\n"
-            for k, v in callargs.items():
-                short_stack += f"    {k}={v}\n"
-            short_stack += ")"
 
             current_initiator = Initiator(instruction, short_stack, stack)
 
@@ -302,7 +319,7 @@ def httpdbg_tag(tag: str) -> Generator[None, None, None]:
 
 @contextmanager
 def httpdbg_group(
-    records: "HTTPRecords", label: str, full_label: str
+    records: "HTTPRecords", label: str, full_label: str, update: bool = False
 ) -> Generator[Group, None, None]:
 
     # A group is considered set if the environment variable exists and the group
@@ -325,9 +342,13 @@ def httpdbg_group(
     else:
         group = records.groups[os.environ[HTTPDBG_CURRENT_GROUP]]
 
+    if update:
+        # Update the label and full_label of an existing group, in case of endpoint.
+        group.label = label
+        group.full_label = full_label
     try:
         logger().info(
-            f"httpdbg_group {records.groups} group_id={os.environ[HTTPDBG_CURRENT_GROUP]} label={label} full_label={full_label}"
+            f"httpdbg_group {group} group_id={os.environ[HTTPDBG_CURRENT_GROUP]} label={label} full_label={full_label}"
         )
         yield group
     except Exception:
@@ -337,3 +358,26 @@ def httpdbg_group(
 
     if (not group_already_set) and (HTTPDBG_CURRENT_GROUP in os.environ):
         del os.environ[HTTPDBG_CURRENT_GROUP]
+
+
+@contextmanager
+def httpdbg_endpoint(
+    records: "HTTPRecords", original_method: Callable, *args, **kwargs
+) -> Generator[None, None, None]:
+
+    filename = inspect.getsourcefile(original_method)
+    if filename:
+        _, lineno = inspect.getsourcelines(original_method)
+        instruction, s_stack = extract_short_stack_from_file(filename, lineno, 0, 8)
+        full_label = (
+            f'File "{filename}", line {lineno}, in {original_method.__name__}\n'
+        )
+        full_label += s_stack
+        full_label += "----------\n" + construct_call_str(
+            original_method, *args, **kwargs
+        )
+
+        with httpdbg_group(records, instruction, full_label, update=True):
+            yield
+    else:
+        yield
