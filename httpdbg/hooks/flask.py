@@ -13,7 +13,9 @@ from httpdbg.records import HTTPRecords
 
 def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
 
-    @wraps(method)
+    @wraps(
+        method
+    )  # to avoid AssertionError: View function mapping is overwriting an existing endpoint function: hook
     def hook(*args, **kwargs):
 
         with httpdbg_endpoint(
@@ -28,6 +30,11 @@ def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
     return hook
 
 
+# we must not apply the hook more than once on a mapped endpoint function
+# AssertionError: View function mapping is overwriting an existing endpoint function: xxxx
+already_mapped = {}
+
+
 def set_hook_flask_add_url_rule(records: HTTPRecords, method: Callable):
 
     def hook(*args, **kwargs):
@@ -38,9 +45,13 @@ def set_hook_flask_add_url_rule(records: HTTPRecords, method: Callable):
 
         if param in callargs:
             original_view_func = callargs[param]
-            callargs[param] = decorate(
-                records, callargs[param], set_hook_flask_endpoint
-            )
+            if original_view_func not in already_mapped:
+                callargs[param] = decorate(
+                    records, callargs[param], set_hook_flask_endpoint
+                )
+                already_mapped[original_view_func] = callargs[param]
+            else:
+                callargs[param] = already_mapped[original_view_func]
 
             args = [callargs[param] if x == original_view_func else x for x in args]
             if param in kwargs:
@@ -61,9 +72,13 @@ def set_hook_flask_register_error_handler(records: HTTPRecords, method: Callable
 
         if param in callargs:
             original_view_func = callargs[param]
-            callargs[param] = decorate(
-                records, callargs[param], set_hook_flask_endpoint
-            )
+            if original_view_func not in already_mapped:
+                callargs[param] = decorate(
+                    records, callargs[param], set_hook_flask_endpoint
+                )
+                already_mapped[original_view_func] = callargs[param]
+            else:
+                callargs[param] = already_mapped[original_view_func]
 
             args = [callargs[param] if x == original_view_func else x for x in args]
             if param in kwargs:
