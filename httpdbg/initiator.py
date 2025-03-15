@@ -66,10 +66,11 @@ class Initiator:
 
 
 class Group:
-    def __init__(self, label: str, full_label: str):
+    def __init__(self, label: str, full_label: str, updatable: bool = False):
         self.id: str = get_new_uuid()
         self.label: str = label
         self.full_label: str = full_label
+        self.updatable: bool = updatable
         self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
 
     def to_json(self) -> dict:
@@ -319,7 +320,11 @@ def httpdbg_tag(tag: str) -> Generator[None, None, None]:
 
 @contextmanager
 def httpdbg_group(
-    records: "HTTPRecords", label: str, full_label: str, update: bool = False
+    records: "HTTPRecords",
+    label: str,
+    full_label: str,
+    update: bool = False,
+    updatable: bool = False,
 ) -> Generator[Group, None, None]:
 
     # A group is considered set if the environment variable exists and the group
@@ -332,7 +337,7 @@ def httpdbg_group(
 
     if not group_already_set:
         logger().info("httpdbg_group (new)")
-        group = Group(label, full_label)
+        group = Group(label, full_label, updatable=updatable)
         # in case of a reentrant call to httpdbg, we force the group id to be the same
         if HTTPDBG_CURRENT_GROUP in os.environ:
             group.id = os.environ[HTTPDBG_CURRENT_GROUP]
@@ -342,7 +347,7 @@ def httpdbg_group(
     else:
         group = records.groups[os.environ[HTTPDBG_CURRENT_GROUP]]
 
-    if update:
+    if update and group.updatable:
         # Update the label and full_label of an existing group, in case of endpoint.
         group.label = label
         group.full_label = full_label
