@@ -12,37 +12,39 @@ const global = {
 }
 
 function save_request(request_id, request, session_id) {
-    request.loaded = false;
-    request.to_refresh = true;
-    if (request.pin == undefined) {
-        request.pin = "";
-    }
-    if (request.filter == undefined) {
-        request.filter = "---";
-    }
-    request.session_id = session_id;
-    request.initiator = global.initiators[request.initiator_id];
-
-    if (request.in_progress) {
-        request.status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" alt="loading"/>';
-    } else {
-        switch (request.status_code) {
-            case 0:
-                request.status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="loading"/>';
-                break;
-            case -1:
-                request.status_code_view = '<img class="icon" src="static/icons/math-multiplication-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="load failed"/>';
-                break;
-            default:
-                request.status_code_view = request.status_code;
-                break;
+    if (request.initiator_id in global.initiators) {  // the initiator may be missing if the clean list is executed in parrallel
+        request.loaded = false;
+        request.to_refresh = true;
+        if (request.pin == undefined) {
+            request.pin = "";
         }
-    }
-
-    global.requests[request_id] = request;    
-
-    if (!request.pin) {
-        get_request(request_id);
+        if (request.filter == undefined) {
+            request.filter = "---";
+        }
+        request.session_id = session_id;
+        request.initiator = global.initiators[request.initiator_id];
+    
+        if (request.in_progress) {
+            request.status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" alt="loading"/>';
+        } else {
+            switch (request.status_code) {
+                case 0:
+                    request.status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="loading"/>';
+                    break;
+                case -1:
+                    request.status_code_view = '<img class="icon" src="static/icons/math-multiplication-icon.svg-+-$**HTTPDBG_VERSION**$/" alt="load failed"/>';
+                    break;
+                default:
+                    request.status_code_view = request.status_code;
+                    break;
+            }
+        }
+    
+        global.requests[request_id] = request;    
+    
+        if (!request.pin) {
+            get_request(request_id);
+        }    
     }
 }
 
