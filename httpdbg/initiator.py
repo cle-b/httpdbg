@@ -66,7 +66,7 @@ class Initiator:
 
 
 class Group:
-    def __init__(self, label: str, full_label: str, updatable: bool = False):
+    def __init__(self, label: str, full_label: str, updatable: bool):
         self.id: str = get_new_uuid()
         self.label: str = label
         self.full_label: str = full_label
@@ -324,7 +324,7 @@ def httpdbg_group(
     label: str,
     full_label: str,
     update: bool = False,
-    updatable: bool = False,
+    updatable: bool = True,
 ) -> Generator[Group, None, None]:
 
     # A group is considered set if the environment variable exists and the group

@@ -14,7 +14,7 @@ def set_hook_for_http_server_handle_one_request(records: HTTPRecords, method: Ca
     def hook(*args, **kwargs):
 
         # the group label/full_label will be updated when the endpoint method will be called
-        with httpdbg_group(records, "one request", "", updatable=True):
+        with httpdbg_group(records, "one request", ""):
             ret = method(*args, **kwargs)
 
         return ret

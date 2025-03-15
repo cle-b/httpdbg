@@ -36,7 +36,7 @@ def set_hook_for_unittest_run(records: HTTPRecords, method: Callable):
                     test_module_path = os.path.relpath(test_module_path)
                     full_label = f"{test_module_path}::{full_label}"
 
-            with httpdbg_group(records, label, full_label):
+            with httpdbg_group(records, label, full_label, updatable=False):
                 ret = method(*args, **kwargs)
         else:
             ret = method(*args, **kwargs)
@@ -79,7 +79,7 @@ def set_hook_for_unittest_class_setup(records: HTTPRecords, method: Callable):
                 test_module_path = os.path.relpath(test_module_path)
                 full_label = f"{test_module_path}::{full_label}"
 
-            with httpdbg_group(records, label, full_label):
+            with httpdbg_group(records, label, full_label, updatable=False):
                 return method(*args, **kwargs)
         else:
             return method(*args, **kwargs)
@@ -116,7 +116,7 @@ def set_hook_for_unittest_class_teardown(records: HTTPRecords, method: Callable)
                     test_module_path = os.path.relpath(test_module_path)
                     full_label = f"{test_module_path}::{full_label}"
 
-            with httpdbg_group(records, label, full_label):
+            with httpdbg_group(records, label, full_label, updatable=False):
                 return method(*args, **kwargs)
         else:
             return method(*args, **kwargs)
@@ -147,7 +147,7 @@ def set_hook_for_unittest_module_setup(records: HTTPRecords, method: Callable):
                 test_module_path = os.path.relpath(test_module_path)
                 full_label = f"{test_module_path}::setUpModule"
 
-            with httpdbg_group(records, label, full_label):
+            with httpdbg_group(records, label, full_label, updatable=False):
                 return method(*args, **kwargs)
         else:
             return method(*args, **kwargs)
@@ -191,7 +191,7 @@ def set_hook_for_unittest_module_teardown(records: HTTPRecords, method: Callable
                     test_module_path = os.path.relpath(test_module_path)
                     full_label = f"{test_module_path}::tearDownModule"
 
-            with httpdbg_group(records, label, full_label):
+            with httpdbg_group(records, label, full_label, updatable=False):
                 return method(*args, **kwargs)
         else:
             return method(*args, **kwargs)

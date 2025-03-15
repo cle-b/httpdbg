@@ -34,7 +34,7 @@ def set_hook_for_pytest_runtest(records: HTTPRecords, method: Callable):
         if "item" in callargs:
             full_label = getattr(callargs["item"], "nodeid", "unknown test")
             label = getattr(callargs["item"], "name", "unknown test")
-            with httpdbg_group(records, label, full_label):
+            with httpdbg_group(records, label, full_label, updatable=False):
                 return method(*args, **kwargs)
         else:
             return method(*args, **kwargs)
