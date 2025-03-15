@@ -9,11 +9,11 @@ from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
 from httpdbg.initiator import httpdbg_endpoint
 from httpdbg.records import HTTPRecords
+from httpdbg.utils import get_new_uuid
 
 
 def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
 
-    @wraps(method)
     def hook(*args, **kwargs):
 
         with httpdbg_endpoint(
@@ -24,6 +24,10 @@ def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
         ):
             ret = method(*args, **kwargs)
         return ret
+    
+    # we must generate a unique function name for each hook, to avoid the following error:
+    # AssertionError: View function mapping is overwriting an existing endpoint function: hook    
+    hook.__name__ = f"hook_{get_new_uuid()}"
 
     return hook
 
