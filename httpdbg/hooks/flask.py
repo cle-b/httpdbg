@@ -13,7 +13,9 @@ from httpdbg.records import HTTPRecords
 
 def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
 
-    @wraps(method)
+    @wraps(
+        method
+    )  # to avoid AssertionError: View function mapping is overwriting an existing endpoint function: hook
     def hook(*args, **kwargs):
 
         with httpdbg_endpoint(
@@ -28,6 +30,8 @@ def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
     return hook
 
 
+# we must not apply the hook more than once on a mapped endpoint function
+# AssertionError: View function mapping is overwriting an existing endpoint function: xxxx
 already_mapped = {}
 
 
