@@ -9,11 +9,11 @@ from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
 from httpdbg.initiator import httpdbg_endpoint
 from httpdbg.records import HTTPRecords
-from httpdbg.utils import get_new_uuid
 
 
 def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
 
+    @wraps(method)
     def hook(*args, **kwargs):
 
         with httpdbg_endpoint(
@@ -24,12 +24,11 @@ def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
         ):
             ret = method(*args, **kwargs)
         return ret
-    
-    # we must generate a unique function name for each hook, to avoid the following error:
-    # AssertionError: View function mapping is overwriting an existing endpoint function: hook    
-    hook.__name__ = f"hook_{get_new_uuid()}"
 
     return hook
+
+
+already_mapped = {}
 
 
 def set_hook_flask_add_url_rule(records: HTTPRecords, method: Callable):
@@ -42,9 +41,13 @@ def set_hook_flask_add_url_rule(records: HTTPRecords, method: Callable):
 
         if param in callargs:
             original_view_func = callargs[param]
-            callargs[param] = decorate(
-                records, callargs[param], set_hook_flask_endpoint
-            )
+            if original_view_func not in already_mapped:
+                callargs[param] = decorate(
+                    records, callargs[param], set_hook_flask_endpoint
+                )
+                already_mapped[original_view_func] = callargs[param]
+            else:
+                callargs[param] = already_mapped[original_view_func]
 
             args = [callargs[param] if x == original_view_func else x for x in args]
             if param in kwargs:
@@ -65,9 +68,13 @@ def set_hook_flask_register_error_handler(records: HTTPRecords, method: Callable
 
         if param in callargs:
             original_view_func = callargs[param]
-            callargs[param] = decorate(
-                records, callargs[param], set_hook_flask_endpoint
-            )
+            if original_view_func not in already_mapped:
+                callargs[param] = decorate(
+                    records, callargs[param], set_hook_flask_endpoint
+                )
+                already_mapped[original_view_func] = callargs[param]
+            else:
+                callargs[param] = already_mapped[original_view_func]
 
             args = [callargs[param] if x == original_view_func else x for x in args]
             if param in kwargs:
