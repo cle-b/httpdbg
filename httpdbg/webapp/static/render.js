@@ -24,22 +24,24 @@ async function refresh_resquests() {
 
             let groupby = get_groupby(global.groupby, request);
 
-            request.groupby_id = groupby.id;
+            if(groupby) { // the group may be missing if the clean list is executed in parrallel
+                request.groupby_id = groupby.id;
 
-            var rendered = Mustache.render(template_request, request);
-            if (!elt) {
-                var elt_group = document.getElementById("group-" + groupby.id);
-                if (!elt_group) {
-                    var rendered_group = Mustache.render(template_group, groupby);
-                    ordered_insert(table, "tbody", groupby.tbegin, rendered_group);
-                    elt_group = document.getElementById("group-" + groupby.id);
+                var rendered = Mustache.render(template_request, request);
+                if (!elt) {
+                    var elt_group = document.getElementById("group-" + groupby.id);
+                    if (!elt_group) {
+                        var rendered_group = Mustache.render(template_group, groupby);
+                        ordered_insert(table, "tbody", groupby.tbegin, rendered_group);
+                        elt_group = document.getElementById("group-" + groupby.id);
+                    };
+                    ordered_insert(elt_group, "tr", request.tbegin, rendered);
+                } else {
+                    elt.innerHTML = rendered;
                 };
-                ordered_insert(elt_group, "tr", request.tbegin, rendered);
-            } else {
-                elt.innerHTML = rendered;
-            };
-
-            request.to_refresh = false;
+    
+                request.to_refresh = false;    
+            }
         }
     };
     filter_requests_count();
