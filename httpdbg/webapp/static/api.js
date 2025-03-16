@@ -12,7 +12,8 @@ const global = {
 }
 
 function save_request(request_id, request, session_id) {
-    if (request.initiator_id in global.initiators) {  // the initiator may be missing if the clean list is executed in parrallel
+    const initiator = global.initiators[request.initiator_id] ?? null;
+    if (initiator !== null) {  // the initiator may be missing if the clean list is executed in parrallel
         request.loaded = false;
         request.to_refresh = true;
         if (request.pin == undefined) {
@@ -22,7 +23,7 @@ function save_request(request_id, request, session_id) {
             request.filter = "---";
         }
         request.session_id = session_id;
-        request.initiator = global.initiators[request.initiator_id];
+        request.initiator = initiator;
     
         if (request.in_progress) {
             request.status_code_view = '<img class="icon" src="static/icons/wait-sandclock-icon.svg-+-$**HTTPDBG_VERSION**$" alt="loading"/>';
