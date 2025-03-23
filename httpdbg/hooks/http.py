@@ -20,7 +20,7 @@ def set_hook_for_http_server_handle_one_request(records: HTTPRecords, method: Ca
             with httpdbg_group(records, "one request", ""):
                 ret = method(self, *args, **kwargs)
         else:
-            # this request is due to the httpdbg web server itself, we can ignore it
+            # this request is for the httpdbg web server itself, we can ignore it
             ret = method(self, *args, **kwargs)
 
         return ret
