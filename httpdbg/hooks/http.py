@@ -11,11 +11,17 @@ from httpdbg.records import HTTPRecords
 
 
 def set_hook_for_http_server_handle_one_request(records: HTTPRecords, method: Callable):
-    def hook(*args, **kwargs):
 
-        # the group label/full_label will be updated when the endpoint method will be called
-        with httpdbg_group(records, "one request", ""):
-            ret = method(*args, **kwargs)
+    def hook(self, *args, **kwargs):
+        from httpdbg.webapp.app import HttpbgHTTPRequestHandler
+
+        if isinstance(self, HttpbgHTTPRequestHandler):
+            # this request is for the httpdbg web server itself, we do not have to create a group
+            ret = method(self, *args, **kwargs)
+        else:
+            # the group label/full_label will be updated when the endpoint method will be called
+            with httpdbg_group(records, "one request", ""):
+                ret = method(self, *args, **kwargs)
 
         return ret
 
