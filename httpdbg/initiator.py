@@ -15,9 +15,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from httpdbg.records import HTTPRecords
 
-from httpdbg.env import HTTPDBG_CURRENT_GROUP
-from httpdbg.env import HTTPDBG_CURRENT_INITIATOR
-from httpdbg.env import HTTPDBG_CURRENT_TAG
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.utils import get_new_uuid
 from httpdbg.log import logger
@@ -244,26 +241,16 @@ def httpdbg_initiator(
     *args,
     **kwargs,
 ) -> Generator[Union[Tuple[Initiator, Group, bool], None], None, None]:
-    # An initiator is considered set if the environment variable exists and the initiator
-    # is recorded.If the environment variable exists but the initiatir is not recorded,
-    # it means httpdbg was called reentrantly, and we need to record the initiator again
-    # using the same id.
-    initiator_already_set = (HTTPDBG_CURRENT_INITIATOR in os.environ) and (
-        os.environ[HTTPDBG_CURRENT_INITIATOR] in records.initiators
-    )
-    try:
-        if not initiator_already_set:
-            original_initiator_id = None
-            if HTTPDBG_CURRENT_INITIATOR not in os.environ:
-                # temporary set a fake initiator env variable to avoid a recursion error
-                #  RecursionError: maximum recursion depth exceeded while calling a Python object
-                # TL;DR When we construct the short_stack string, a recursion error occurs if there
-                # is an object from a class where a hooked method is called in __repr__ or __str__.
-                os.environ[HTTPDBG_CURRENT_INITIATOR] = "blabla"
-            else:
-                original_initiator_id = os.environ[HTTPDBG_CURRENT_INITIATOR]
 
-            # in any case, we create an Initiator
+    try:
+        if records.current_initiator is None:
+            initiator_already_set = False
+
+            # temporary set a fake initiator env variable to avoid a recursion error
+            #  RecursionError: maximum recursion depth exceeded while calling a Python object
+            # TL;DR When we construct the short_stack string, a recursion error occurs if there
+            # is an object from a class where a hooked method is called in __repr__ or __str__.
+            records.current_initiator = "--fakeinitiator--"
             instruction, short_stack, stack = get_current_instruction(extracted_stack)
             short_stack += "----------\n" + construct_call_str(
                 original_method, *args, **kwargs
@@ -271,51 +258,48 @@ def httpdbg_initiator(
 
             current_initiator = Initiator(instruction, short_stack, stack)
 
-            if original_initiator_id:
-                # if we already have an initiator id (reentrant call) we change the initiator id
-                # to keep the same
-                current_initiator.id = original_initiator_id
-
-            records.initiators[current_initiator.id] = current_initiator
-
-            os.environ[HTTPDBG_CURRENT_INITIATOR] = current_initiator.id
-
+            records.add_initiator(current_initiator)
         else:
-            current_initiator = records.initiators[
-                os.environ[HTTPDBG_CURRENT_INITIATOR]
-            ]
+            initiator_already_set = True
+            if records.current_initiator != "--fakeinitiator--":
+                current_initiator = records.initiators[records.current_initiator]
+            else:
+                # this fake initiator does not need to be recorded
+                current_initiator = Initiator("", "", [])
 
         with httpdbg_group(
             records, current_initiator.label, current_initiator.short_stack
         ) as group:  # by default we group the requests by initiator
             yield current_initiator, group, initiator_already_set is False
     except Exception:
-        if (not initiator_already_set) and (HTTPDBG_CURRENT_INITIATOR in os.environ):
-            del os.environ[HTTPDBG_CURRENT_INITIATOR]
+        if not initiator_already_set:
+            records.current_initiator = None
         raise
 
-    if (not initiator_already_set) and (HTTPDBG_CURRENT_INITIATOR in os.environ):
-        del os.environ[HTTPDBG_CURRENT_INITIATOR]
+    if not initiator_already_set:
+        records.current_initiator = None
 
 
 @contextmanager
-def httpdbg_tag(tag: str) -> Generator[None, None, None]:
+def httpdbg_tag(records: "HTTPRecords", tag: str) -> Generator[None, None, None]:
 
-    tag_already_set = HTTPDBG_CURRENT_TAG in os.environ
-
-    if not tag_already_set:
-        os.environ[HTTPDBG_CURRENT_TAG] = tag
+    if records.current_tag is None:
+        tag_already_set = False
+        logger().info("httpdbg_tag (new)")
+        records.current_tag = tag
+    else:
+        tag_already_set = True
 
     try:
         logger().info(f"httpdbg_tag {tag}")
         yield
     except Exception:
-        if (not tag_already_set) and (HTTPDBG_CURRENT_TAG in os.environ):
-            del os.environ[HTTPDBG_CURRENT_TAG]
+        if not tag_already_set:
+            records.current_tag = None
         raise
 
-    if (not tag_already_set) and (HTTPDBG_CURRENT_TAG in os.environ):
-        del os.environ[HTTPDBG_CURRENT_TAG]
+    if not tag_already_set:
+        records.current_tag = None
 
 
 @contextmanager
@@ -327,25 +311,14 @@ def httpdbg_group(
     updatable: bool = True,
 ) -> Generator[Group, None, None]:
 
-    # A group is considered set if the environment variable exists and the group
-    # is recorded.If the environment variable exists but the group is not recorded,
-    # it means httpdbg was called reentrantly, and we need to record the group again
-    # using the same id.
-    group_already_set = (HTTPDBG_CURRENT_GROUP in os.environ) and (
-        os.environ[HTTPDBG_CURRENT_GROUP] in records.groups
-    )
-
-    if not group_already_set:
+    if records.current_group is None:
+        group_already_set = False
         logger().info("httpdbg_group (new)")
         group = Group(label, full_label, updatable=updatable)
-        # in case of a reentrant call to httpdbg, we force the group id to be the same
-        if HTTPDBG_CURRENT_GROUP in os.environ:
-            group.id = os.environ[HTTPDBG_CURRENT_GROUP]
-            logger().info("httpdbg_group (reentrant) keep id {group.id}")
-        records.groups[group.id] = group
-        os.environ[HTTPDBG_CURRENT_GROUP] = group.id
+        records.add_group(group)
     else:
-        group = records.groups[os.environ[HTTPDBG_CURRENT_GROUP]]
+        group_already_set = True
+        group = records.groups[records.current_group]
 
     if update and group.updatable:
         # Update the label and full_label of an existing group, in case of endpoint.
@@ -353,16 +326,16 @@ def httpdbg_group(
         group.full_label = full_label
     try:
         logger().info(
-            f"httpdbg_group {group} group_id={os.environ[HTTPDBG_CURRENT_GROUP]} label={label} full_label={full_label}"
+            f"httpdbg_group {group} group_id={records.current_group} label={label} full_label={full_label}"
         )
         yield group
     except Exception:
-        if (not group_already_set) and (HTTPDBG_CURRENT_GROUP in os.environ):
-            del os.environ[HTTPDBG_CURRENT_GROUP]
+        if not group_already_set:
+            records.current_group = None
         raise
 
-    if (not group_already_set) and (HTTPDBG_CURRENT_GROUP in os.environ):
-        del os.environ[HTTPDBG_CURRENT_GROUP]
+    if not group_already_set:
+        records.current_group = None
 
 
 @contextmanager

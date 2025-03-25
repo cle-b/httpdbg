@@ -2,16 +2,12 @@
 import asyncio
 import asyncio.proactor_events
 import datetime
-import os
 import socket
 import ssl
 import sys
 from urllib.parse import urlparse
 from typing import Dict, List, Tuple, Union
 
-from httpdbg.env import HTTPDBG_CURRENT_GROUP
-from httpdbg.env import HTTPDBG_CURRENT_INITIATOR
-from httpdbg.env import HTTPDBG_CURRENT_TAG
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
 from httpdbg.initiator import Group
@@ -212,21 +208,24 @@ class HTTPRecordResponse(HTTPRecordReqResp):
 
 class HTTPRecord:
     def __init__(
-        self, tbegin: datetime.datetime = None, is_client: bool = True
+        self,
+        initiator_id: str = None,
+        group_id: str = None,
+        tag: str = None,
+        tbegin: datetime.datetime = None,
+        is_client: bool = True,
     ) -> None:
         self.id = get_new_uuid()
         self.address: Tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
-        self.initiator_id: Union[str, None] = os.environ.get(
-            f"{HTTPDBG_CURRENT_INITIATOR}"
-        )
+        self.initiator_id: Union[str, None] = initiator_id
         self.exception: Union[Exception, None] = None
         self.request: HTTPRecordRequest = HTTPRecordRequest()
         self.response: HTTPRecordResponse = HTTPRecordResponse()
         self.ssl: Union[bool, None] = None
         self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
-        self.tag: Union[str, None] = os.environ.get(HTTPDBG_CURRENT_TAG)
-        self.group_id: Union[str, None] = os.environ.get(HTTPDBG_CURRENT_GROUP)
+        self.tag: Union[str, None] = tag
+        self.group_id: Union[str, None] = group_id
         self.is_client: bool = is_client
         if tbegin:
             self.tbegin = tbegin
@@ -337,7 +336,10 @@ class HTTPRecords:
         self.requests: Dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
         self.initiators: Dict[str, Initiator] = {}
+        self.current_initiator: Union[str, None] = None
         self.groups: Dict[str, Group] = {}
+        self.current_group: Union[str, None] = None
+        self.current_tag: Union[str, None] = None
         self._sockets: Dict[int, SocketRawData] = {}
 
     @property
@@ -443,3 +445,11 @@ class HTTPRecords:
         new_record.exception = exception
         self.requests[new_record.id] = new_record
         return new_record
+
+    def add_initiator(self, initiator: Initiator):
+        self.initiators[initiator.id] = initiator
+        self.current_initiator = initiator.id
+
+    def add_group(self, group: Group):
+        self.groups[group.id] = group
+        self.current_group = group.id
