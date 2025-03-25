@@ -16,3 +16,4 @@ mypy
 types-requests
 types-urllib3
 setuptools
+fastapi[standard]
