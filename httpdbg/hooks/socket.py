@@ -217,7 +217,11 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
                         socketdata.record = HTTPRecord(
-                            tbegin=socketdata.tbegin, is_client=False
+                            records.current_initiator,
+                            records.current_group,
+                            records.current_tag,
+                            tbegin=socketdata.tbegin,
+                            is_client=False,
                         )
                         socketdata.record.address = socketdata.address
                         socketdata.record.ssl = socketdata.ssl
@@ -270,7 +274,11 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
                         socketdata.record = HTTPRecord(
-                            tbegin=socketdata.tbegin, is_client=False
+                            records.current_initiator,
+                            records.current_group,
+                            records.current_tag,
+                            tbegin=socketdata.tbegin,
+                            is_client=False,
                         )
                         socketdata.record.address = socketdata.address
                         socketdata.record.ssl = socketdata.ssl
@@ -320,7 +328,12 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                             )
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
-                        socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
+                        socketdata.record = HTTPRecord(
+                            records.current_initiator,
+                            records.current_group,
+                            records.current_tag,
+                            tbegin=socketdata.tbegin,
+                        )
                         socketdata.record.address = socketdata.address
                         socketdata.record.ssl = socketdata.ssl
                         socketdata.record.send_data(socketdata.rawdata)
@@ -371,7 +384,12 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                             )
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
-                        socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
+                        socketdata.record = HTTPRecord(
+                            records.current_initiator,
+                            records.current_group,
+                            records.current_tag,
+                            tbegin=socketdata.tbegin,
+                        )
                         socketdata.record.address = socketdata.address
                         socketdata.record.ssl = socketdata.ssl
                         socketdata.record.send_data(socketdata.rawdata)
@@ -446,7 +464,12 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                             )
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
-                        socketdata.record = HTTPRecord(tbegin=socketdata.tbegin)
+                        socketdata.record = HTTPRecord(
+                            records.current_initiator,
+                            records.current_group,
+                            records.current_tag,
+                            tbegin=socketdata.tbegin,
+                        )
                         socketdata.record.address = socketdata.address
                         socketdata.record.ssl = socketdata.ssl
                         socketdata.record.send_data(socketdata.rawdata)
