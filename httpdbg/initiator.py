@@ -250,7 +250,7 @@ def httpdbg_initiator(
             #  RecursionError: maximum recursion depth exceeded while calling a Python object
             # TL;DR When we construct the short_stack string, a recursion error occurs if there
             # is an object from a class where a hooked method is called in __repr__ or __str__.
-            records.current_initiator = "blabla"
+            records.current_initiator = "--fakeinitiator--"
             instruction, short_stack, stack = get_current_instruction(extracted_stack)
             short_stack += "----------\n" + construct_call_str(
                 original_method, *args, **kwargs
@@ -261,7 +261,11 @@ def httpdbg_initiator(
             records.add_initiator(current_initiator)
         else:
             initiator_already_set = True
-            current_initiator = records.initiators[records.current_initiator]
+            if records.current_initiator != "--fakeinitiator--":
+                current_initiator = records.initiators[records.current_initiator]
+            else:
+                # this fake initiator does not need to be recorded
+                current_initiator = Initiator("", "", [])
 
         with httpdbg_group(
             records, current_initiator.label, current_initiator.short_stack
