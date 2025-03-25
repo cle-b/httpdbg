@@ -45,15 +45,15 @@ def set_hook_for_unittest_run(records: HTTPRecords, method: Callable):
     return hook
 
 
-def set_hook_for_unittest_fixture(_: HTTPRecords, method: Callable):
+def set_hook_for_unittest_fixture(records: HTTPRecords, method: Callable):
 
     def hook(*args, **kwargs):
 
         if getattr(method, "__name__") == "_callSetUp":
-            with httpdbg_tag("setUp"):
+            with httpdbg_tag(records, "setUp"):
                 return method(*args, **kwargs)
         elif getattr(method, "__name__") == "_callTearDown":
-            with httpdbg_tag("tearDown"):
+            with httpdbg_tag(records, "tearDown"):
                 return method(*args, **kwargs)
         else:
             return method(*args, **kwargs)

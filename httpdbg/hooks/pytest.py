@@ -12,13 +12,15 @@ from httpdbg.log import logger
 from httpdbg.records import HTTPRecords
 
 
-def set_hook_for_pytest_fixture(_: HTTPRecords, method: Callable):
+def set_hook_for_pytest_fixture(records: HTTPRecords, method: Callable):
     def hook(*args, **kwargs):
         logger().info("SET_HOOK_FOR_PYTEST_FIXTURE")
         callargs = getcallargs(method, *args, **kwargs)
 
         if "fixturefunc" in callargs:
-            with httpdbg_tag(getattr(callargs["fixturefunc"], "__name__", "fixture")):
+            with httpdbg_tag(
+                records, getattr(callargs["fixturefunc"], "__name__", "fixture")
+            ):
                 return method(*args, **kwargs)
         else:
             return method(*args, **kwargs)
