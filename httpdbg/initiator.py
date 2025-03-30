@@ -341,7 +341,7 @@ def httpdbg_group(
 @contextmanager
 def httpdbg_endpoint(
     records: "HTTPRecords", original_method: Callable, *args, **kwargs
-) -> Generator[None, None, None]:
+) -> Generator[Union[Group, None], None, None]:
 
     filename = inspect.getsourcefile(original_method)
     if filename:
@@ -355,7 +355,7 @@ def httpdbg_endpoint(
             original_method, *args, **kwargs
         )
 
-        with httpdbg_group(records, instruction, full_label, update=True):
-            yield
+        with httpdbg_group(records, instruction, full_label, update=True) as group:
+            yield group
     else:
-        yield
+        yield None
