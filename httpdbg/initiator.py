@@ -125,8 +125,8 @@ def get_current_instruction(
             short_stack += s_stack
 
             # stack
-            to_include = False
-            for i_stack in range(6, len(extracted_stack) + n_stack):
+            to_include = True  # temporary force to record all the stacktrace
+            for i_stack in range(0, len(extracted_stack) + n_stack):
                 last_stack = i_stack == len(extracted_stack) + n_stack - 1
                 fs = extracted_stack[i_stack]
                 to_include = to_include or (

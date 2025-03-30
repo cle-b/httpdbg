@@ -102,7 +102,7 @@ class RequestListPayload(JSONEncoder):
             }
 
         for id, initiator in records.initiators.items():
-            payload["initiators"][id] = initiator.to_json()
+            payload["initiators"][id] = initiator.to_json(full=True)
 
         for id, group in records.groups.items():
             payload["groups"][id] = group.to_json()
