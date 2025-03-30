@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from collections.abc import Callable
 from contextlib import contextmanager
+import functools
 from functools import wraps
+from typing import Dict
 from typing import Generator
+from typing import Union
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
@@ -30,12 +33,11 @@ def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
     return hook
 
 
-# we must not apply the hook more than once on a mapped endpoint function
-# AssertionError: View function mapping is overwriting an existing endpoint function: xxxx
-already_mapped = {}
-
-
-def set_hook_flask_add_url_rule(records: HTTPRecords, method: Callable):
+def set_hook_flask_add_url_rule(
+    records: HTTPRecords,
+    method: Callable,
+    already_mapped: Union[Dict[Callable, Callable], None] = None,
+):
 
     def hook(*args, **kwargs):
 
@@ -62,7 +64,11 @@ def set_hook_flask_add_url_rule(records: HTTPRecords, method: Callable):
     return hook
 
 
-def set_hook_flask_register_error_handler(records: HTTPRecords, method: Callable):
+def set_hook_flask_register_error_handler(
+    records: HTTPRecords,
+    method: Callable,
+    already_mapped: Union[Dict[Callable, Callable], None] = None,
+):
 
     def hook(*args, **kwargs):
 
@@ -95,14 +101,28 @@ def hook_flask(records: HTTPRecords) -> Generator[None, None, None]:
     try:
         import flask
 
+        # we must not apply the hook more than once on a mapped endpoint function
+        # AssertionError: View function mapping is overwriting an existing endpoint function: xxxx
+        already_mapped = {}
+
+        set_hook_flask_add_url_rule_with_already_mapped = functools.partial(
+            set_hook_flask_add_url_rule, already_mapped=already_mapped
+        )
+
         flask.Flask.add_url_rule = decorate(
-            records, flask.Flask.add_url_rule, set_hook_flask_add_url_rule
+            records,
+            flask.Flask.add_url_rule,
+            set_hook_flask_add_url_rule_with_already_mapped,
+        )
+
+        set_hook_flask_register_error_handler_with_already_mapped = functools.partial(
+            set_hook_flask_register_error_handler, already_mapped=already_mapped
         )
 
         flask.Flask.register_error_handler = decorate(
             records,
             flask.Flask.register_error_handler,
-            set_hook_flask_register_error_handler,
+            set_hook_flask_register_error_handler_with_already_mapped,
         )
         flask.Flask.handle_exception = decorate(
             records, flask.Flask.handle_exception, set_hook_flask_endpoint

@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from collections.abc import Callable
 from contextlib import contextmanager
+import functools
 from functools import wraps
+from typing import Dict
 from typing import Generator
+from typing import Union
 
 import datetime
 
@@ -11,9 +14,6 @@ from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
 from httpdbg.initiator import httpdbg_endpoint
 from httpdbg.records import HTTPRecords
-
-
-already_mapped = {}
 
 
 def set_hook_fastapi_endpoint(records: HTTPRecords, method: Callable):
@@ -33,11 +33,14 @@ def set_hook_fastapi_endpoint(records: HTTPRecords, method: Callable):
     return hook
 
 
-def set_hook_fastapi_apirouter_add_api_route(records: HTTPRecords, method: Callable):
+def set_hook_fastapi_apirouter_add_api_route(
+    records: HTTPRecords,
+    method: Callable,
+    already_mapped: Union[Dict[Callable, Callable], None] = None,
+):
 
     @wraps(method)
     def hook(*args, **kwargs):
-
         callargs = getcallargs(method, *args, **kwargs)
 
         param = "endpoint"
@@ -80,8 +83,8 @@ def set_hook_fastapi_app(records: HTTPRecords, method: Callable):
             *args,
             **kwargs,
         ) as group:
-            if group:
-                if socketdata:
+            if group and (group.id in records.groups):
+                if socketdata and (socketdata in records._sockets):
                     records.groups[group.id].tbegin = records._sockets[
                         socketdata
                     ].record.tbegin - datetime.timedelta(milliseconds=1)
@@ -116,10 +119,18 @@ def hook_fastapi(records: HTTPRecords) -> Generator[None, None, None]:
     try:
         import fastapi.routing
 
+        already_mapped = {}
+
+        set_hook_fastapi_apirouter_add_api_route_with_already_mapped = (
+            functools.partial(
+                set_hook_fastapi_apirouter_add_api_route, already_mapped=already_mapped
+            )
+        )
+
         fastapi.routing.APIRouter.add_api_route = decorate(
             records,
             fastapi.routing.APIRouter.add_api_route,
-            set_hook_fastapi_apirouter_add_api_route,
+            set_hook_fastapi_apirouter_add_api_route_with_already_mapped,
         )
 
         fastapi.routing.get_request_handler = decorate(
