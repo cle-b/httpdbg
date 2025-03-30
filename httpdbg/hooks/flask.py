@@ -103,7 +103,7 @@ def hook_flask(records: HTTPRecords) -> Generator[None, None, None]:
 
         # we must not apply the hook more than once on a mapped endpoint function
         # AssertionError: View function mapping is overwriting an existing endpoint function: xxxx
-        already_mapped = {}
+        already_mapped: Dict[Callable, Callable] = {}
 
         set_hook_flask_add_url_rule_with_already_mapped = functools.partial(
             set_hook_flask_add_url_rule, already_mapped=already_mapped

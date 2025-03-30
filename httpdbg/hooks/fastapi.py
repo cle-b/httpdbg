@@ -119,7 +119,7 @@ def hook_fastapi(records: HTTPRecords) -> Generator[None, None, None]:
     try:
         import fastapi.routing
 
-        already_mapped = {}
+        already_mapped: Dict[Callable, Callable] = {}
 
         set_hook_fastapi_apirouter_add_api_route_with_already_mapped = (
             functools.partial(
