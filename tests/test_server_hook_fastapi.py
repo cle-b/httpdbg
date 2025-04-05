@@ -1,7 +1,9 @@
 import contextlib
+import platform
 import threading
 import time
 
+import pytest
 import requests
 import uvicorn
 
@@ -26,6 +28,10 @@ def fastapi_app(port):
 
 # For some reason I don't yet understand, it looks like the hook for fastapi.routing.get_request_handler
 # is applied only once when starting multiple FastAPI apps sequentially.
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="on windows, the server requests are recorded twice for fastapi",
+)
 def test_fastapi_endpoint(httpdbg_port):
 
     with httprecord(client=False, server=True) as records:
