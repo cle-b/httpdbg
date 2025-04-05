@@ -186,7 +186,7 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
 
         nbytes = method(self, buffer, *args, **kwargs)
 
-        if buffer: # it appears that the buffer may be None (observed on Windows).
+        if buffer:  # it appears that the buffer may be None (observed on Windows).
             if socketdata:
                 if socketdata.record:
                     logger().info(
@@ -228,7 +228,9 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                             socketdata.record.ssl = socketdata.ssl
                             socketdata.record.receive_data(socketdata.rawdata)
                             if records.server:
-                                records.requests[socketdata.record.id] = socketdata.record
+                                records.requests[socketdata.record.id] = (
+                                    socketdata.record
+                                )
                     elif http_detected is False:  # if None, there is nothing to do
                         records._sockets[id(self)] = None
 
