@@ -186,50 +186,51 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
 
         nbytes = method(self, buffer, *args, **kwargs)
 
-        if socketdata:
-            if socketdata.record:
-                logger().info(
-                    f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:20]}"
-                )
-                socketdata.record.receive_data(buffer[:nbytes])
-            else:
-                socketdata.rawdata += buffer[:nbytes]
-                http_detected = socketdata.http_detected()
-                if http_detected:
-                    logger().info("RECV_INTO - http detected")
+        if buffer: # it appears that the buffer may be None (observed on Windows).
+            if socketdata:
+                if socketdata.record:
                     logger().info(
                         f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:20]}"
                     )
-                    with httpdbg_initiator(
-                        records,
-                        traceback.extract_stack(),
-                        method,
-                        self,
-                        buffer,
-                        *args,
-                        **kwargs,
-                    ) as initiator_and_group:
-                        initiator, group, is_new = initiator_and_group
-                        if is_new:
-                            tbegin = socketdata.tbegin - datetime.timedelta(
-                                milliseconds=1
-                            )
-                            initiator.tbegin = tbegin
-                            group.tbegin = tbegin
-                        socketdata.record = HTTPRecord(
-                            records.current_initiator,
-                            records.current_group,
-                            records.current_tag,
-                            tbegin=socketdata.tbegin,
-                            is_client=False,
+                    socketdata.record.receive_data(buffer[:nbytes])
+                else:
+                    socketdata.rawdata += buffer[:nbytes]
+                    http_detected = socketdata.http_detected()
+                    if http_detected:
+                        logger().info("RECV_INTO - http detected")
+                        logger().info(
+                            f"RECV_INTO (after) - id={id(self)} buffer={(b''+buffer)[:20]}"
                         )
-                        socketdata.record.address = socketdata.address
-                        socketdata.record.ssl = socketdata.ssl
-                        socketdata.record.receive_data(socketdata.rawdata)
-                        if records.server:
-                            records.requests[socketdata.record.id] = socketdata.record
-                elif http_detected is False:  # if None, there is nothing to do
-                    records._sockets[id(self)] = None
+                        with httpdbg_initiator(
+                            records,
+                            traceback.extract_stack(),
+                            method,
+                            self,
+                            buffer,
+                            *args,
+                            **kwargs,
+                        ) as initiator_and_group:
+                            initiator, group, is_new = initiator_and_group
+                            if is_new:
+                                tbegin = socketdata.tbegin - datetime.timedelta(
+                                    milliseconds=1
+                                )
+                                initiator.tbegin = tbegin
+                                group.tbegin = tbegin
+                            socketdata.record = HTTPRecord(
+                                records.current_initiator,
+                                records.current_group,
+                                records.current_tag,
+                                tbegin=socketdata.tbegin,
+                                is_client=False,
+                            )
+                            socketdata.record.address = socketdata.address
+                            socketdata.record.ssl = socketdata.ssl
+                            socketdata.record.receive_data(socketdata.rawdata)
+                            if records.server:
+                                records.requests[socketdata.record.id] = socketdata.record
+                    elif http_detected is False:  # if None, there is nothing to do
+                        records._sockets[id(self)] = None
 
         return nbytes
 
