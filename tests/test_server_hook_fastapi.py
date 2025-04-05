@@ -2,6 +2,7 @@ import contextlib
 import threading
 import time
 
+import pytest
 import requests
 import uvicorn
 
@@ -24,55 +25,59 @@ def fastapi_app(port):
         thread.join(timeout=5)
 
 
+# For some reason I don't yet understand, it looks like the hook for fastapi.routing.get_request_handler
+# is applied only once when starting multiple FastAPI apps sequentially.
 def test_fastapi_endpoint(httpdbg_port):
 
     with httprecord(client=False, server=True) as records:
         with fastapi_app(httpdbg_port):
             requests.get(f"http://localhost:{httpdbg_port}/")
 
-    assert len(records) == 1
-    record = records[0]
-    group = records.groups[record.group_id]
+            # endpoint no parameters
+            assert len(records) == 1
+            record = records[0]
+            group = records.groups[record.group_id]
 
-    assert record.is_client is False
-    assert record.response.content == b'"Hello, World!"'
-    assert group.label == '@app.get("/")'
-    assert "hello_world()" in group.full_label
+            assert record.is_client is False
+            assert record.response.content == b'"Hello, World!"'
+            assert group.label == '@app.get("/")'
+            assert "hello_world()" in group.full_label
 
+            records.reset()
 
-def test_fastapi_endpoint_with_parameters(httpdbg_port):
+            # endpoint with parameters
 
-    with httprecord(client=False, server=True) as records:
-        with fastapi_app(httpdbg_port):
             requests.get(f"http://localhost:{httpdbg_port}/items/123")
 
-    assert len(records) == 1
-    record = records[0]
-    group = records.groups[record.group_id]
+            assert len(records) == 1
+            record = records[0]
+            group = records.groups[record.group_id]
 
-    assert record.is_client is False
-    assert record.response.content == b'{"item_id":123,"q":null}'
-    assert group.label == '@app.get("/items/{item_id}")'
-    full_label = group.full_label.replace(" ", "").replace("\t", "").replace("\n", "")
-    assert "get_item(item_id=123,q=None,)" in full_label
+            assert record.is_client is False
+            assert record.response.content == b'{"item_id":123,"q":null}'
+            assert group.label == '@app.get("/items/{item_id}")'
+            full_label = (
+                group.full_label.replace(" ", "").replace("\t", "").replace("\n", "")
+            )
+            assert "get_item(item_id=123,q=None,)" in full_label
 
+            records.reset()
 
-def test_fastapi_endpoint_return_http_error_456(httpdbg_port):
-
-    with httprecord(client=False, server=True) as records:
-        with fastapi_app(httpdbg_port):
+            # http error
             requests.get(f"http://localhost:{httpdbg_port}/items/456")
 
-    assert len(records) == 1
-    record = records[0]
-    group = records.groups[record.group_id]
+            assert len(records) == 1
+            record = records[0]
+            group = records.groups[record.group_id]
 
-    assert record.is_client is False
-    assert record.status_code == 456
-    assert record.response.content == b'{"detail":"custom exception"}'
-    assert group.label == '@app.get("/items/{item_id}")'
-    full_label = group.full_label.replace(" ", "").replace("\t", "").replace("\n", "")
-    assert "get_item(item_id=456,q=None,)" in full_label
+            assert record.is_client is False
+            assert record.status_code == 456
+            assert record.response.content == b'{"detail":"custom exception"}'
+            assert group.label == '@app.get("/items/{item_id}")'
+            full_label = (
+                group.full_label.replace(" ", "").replace("\t", "").replace("\n", "")
+            )
+            assert "get_item(item_id=456,q=None,)" in full_label
 
 
 def test_fastapi_client_request_in_endpoint(httpdbg_port, httpbin):
