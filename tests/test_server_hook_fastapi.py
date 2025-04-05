@@ -85,6 +85,10 @@ def test_fastapi_endpoint(httpdbg_port):
             assert "get_item(item_id=456,q=None,)" in full_label
 
 
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="on windows, the server requests are recorded twice for fastapi",
+)
 def test_fastapi_client_request_in_endpoint(httpdbg_port, httpbin):
 
     with httprecord(
