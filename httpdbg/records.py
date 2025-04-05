@@ -460,5 +460,5 @@ class HTTPRecords:
     def __repr__(self):
         r = ""
         for request in self.requests.values():
-            r += f" - {request.url}\n"
+            r += f" - {request.url}+{request.is_client} "
         return r
