@@ -457,8 +457,8 @@ class HTTPRecords:
         self.groups[group.id] = group
         self.current_group = group.id
 
-    def __repr__(self):
-        r = ""
+    def _print_for_debug(self):
         for request in self.requests.values():
-            r += f" - {request.url}+{request.is_client} "
-        return r
+            print(f"+ {request.url}")            
+            print(f"  - initiator: {self.initiators[request.initiator_id].label}")
+            print(f"  - group: {self.groups[request.group_id].label}")

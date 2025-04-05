@@ -48,7 +48,7 @@ def test_fastapi_endpoint(httpdbg_port):
 
             requests.get(f"http://localhost:{httpdbg_port}/items/123")
 
-            assert len(records) == 1
+            assert len(records) == 1, records._print_for_debug()
             record = records[0]
             group = records.groups[record.group_id]
 
