@@ -456,3 +456,9 @@ class HTTPRecords:
     def add_group(self, group: Group):
         self.groups[group.id] = group
         self.current_group = group.id
+
+    def __repr__(self):
+        r = ""
+        for request in self.requests.values():
+            r+= f" - {request.url}\n"
+        return r
