@@ -87,7 +87,7 @@ def test_fastapi_endpoint(httpdbg_port):
 
 @pytest.mark.xfail(
     platform.system().lower() == "windows",
-    reason="on windows, the server requests are recorded twice for fastapi",
+    reason="[#188] on windows, the server requests are recorded twice for fastapi",
 )
 def test_fastapi_client_request_in_endpoint(httpdbg_port, httpbin):
 
