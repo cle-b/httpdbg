@@ -35,7 +35,7 @@ jobs:
         pip install coveralls
         make selenium
         make ciall
-        coveralls
+        coveralls || true
       env:
         GITHUB_TOKEN: ${{ secrets.COVERALLS }}
     - name: Missing module detection
