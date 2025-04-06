@@ -1,8 +1,10 @@
 import contextlib
-import time
+import platform
 import threading
+import time
 
 from flask import Flask
+import pytest
 import requests
 
 from httpdbg.hooks.all import httprecord
@@ -118,6 +120,10 @@ def test_flask_not_found(httpdbg_port):
     assert "not_found(e=" in full_label
 
 
+@pytest.mark.xfail(
+    platform.system().lower() == "windows",
+    reason="[#189] on Windows, the group label is empty in case of Internal Server Error in a Flask endpoint",
+)
 def test_flask_internal_server_error(httpdbg_port):
 
     with httprecord(client=False, server=True) as records:
@@ -131,7 +137,7 @@ def test_flask_internal_server_error(httpdbg_port):
     assert record.is_client is False
     assert record.status_code == 500
     assert b"Internal Server Error" in record.response.content
-    assert "def handle_exception" in group.label
+    assert "def handle_exception" in group.label, records._print_for_debug()
     assert "division by zero" in group.full_label
 
 

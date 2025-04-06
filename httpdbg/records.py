@@ -353,7 +353,7 @@ class HTTPRecords:
         return len(self.requests)
 
     def get_socket_data(
-        self, obj, extra_sock=None, force_new=False, request=None
+        self, obj, extra_sock=None, force_new=False, request=None, is_uvicorn=False
     ) -> Union[SocketRawData, None]:
         """Record a new SocketRawData (or get an existing one) and return it."""
         socketdata = None
@@ -395,6 +395,9 @@ class HTTPRecords:
                     pass
             elif isinstance(obj, asyncio.proactor_events._ProactorSocketTransport):
                 # only for async HTTP requests (not HTTPS) on Windows
+                self._sockets[id(obj)] = SocketRawData(id(obj), ("", 0), False)
+                socketdata = self._sockets[id(obj)]
+            elif is_uvicorn:
                 self._sockets[id(obj)] = SocketRawData(id(obj), ("", 0), False)
                 socketdata = self._sockets[id(obj)]
             else:
@@ -453,3 +456,9 @@ class HTTPRecords:
     def add_group(self, group: Group):
         self.groups[group.id] = group
         self.current_group = group.id
+
+    def _print_for_debug(self):
+        for request in self.requests.values():
+            print(f"+ {request.url}")
+            print(f"  - initiator: {self.initiators[request.initiator_id].label}")
+            print(f"  - group: {self.groups[request.group_id].label}")

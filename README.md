@@ -87,7 +87,6 @@ Press CTRL+C to quit
 
 ![httpdbg 1.1.0 - pyhttpdbg -m flask --app demoflask run](https://github.com/cle-b/httpdbg/blob/main/ui_server.png?raw=true)
 
-This feature is new and not fully implemented. See [limitations](#limitations) for more details.
 
 ## initiators and groups
  
@@ -119,7 +118,8 @@ The initiator is the low-level socket method that receives the data. The group i
 
 | packages       | status                              | initiator | group     |
 |----------------|-------------------------------------|-----------|-----------|
-| flask          | supported                           | no        | yes       |
+| flask          | supported                           | -         | yes       |
+| fastapi        | supported                           | -         | yes       |
 
 ### supported test framework
 
@@ -127,8 +127,8 @@ The requests are grouped by tests.
 
 | packages       | status                              | initiator | group     |
 |----------------|-------------------------------------|-----------|-----------|
-| pytest         | supported                           | no        | yes       |
-| unittest       | supported                           | no        | yes       |
+| pytest         | supported                           | -         | yes       |
+| unittest       | supported                           | -         | yes       |
 
 ## configuration
 
@@ -191,7 +191,7 @@ The requests:
 
 Theoretically, if your HTTP client or server uses a standard Python socket, the HTTP requests will be recorded.
 
-Support for recording requests on the server side is new in `httpdbg 1.0.0` and is currently limited. For example, it doesn't work with `FastAPI`, which uses `uvloop`, but it does work with `Uvicorn` if the loop is `asyncio`. Work is in progress to improve this.
+Support for recording requests on the server side is new in `httpdbg 1.0.0`. In some cases, like with |FastAPI| using |uvloop|, we had to implement a new mechanism to make request recording possible. This is still a work in progress as we aim to support more frameworks.
 
 ## documentation
 
