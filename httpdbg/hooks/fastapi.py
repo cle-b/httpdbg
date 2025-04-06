@@ -64,19 +64,20 @@ def set_hook_fastapi_apirouter_add_api_route(
 
     return hook
 
+
 # decorate the "app" returned by fastapi.routing.get_request_handler to link the socketdata and the endpoint group
 def set_hook_fastapi_app(records: HTTPRecords, method: Callable):
 
     @wraps(method)
     async def hook(*args, **kwargs):
 
-        socketdata = None
+        socketdata_id = None
 
         callargs = getcallargs(method, *args, **kwargs)
 
         if "request" in callargs:
-            if hasattr(callargs["request"], "__httpdbg_socketdata"):
-                socketdata = callargs["request"].__httpdbg_socketdata
+            if hasattr(callargs["request"], "__httpdbg_socketdata_id"):
+                socketdata_id = callargs["request"].__httpdbg_socketdata_id
 
         with httpdbg_endpoint(
             records,
@@ -85,11 +86,11 @@ def set_hook_fastapi_app(records: HTTPRecords, method: Callable):
             **kwargs,
         ) as group:
             if group and (group.id in records.groups):
-                if socketdata and (socketdata in records._sockets):
+                if socketdata_id and (socketdata_id in records._sockets):
                     records.groups[group.id].tbegin = records._sockets[
-                        socketdata
+                        socketdata_id
                     ].record.tbegin - datetime.timedelta(milliseconds=1)
-                    records._sockets[socketdata].record.group_id = group.id
+                    records._sockets[socketdata_id].record.group_id = group.id
 
             ret = await method(*args, **kwargs)
 
