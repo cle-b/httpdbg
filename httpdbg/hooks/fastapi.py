@@ -9,13 +9,14 @@ from typing import Union
 
 import datetime
 
-from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
+from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import undecorate
 from httpdbg.initiator import httpdbg_endpoint
 from httpdbg.records import HTTPRecords
 
 
+# decorate the function decorated by @app.get; @app.post etc.
 def set_hook_fastapi_endpoint(records: HTTPRecords, method: Callable):
 
     @wraps(method)
@@ -63,7 +64,7 @@ def set_hook_fastapi_apirouter_add_api_route(
 
     return hook
 
-
+# decorate the "app" returned by fastapi.routing.get_request_handler to link the socketdata and the endpoint group
 def set_hook_fastapi_app(records: HTTPRecords, method: Callable):
 
     @wraps(method)
