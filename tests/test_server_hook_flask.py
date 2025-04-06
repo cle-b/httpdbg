@@ -131,7 +131,7 @@ def test_flask_internal_server_error(httpdbg_port):
     assert record.is_client is False
     assert record.status_code == 500
     assert b"Internal Server Error" in record.response.content
-    assert "def handle_exception" in group.label
+    assert "def handle_exception" in group.label, records._print_for_debug()
     assert "division by zero" in group.full_label
 
 
