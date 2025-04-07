@@ -16,7 +16,7 @@ def read_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
             break
 
     parser = argparse.ArgumentParser(
-        description="httdbg - a very simple tool to debug HTTP(S) client requests"
+        description="httpdbg - easily debug HTTP client and server requests"
     )
     parser.add_argument(
         "--host",
