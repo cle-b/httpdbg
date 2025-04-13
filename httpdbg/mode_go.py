@@ -50,12 +50,14 @@ def run_go(argv: List[str]) -> None:
                 tracer, httdbg_tracer_filename
             )  # the file must be in the same directory as the other files
 
-            i = 2 
+            i = 2
             while i < len(args):
-                if args[i].endswith(".go") and os.path.join(os.path.dirname(os.path.abspath(__file__)), args[i]):
+                if args[i].endswith(".go") and os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), args[i]
+                ):
                     i += 1
                 else:
-                    break                                            
+                    break
             args.insert(i, httdbg_tracer_filename)
 
             process = run_process(args)
