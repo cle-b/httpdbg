@@ -57,7 +57,8 @@ class WatcherGoDirThread(threading.Thread):
                         stack = []
                         for line in trace["initiator"]["stack"]:
                             stack.append(f"{line['location']}, in {line['func_name']}")
-                            stack.append(f"    {line['code'].replace('\t', '    ')}\n")
+                            code = line["code"].replace("\t", "    ")
+                            stack.append(f"    {code}\n")
 
                         initiator = Initiator(label, full_label, stack)
                         self.records.add_initiator(initiator)
