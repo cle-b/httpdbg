@@ -12,6 +12,7 @@ from httpdbg.hooks.flask import hook_flask
 from httpdbg.hooks.generic import hook_generic
 from httpdbg.hooks.http import hook_http
 from httpdbg.hooks.httpx import hook_httpx
+from httpdbg.hooks.go import watcher_go
 from httpdbg.hooks.pytest import hook_pytest
 from httpdbg.hooks.requests import hook_requests
 from httpdbg.hooks.socket import hook_socket
@@ -30,24 +31,30 @@ def httprecord(
     client: bool = True,
     server: bool = False,
     ignore: Union[List[Tuple[str, int]], None] = None,
+    go: bool = False,
 ) -> Generator[HTTPRecords, None, None]:
     if records is None:
         records = HTTPRecords(client=client, server=server, ignore=ignore)
 
-    with watcher_external(records, initiators, server):
-        with hook_flask(records):
-            with hook_socket(records):
-                with hook_fastapi(records):
-                    with hook_starlette(records):
-                        with hook_uvicorn(records):
-                            with hook_http(records):
-                                with hook_httpx(records):
-                                    with hook_requests(records):
-                                        with hook_urllib3(records):
-                                            with hook_aiohttp(records):
-                                                with hook_pytest(records):
-                                                    with hook_unittest(records):
-                                                        with hook_generic(
-                                                            records, initiators
-                                                        ):
-                                                            yield records
+    if not go:
+        with watcher_external(records, initiators, server):
+            with hook_flask(records):
+                with hook_socket(records):
+                    with hook_fastapi(records):
+                        with hook_starlette(records):
+                            with hook_uvicorn(records):
+                                with hook_http(records):
+                                    with hook_httpx(records):
+                                        with hook_requests(records):
+                                            with hook_urllib3(records):
+                                                with hook_aiohttp(records):
+                                                    with hook_pytest(records):
+                                                        with hook_unittest(records):
+                                                            with hook_generic(
+                                                                records, initiators
+                                                            ):
+                                                                yield records
+    else:
+        # if we trace the HTTP requests in go process, there is no reason to hook the Python call
+        with watcher_go(records):
+            yield records

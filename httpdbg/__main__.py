@@ -8,6 +8,7 @@ from httpdbg.hooks.all import httprecord
 from httpdbg.log import set_env_for_logging
 from httpdbg.server import httpdbg_srv
 from httpdbg.mode_console import run_console
+from httpdbg.mode_go import run_go
 from httpdbg.mode_module import run_module
 from httpdbg.mode_script import run_script
 
@@ -30,11 +31,13 @@ def pyhttpdbg(params, subparams, test_mode=False):
 
     with httpdbg_srv(params.host, params.port) as records:
         records.server = not params.only_client
-        with httprecord(records, params.initiator, server=records.server):
+        with httprecord(records, params.initiator, server=records.server, go=params.go):
             if params.module:
                 run_module(subparams)
             elif params.script:
                 run_script(subparams)
+            elif params.go:
+                run_go(subparams)
             else:
                 run_console(records, test_mode)
 

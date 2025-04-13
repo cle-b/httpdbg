@@ -9,7 +9,7 @@ from httpdbg.log import LogLevel
 def read_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
     httpdbg_args = args
     client_args = []
-    for action in ["--console", "--module", "-m", "--script"]:
+    for action in ["--console", "--module", "-m", "--script", "--go"]:
         if action in args:
             httpdbg_args = args[: args.index(action) + 2]
             client_args = args[args.index(action) + 1 :]
@@ -85,6 +85,12 @@ def read_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
         "--script",
         type=str,
         help="run a script (the next args are passed to the script as is)",
+    )
+
+    actions.add_argument(
+        "--go",
+        type=str,
+        help="run a go program using the 'go run' command (the next args are passed to the 'go' process as is) (experimental)",
     )
 
     return parser.parse_args(httpdbg_args), client_args
