@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import builtins
+from collections.abc import Callable
 from contextlib import contextmanager
-import glob
+import functools
 import importlib
 import inspect
-from pathlib import Path
 import traceback
 from types import ModuleType
 from typing import Any
@@ -50,55 +51,83 @@ def set_hook_for_generic(records: HTTPRecords, method: Any):
 def hook_generic(
     records: HTTPRecords, initiators: Union[List[str], None] = None
 ) -> Generator[None, None, None]:
-    hooks = []
+    if initiators:
+        # we add a hook for a generic initiator only if the module is imported
 
-    if not initiators:
-        initiators = []
+        hooks: List[Callable] = []
+        already_hooked: List[str] = []
 
-    for initiator in initiators:
-        logger().info(f"HOOK_GENERIC add initiator - {initiator}")
-        hooks += list_callables_from_package(records, initiator)
+        original_builtin_import = builtins.__import__
 
-    try:
-        logger().info(
-            f"HOOK_GENERIC add initiator - hooks - {[hook.__httpdbg__.__name__ for hook in hooks]}"
+        def __hook__import__(
+            name,
+            globals=None,
+            locals=None,
+            fromlist=(),
+            level=0,
+            records=None,
+            initiators=None,
+            hooks=None,
+            already_hooked=None,
+        ):
+            if initiators is None:
+                raise Exception("initiators must not be None")
+            if hooks is None:
+                raise Exception("hooks must not be None")
+            if already_hooked is None:
+                raise Exception("already_hooked must not be None")
+
+            if (
+                name not in already_hooked
+            ):  # will avoid parsing the same module many time
+                if (records is not None) and initiators:
+                    if (name in initiators) or (
+                        any(
+                            [
+                                name.startswith(f"{initiator}.")
+                                for initiator in initiators
+                            ]
+                        )
+                    ):
+                        logger().info(f"HOOK IMPORT {name} - fromlist={fromlist}")
+                        already_hooked.append(name)
+                        hooks += list_callables_from_module(records, name)
+
+            # we temporary restore the original builtin import method to avoid an infinite reccursion inside the import itself
+            __custom_import = builtins.__import__
+            builtins.__import__ = original_builtin_import
+            r = original_builtin_import(
+                name=name,
+                globals=globals,
+                locals=locals,
+                fromlist=fromlist,
+                level=level,
+            )
+            builtins.__import__ = __custom_import
+            return r
+
+        __hook__import_with_records_initiators_hooks_alreadyhooked__ = (
+            functools.partial(
+                __hook__import__,
+                records=records,
+                initiators=initiators,
+                hooks=hooks,
+                already_hooked=already_hooked,
+            )
         )
-    except Exception:
-        pass
+
+        builtins.__import__ = (
+            __hook__import_with_records_initiators_hooks_alreadyhooked__
+        )
 
     yield
 
-    if hooks:
-        for fnc in hooks:
-            fnc = undecorate(fnc)
+    if initiators:
+        builtins.__import__ == original_builtin_import
 
-
-def list_callables_from_package(records: HTTPRecords, package: str) -> List[Any]:
-    callables = []
-
-    try:
-        logger().info(f"LIST_CALLABLES_FROM_PACKAGE {package}")
-
-        callables += list_callables_from_module(records, package)
-
-        imported_package = importlib.import_module(package)
-        if hasattr(imported_package, "__path__"):
-            for p in glob.glob(f"{list(imported_package.__path__)[0]}/*"):
-                file_or_dir = Path(p)
-                if file_or_dir.is_file():
-                    if file_or_dir.name.endswith(".py"):
-                        callables += list_callables_from_module(
-                            records, f"{package}.{file_or_dir.name[:-3]}"
-                        )
-                elif file_or_dir.is_dir():
-                    if not file_or_dir.name.startswith("__"):  # __pycache__
-                        callables += list_callables_from_package(
-                            records, f"{package}.{file_or_dir.name}"
-                        )
-    except Exception as ex:
-        logger().info(f"LIST_CALLABLES_FROM_PACKAGE {package} - error - {str(ex)}")
-
-    return callables
+        if hooks:
+            for fnc in hooks:
+                fnc = undecorate(fnc)
 
 
 def list_callables_from_module(records: HTTPRecords, module: str) -> List[Any]:
