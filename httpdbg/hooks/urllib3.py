@@ -52,7 +52,7 @@ def hook_urllib3(records: HTTPRecords) -> Generator[None, None, None]:
             )
         # v2
         if hasattr(urllib3, "request"):
-            urllib3.request = decorate(records, urllib3.request, set_hook_for_urllib3)
+            urllib3.request = decorate(records, urllib3.request, set_hook_for_urllib3)  # type: ignore[arg-type]
 
         hooks = True
     except ImportError:
@@ -70,4 +70,4 @@ def hook_urllib3(records: HTTPRecords) -> Generator[None, None, None]:
             )
         # v2
         if hasattr(urllib3, "request"):
-            urllib3.request = undecorate(urllib3.request)
+            urllib3.request = undecorate(urllib3.request)  # type: ignore[arg-type]

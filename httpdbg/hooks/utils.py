@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
+from collections.abc import Callable
 import inspect
+import typing
 
 from httpdbg.log import logger
+
+if typing.TYPE_CHECKING:
+    from httpdbg.records import HTTPRecords
 
 
 def getcallargs(original_method, *args, **kwargs):
@@ -28,12 +33,12 @@ def getcallargs(original_method, *args, **kwargs):
     return callargs
 
 
-def decorate(records, method, hook):
+def decorate(records: "HTTPRecords", method: Callable, hook: Callable):
     ori = method
     method = hook(records, method)
-    method.__httpdbg__ = ori
+    method.__httpdbg__ = ori  # type: ignore[attr-defined]
     return method
 
 
-def undecorate(method):
-    return method.__httpdbg__
+def undecorate(method: Callable):
+    return method.__httpdbg__  # type: ignore[attr-defined]
