@@ -89,7 +89,7 @@ def hook_generic(
                             ]
                         )
                     ):
-                        logger().info(f"HOOK IMPORT {name} - fromlist={fromlist}")
+                        logger().debug(f"HOOK IMPORT {name} - fromlist={fromlist}")
                         already_hooked.append(name)
                         hooks += list_callables_from_module(records, name)
 
