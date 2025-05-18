@@ -79,7 +79,7 @@ def hook_generic(
 
             if (
                 name not in already_hooked
-            ):  # will avoid parsing the same module many time
+            ):  # avoids parsing the same module multiple times
                 if (records is not None) and initiators:
                     if (name in initiators) or (
                         any(
@@ -93,7 +93,7 @@ def hook_generic(
                         already_hooked.append(name)
                         hooks += list_callables_from_module(records, name)
 
-            # we temporary restore the original builtin import method to avoid an infinite reccursion inside the import itself
+            # we temporarily restore the original built-in import function to avoid infinite recursion during import
             __custom_import = builtins.__import__
             builtins.__import__ = original_builtin_import
             r = original_builtin_import(
