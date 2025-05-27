@@ -124,6 +124,7 @@
 .requests-table tbody tr.active-row-compare {
     background-color: var(--compare-url-bgcolor);
     color: var(--selected-url-text);
+    user-select: none;  /* to remove the undesired border in firefox */
 }
 
 #filter-url {
