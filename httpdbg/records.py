@@ -307,6 +307,13 @@ class HTTPRecord:
         else:
             self.response.rawdata += data
 
+    @property
+    def protocol(self) -> str:
+        if self.response.protocol == self.request.protocol:
+            return self.request.protocol
+        else:
+            return f"{self.request.protocol} -> {self.response.protocol}"
+
 
 class HTTPRecordsSessionInfo:
 

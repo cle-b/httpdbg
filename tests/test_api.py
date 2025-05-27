@@ -56,6 +56,19 @@ def test_api_requests_netloc(httpbin, httpdbg_host, httpdbg_port):
 
 
 @pytest.mark.api
+def test_api_requests_protocol(httpbin, httpdbg_host, httpdbg_port):
+    with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
+        with httprecord(records):
+            requests.get(httpbin.url + "/get?abc")
+        ret = requests.get(f"http://{httpdbg_host}:{httpdbg_port}/requests")
+
+    reqs = ret.json()["requests"]
+
+    assert len(reqs) == 1
+    assert reqs[list(reqs.keys())[0]]["protocol"] == "HTTP/1.1"
+
+
+@pytest.mark.api
 def test_api_request_by_id(httpbin, httpdbg_host, httpdbg_port):
     with httpdbg_srv(httpdbg_host, httpdbg_port) as records:
         with httprecord(records):
