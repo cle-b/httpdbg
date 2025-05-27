@@ -201,7 +201,7 @@
                         data-group="{{group_id}}"
                         data-groupby="{{groupby_id}}"
                         data-orderby="{{tbegin}}"
-                        onclick="select_request(arguments[0], '{{id}}')"
+                        onclick="select_request(event, '{{id}}')"
                         onkeypress="shortcut_request(event, '{{id}}')"
                         class="request"
                         data-qa-request="{{id}}">
@@ -273,24 +273,24 @@
                                 <script id="template_headers" type="x-tmpl-mustache">
                                        <b>{{ method }}</b> <a href="{{ url }}">{{ url }}</a>
                                        <hr>
-                                            <span class="header-cookie-key">status</span>:
+                                            <span class="header-cookie-key">status:</span>
                                             <span class="header-cookie-value">{{ status_code }} {{ reason }}</span>
                                             <br>
                                             {{#protocol}}
-                                            <span class="header-cookie-key">protocol</span>:
+                                            <span class="header-cookie-key">protocol:</span>
                                             <span class="header-cookie-value">{{ protocol }}</span>
                                             {{/protocol}}
                                             <br><br>
-                                            <span class="header-cookie-key">start</span>:
+                                            <span class="header-cookie-key">start:</span>
                                             <span class="header-cookie-value">{{tbegin}}</span>
                                             <br>
-                                            <span class="header-cookie-key">end</span>:&nbsp;&nbsp;&nbsp;
+                                            <span class="header-cookie-key">end:&nbsp;&nbsp;</span>
                                             <span class="header-cookie-value">{{last_update}}</span>
                                        <hr>
                                        <h4>response headers</h4>
                                        {{#response}}
                                            {{#response.headers}}
-                                           <span class="header-cookie-key">{{name}}</span>:
+                                           <span class="header-cookie-key">{{name}}:</span>
                                            <span class="header-cookie-value">{{value}}</span>
                                            <br>
                                            {{/response.headers}}
@@ -298,7 +298,7 @@
                                        <hr>
                                        <h4>request headers</h4>
                                        {{#request.headers}}
-                                       <span class="header-cookie-key">{{name}}</span>:
+                                       <span class="header-cookie-key">{{name}}:</span>
                                        <span class="header-cookie-value">{{value}}</span>
                                        <br>
                                        {{/request.headers}}
@@ -314,12 +314,12 @@
                                        <h4>response cookies</h4>
                                        {{#response}}
                                            {{#response.cookies}}
-                                           <span class="header-cookie-key">{{name}}</span>: 
+                                           <span class="header-cookie-key">{{name}}:</span>
                                            <span class="header-cookie-value">{{value}}</span> 
                                              <ul>
                                                {{#attributes}}
                                                <li>
-                                                <span class="header-cookie-key">{{name}}</span>{{#attr}}: <span class="header-cookie-value">{{attr}}</span>{{/attr}}
+                                                <span class="header-cookie-key">{{name}}:</span>{{#attr}} <span class="header-cookie-value">{{attr}}</span>{{/attr}}
                                                </li>
                                                {{/attributes}}
                                              </ul>
@@ -328,7 +328,7 @@
                                        <hr>
                                        <h4>request cookies</h4>
                                        {{#request.cookies}}
-                                       <span class="header-cookie-key">{{name}}</span>: 
+                                       <span class="header-cookie-key">{{name}}:</span>
                                        <span class="header-cookie-value">{{value}}</span>
                                        <br> 
                                        <br>
