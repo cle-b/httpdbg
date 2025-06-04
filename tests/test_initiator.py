@@ -165,3 +165,15 @@ def test_initiator_add_package_fnc(httpbin):
         == "requests.get(url)  # method"
     )
     assert records.initiators[records[4].initiator_id].label == "await client.get(url)"
+
+
+def test_exception_in_initiator(httpbin):
+
+    with httprecord(initiators=["tests.initiator_pck"]) as records:
+        from tests.initiator_pck.repr_exception import BrokenREPR, get
+
+        br = BrokenREPR(f"{httpbin.url}/get")
+        get(br)
+
+    assert records.initiators[records[0].initiator_id].label == "get(br)"
+    assert "br=-?-" in records.initiators[records[0].initiator_id].short_stack

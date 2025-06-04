@@ -205,11 +205,14 @@ def extract_short_stack_from_file(
 
 def construct_call_str(original_method, *args, **kwargs):
 
-    def print_v(v):
-        if isinstance(v, str):
-            return f'"{v}"'
-        else:
-            return v
+    def print_v(v) -> str:
+        try:
+            if isinstance(v, str):
+                return f'"{v}"'
+            else:
+                return str(v)
+        except Exception:
+            return "-?-"  # in case __retr__ or __str__ is broken
 
     callargs = getcallargs(original_method, *args, **kwargs)
 
