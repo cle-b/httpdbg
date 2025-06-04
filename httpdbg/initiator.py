@@ -211,9 +211,8 @@ def construct_call_str(original_method, *args, **kwargs):
                 return f'"{v}"'
             else:
                 return str(v)
-        except:
+        except Exception:
             return "-?-"  # in case __retr__ or __str__ is broken
-
 
     callargs = getcallargs(original_method, *args, **kwargs)
 
