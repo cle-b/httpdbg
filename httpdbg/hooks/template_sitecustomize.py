@@ -35,7 +35,7 @@ class HttpdbgRecorder:
                 if "dictionary changed size during iteration" in str(ex):
                     # This happens because some new requests are recorded (or existing ones updated) while
                     # trying to save the HTTPRecords object on the disk to share it with the main process.
-                    # Here we can ignore that exception, because this is only a best effort attempt to the refresh
+                    # Here we can ignore that exception, because this is only a best effort attempt to refresh
                     # the web interface. A last save is done before to exit the process.
                     logger().info(
                         "MultiProcess - _save_to_disk_loop - RuntimeError - dictionary changed size during iteration"
