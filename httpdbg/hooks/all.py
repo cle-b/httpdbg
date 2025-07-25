@@ -30,24 +30,32 @@ def httprecord(
     client: bool = True,
     server: bool = False,
     ignore: Union[List[Tuple[str, int]], None] = None,
+    multiprocess: bool = True,
 ) -> Generator[HTTPRecords, None, None]:
     if records is None:
         records = HTTPRecords(client=client, server=server, ignore=ignore)
 
-    with watcher_external(records, initiators, server):
-        with hook_flask(records):
-            with hook_socket(records):
-                with hook_fastapi(records):
-                    with hook_starlette(records):
-                        with hook_uvicorn(records):
-                            with hook_http(records):
-                                with hook_httpx(records):
-                                    with hook_requests(records):
-                                        with hook_urllib3(records):
-                                            with hook_aiohttp(records):
-                                                with hook_pytest(records):
-                                                    with hook_unittest(records):
-                                                        with hook_generic(
-                                                            records, initiators
-                                                        ):
+    with hook_flask(records):
+        with hook_socket(records):
+            with hook_fastapi(records):
+                with hook_starlette(records):
+                    with hook_uvicorn(records):
+                        with hook_http(records):
+                            with hook_httpx(records):
+                                with hook_requests(records):
+                                    with hook_urllib3(records):
+                                        with hook_aiohttp(records):
+                                            with hook_pytest(records):
+                                                with hook_unittest(records):
+                                                    with hook_generic(
+                                                        records, initiators
+                                                    ):
+                                                        if multiprocess:
+                                                            with watcher_external(
+                                                                records,
+                                                                initiators,
+                                                                server,
+                                                            ):
+                                                                yield records
+                                                        else:
                                                             yield records

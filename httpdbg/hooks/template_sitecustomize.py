@@ -7,8 +7,10 @@ import threading
 from typing import Union
 import uuid
 
-from httpdbg.hooks.all import httprecord
 from httpdbg import HTTPRecords
+from httpdbg.env import HTTPDBG_MULTIPROCESS_DIR
+from httpdbg.hooks.all import httprecord
+from httpdbg.log import logger
 
 HTTPDBG_INITIATORS = []  # type: ignore
 HTTPDBG_RECORD_SERVER = False
@@ -20,14 +22,26 @@ class HttpdbgRecorder:
     def __init__(self):
         self._running: bool = False
         self.fname: str = os.path.join(
-            os.environ["HTTPDBG_MULTIPROCESS_DIR"], str(uuid.uuid1())
+            os.environ[HTTPDBG_MULTIPROCESS_DIR], str(uuid.uuid1())
         )
         self.context = None
         self.records: Union[HTTPRecords, None] = None
 
     def _save_to_disk_loop(self):
         while self._running:
-            self.save_to_disk()
+            try:
+                self.save_to_disk()
+            except RuntimeError as ex:
+                if "dictionary changed size during iteration" in str(ex):
+                    # This happens because some new requests are recorded (or existing ones updated) while
+                    # trying to save the HTTPRecords object on the disk to share it with the main process.
+                    # Here we can ignore that exception, because this is only a best effort attempt to the refresh
+                    # the web interface. A last save is done before to exit the process.
+                    logger().info(
+                        "MultiProcess - _save_to_disk_loop - RuntimeError - dictionary changed size during iteration"
+                    )
+                else:
+                    raise
             time.sleep(1)
 
     def save_to_disk(self):
@@ -58,7 +72,7 @@ class HttpdbgRecorder:
             self.context.__exit__(None, None, None)
 
 
-if "HTTPDBG_MULTIPROCESS_DIR" in os.environ:
+if HTTPDBG_MULTIPROCESS_DIR in os.environ:
 
     if not hasattr(sys, "_httpdbg_enabled"):
         sys._httpdbg_enabled = True  # type: ignore[attr-defined]
