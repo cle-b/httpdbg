@@ -274,7 +274,7 @@
                                        <b>{{ method }}</b> <a href="{{ url }}">{{ url }}</a>
                                        <hr>
                                             <span class="header-cookie-key">status:</span>
-                                            <span class="header-cookie-value">{{ status_code }} {{ reason }}</span>
+                                            <span class="header-cookie-value">{{ status_code }} {{ reason }} {{#http100}}(after 100 Continue){{/http100}}</span>
                                             <br>
                                             {{#protocol}}
                                             <span class="header-cookie-key">protocol:</span>

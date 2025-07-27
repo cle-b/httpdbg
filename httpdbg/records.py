@@ -229,6 +229,7 @@ class HTTPRecord:
         self.is_client: bool = is_client
         if tbegin:
             self.tbegin = tbegin
+        self.http100: bool = False
 
     @property
     def url(self) -> str:
@@ -298,6 +299,16 @@ class HTTPRecord:
     def receive_data(self, data: bytes):
         if self.is_client:
             self.response.rawdata += data
+            if self.response.rawdata.lower() in {
+                b"http/1.1 100 continue\r\n\r\n",
+                b"http/1.0 100 continue\r\n\r\n",
+            }:
+                # in case we receive an HTTP 100 code, we do not record it as the final HTTP response headers
+                # but we keep the information to display it in the UI
+                self.http100 = True
+                self.response.rawdata = (
+                    bytes()
+                )  # very important to have the HTTP request body recorded.
         else:
             self.request.rawdata += data
 
