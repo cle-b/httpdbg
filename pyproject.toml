@@ -12,8 +12,7 @@ readme="README.md"
 requires-python = ">=3.9"
 license = {text = "Apache-2.0"}
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Environment :: Web Environment",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
