@@ -18,6 +18,7 @@ class RequestPayload(JSONEncoder):
             "urlext": req.urlext,
             "method": req.method,
             "status_code": req.status_code,
+            "http100": req.http100,
             "reason": req.reason,
             "request": None,
             "response": None,
