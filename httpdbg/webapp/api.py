@@ -91,6 +91,7 @@ class RequestListPayload(JSONEncoder):
                 "netloc": req.netloc,
                 "urlext": req.urlext,
                 "status_code": req.status_code,
+                "http100": req.http100,
                 "protocol": req.protocol,
                 "reason": req.reason,
                 "verb": req.method,
