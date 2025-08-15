@@ -3,20 +3,23 @@ from collections.abc import Callable
 from contextlib import contextmanager
 import datetime
 import traceback
+import typing
 from typing import Generator
 
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
 from httpdbg.initiator import httpdbg_initiator
 from httpdbg.log import logger
-from httpdbg.records import HTTPRecord
+from httpdbg.hooks.recordhttp1 import HTTP1Record
 from httpdbg.records import HTTPRecords
-from httpdbg.records import SocketRawData
+
+if typing.TYPE_CHECKING:
+    from httpdbg.hooks.socket import SocketRawData
 
 
 # we use a proxy class to be able to override the write method
 class TCPTransport:
-    def __init__(self, transport, socketdata: SocketRawData):
+    def __init__(self, transport, socketdata: "SocketRawData"):
         self.__httpdbg_original_transport = transport
         self.__httpdbg_socketdata = socketdata
 
@@ -34,7 +37,9 @@ def set_hook_uvicorn_connection_made(records: HTTPRecords, method: Callable):
 
     def hook(self, transport):
 
-        socketdata = records.get_socket_data(self, force_new=True, is_uvicorn=True)
+        socketdata = records._tracerhttp1.get_socket_data(
+            self, force_new=True, is_uvicorn=True
+        )
         logger().debug(f"UVICORN - connection made - {socketdata}")
 
         return method(self, TCPTransport(transport, socketdata))
@@ -46,7 +51,7 @@ def set_hook_uvicorn_data_received(records: HTTPRecords, method: Callable):
 
     def hook(self, data):
 
-        socketdata = records.get_socket_data(self)
+        socketdata = records._tracerhttp1.get_socket_data(self)
         if socketdata:
             if socketdata.record:
                 socketdata.record.receive_data(data)
@@ -69,7 +74,7 @@ def set_hook_uvicorn_data_received(records: HTTPRecords, method: Callable):
                             )
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
-                        socketdata.record = HTTPRecord(
+                        socketdata.record = HTTP1Record(
                             initiator.id,
                             group.id,
                             tbegin=socketdata.tbegin,
@@ -81,7 +86,7 @@ def set_hook_uvicorn_data_received(records: HTTPRecords, method: Callable):
                         if records.server:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._sockets[id(self)] = None
+                    records._tracerhttp1.sockets[id(self)] = None
 
         return method(self, data)
 

@@ -86,11 +86,13 @@ def set_hook_fastapi_app(records: HTTPRecords, method: Callable):
             **kwargs,
         ) as group:
             if group and (group.id in records.groups):
-                if socketdata_id and (socketdata_id in records._sockets):
-                    records.groups[group.id].tbegin = records._sockets[
+                if socketdata_id and (socketdata_id in records._tracerhttp1.sockets):
+                    records.groups[group.id].tbegin = records._tracerhttp1.sockets[
                         socketdata_id
                     ].record.tbegin - datetime.timedelta(milliseconds=1)
-                    records._sockets[socketdata_id].record.group_id = group.id
+                    records._tracerhttp1.sockets[socketdata_id].record.group_id = (
+                        group.id
+                    )
 
             ret = await method(*args, **kwargs)
 
