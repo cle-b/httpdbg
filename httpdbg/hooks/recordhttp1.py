@@ -1,6 +1,5 @@
 import datetime
 from urllib.parse import urlparse
-from typing import List
 
 from httpdbg.preview import generate_preview
 from httpdbg.hooks.record import HTTPRecord
@@ -18,7 +17,7 @@ class HTTP1RecordReqResp(HTTPRecordReqResp):
     def __init__(self) -> None:
         self._rawdata: bytes = bytes()
         self._rawheaders: bytes = bytes()
-        self._headers: List[HTTPDBGHeader] = []
+        self._headers: list[HTTPDBGHeader] = []
         self.last_update: datetime.datetime = datetime.datetime.now(
             datetime.timezone.utc
         )
@@ -38,7 +37,7 @@ class HTTP1RecordReqResp(HTTPRecordReqResp):
         return self._rawheaders
 
     @property
-    def headers(self) -> List[HTTPDBGHeader]:
+    def headers(self) -> list[HTTPDBGHeader]:
         if not self._headers:
             if self.rawheaders:
                 for header in self.rawheaders[self.rawheaders.find(b"\r\n") :].split(
@@ -98,7 +97,7 @@ class HTTP1RecordRequest(HTTPRecordRequest, HTTP1RecordReqResp):
         self._protocol = bytes()
 
     @property
-    def cookies(self) -> List[HTTPDBGCookie]:
+    def cookies(self) -> list[HTTPDBGCookie]:
         return list_cookies_headers_request_simple_cookies(self.headers)
 
     def _parse_first_line(self) -> None:
@@ -133,7 +132,7 @@ class HTTP1RecordResponse(HTTPRecordResponse, HTTP1RecordReqResp):
         self._message = bytes()
 
     @property
-    def cookies(self) -> List[HTTPDBGCookie]:
+    def cookies(self) -> list[HTTPDBGCookie]:
         return list_cookies_headers_response_simple_cookies(self.headers)
 
     def _parse_first_line(self) -> None:

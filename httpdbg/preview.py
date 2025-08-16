@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from typing import Tuple, Dict, Union
+from typing import Union
 
 
-def parse_content_type(content_type: str) -> Tuple[str, Dict[str, str]]:
+def parse_content_type(content_type: str) -> tuple[str, dict[str, str]]:
     s = content_type.split(";")
     media_type = s[0]
     directives = {}
@@ -15,8 +15,8 @@ def parse_content_type(content_type: str) -> Tuple[str, Dict[str, str]]:
 
 def generate_preview(
     raw_data: bytes, content_type: str, content_encoding: str
-) -> Dict[str, Union[str, bool]]:
-    body: Dict[str, Union[str, bool]] = {}
+) -> dict[str, Union[str, bool]]:
+    body: dict[str, Union[str, bool]] = {}
 
     body["content_type"] = content_type
 

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from contextlib import contextmanager
 from typing import Generator
-from typing import List
-from typing import Tuple
 from typing import Union
 
 from httpdbg.hooks.aiohttp import hook_aiohttp
@@ -26,10 +24,10 @@ from httpdbg.records import HTTPRecords
 @contextmanager
 def httprecord(
     records: HTTPRecords = None,
-    initiators: Union[List[str], None] = None,
+    initiators: Union[list[str], None] = None,
     client: bool = True,
     server: bool = False,
-    ignore: Tuple[Tuple[str, int], ...] = (),
+    ignore: tuple[tuple[str, int], ...] = (),
     multiprocess: bool = True,
 ) -> Generator[HTTPRecords, None, None]:
     if records is None:

@@ -3,12 +3,11 @@ import os
 import runpy
 import sys
 import traceback
-from typing import List
 
 from httpdbg.log import logger
 
 
-def run_script(argv: List[str]) -> None:
+def run_script(argv: list[str]) -> None:
 
     if len(argv) == 0:
         exit("script mode - error - python file required, but none set")

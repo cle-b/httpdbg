@@ -3,7 +3,6 @@ from collections.abc import Callable
 from contextlib import contextmanager
 import functools
 from functools import wraps
-from typing import Dict
 from typing import Generator
 from typing import Union
 
@@ -37,7 +36,7 @@ def set_hook_fastapi_endpoint(records: HTTPRecords, method: Callable):
 def set_hook_fastapi_apirouter_add_api_route(
     records: HTTPRecords,
     method: Callable,
-    already_mapped: Union[Dict[Callable, Callable], None] = None,
+    already_mapped: Union[dict[Callable, Callable], None] = None,
 ):
 
     @wraps(method)
@@ -123,7 +122,7 @@ def hook_fastapi(records: HTTPRecords) -> Generator[None, None, None]:
     try:
         import fastapi.routing
 
-        already_mapped: Dict[Callable, Callable] = {}
+        already_mapped: dict[Callable, Callable] = {}
 
         set_hook_fastapi_apirouter_add_api_route_with_already_mapped = (
             functools.partial(

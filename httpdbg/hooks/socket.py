@@ -10,7 +10,7 @@ import ssl
 import sys
 import traceback
 from typing import Generator
-from typing import Dict, Tuple, Union
+from typing import Union
 
 from httpdbg.initiator import httpdbg_initiator
 from httpdbg.log import logger
@@ -25,9 +25,9 @@ from httpdbg.records import HTTPRecords
 class SocketRawData(object):
     """Store the request data without encryption, even when using an SSLSocket."""
 
-    def __init__(self, id: int, address: Tuple[str, int], ssl: bool) -> None:
+    def __init__(self, id: int, address: tuple[str, int], ssl: bool) -> None:
         self.id: int = id
-        self.address: Tuple[str, int] = address
+        self.address: tuple[str, int] = address
         self.ssl: bool = ssl
         self._rawdata: bytes = bytes()
         self.record: Union[HTTP1Record, None] = None
@@ -66,10 +66,10 @@ class TracerHTTP1:
 
     def __init__(
         self,
-        ignore: Tuple[Tuple[str, int], ...] = (),
+        ignore: tuple[tuple[str, int], ...] = (),
     ):
-        self.sockets: Dict[int, SocketRawData] = {}
-        self.ignore: Tuple[Tuple[str, int], ...] = ignore
+        self.sockets: dict[int, SocketRawData] = {}
+        self.ignore: tuple[tuple[str, int], ...] = ignore
 
     def get_socket_data(
         self, obj, extra_sock=None, force_new=False, request=None, is_uvicorn=False

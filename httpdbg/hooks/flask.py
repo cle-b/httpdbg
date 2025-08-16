@@ -3,7 +3,6 @@ from collections.abc import Callable
 from contextlib import contextmanager
 import functools
 from functools import wraps
-from typing import Dict
 from typing import Generator
 from typing import Union
 
@@ -36,7 +35,7 @@ def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
 def set_hook_flask_add_url_rule(
     records: HTTPRecords,
     method: Callable,
-    already_mapped: Union[Dict[Callable, Callable], None] = None,
+    already_mapped: Union[dict[Callable, Callable], None] = None,
 ):
 
     def hook(*args, **kwargs):
@@ -67,7 +66,7 @@ def set_hook_flask_add_url_rule(
 def set_hook_flask_register_error_handler(
     records: HTTPRecords,
     method: Callable,
-    already_mapped: Union[Dict[Callable, Callable], None] = None,
+    already_mapped: Union[dict[Callable, Callable], None] = None,
 ):
 
     def hook(*args, **kwargs):
@@ -103,7 +102,7 @@ def hook_flask(records: HTTPRecords) -> Generator[None, None, None]:
 
         # we must not apply the hook more than once on a mapped endpoint function
         # AssertionError: View function mapping is overwriting an existing endpoint function: xxxx
-        already_mapped: Dict[Callable, Callable] = {}
+        already_mapped: dict[Callable, Callable] = {}
 
         set_hook_flask_add_url_rule_with_already_mapped = functools.partial(
             set_hook_flask_add_url_rule, already_mapped=already_mapped

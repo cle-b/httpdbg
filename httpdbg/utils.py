@@ -2,7 +2,6 @@
 from http.cookies import SimpleCookie
 import secrets
 import string
-from typing import List
 
 
 def get_new_uuid() -> str:
@@ -76,8 +75,8 @@ class HTTPDBGHeader(object):
 
 
 def list_cookies_headers_request_simple_cookies(
-    headers: List[HTTPDBGHeader],
-) -> List[HTTPDBGCookie]:
+    headers: list[HTTPDBGHeader],
+) -> list[HTTPDBGCookie]:
     lst = []
     for header in headers:
         if header.name.lower() == "cookie":
@@ -89,8 +88,8 @@ def list_cookies_headers_request_simple_cookies(
 
 
 def list_cookies_headers_response_simple_cookies(
-    headers: List[HTTPDBGHeader],
-) -> List[HTTPDBGCookie]:
+    headers: list[HTTPDBGHeader],
+) -> list[HTTPDBGCookie]:
     lst = []
     for header in headers:
         if header.name.lower() == "set-cookie":

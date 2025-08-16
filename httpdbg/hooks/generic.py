@@ -9,7 +9,6 @@ import traceback
 from types import ModuleType
 from typing import Any
 from typing import Generator
-from typing import List
 from typing import Union
 
 from httpdbg.hooks.utils import decorate
@@ -49,13 +48,13 @@ def set_hook_for_generic(records: HTTPRecords, method: Any):
 
 @contextmanager
 def hook_generic(
-    records: HTTPRecords, initiators: Union[List[str], None] = None
+    records: HTTPRecords, initiators: Union[list[str], None] = None
 ) -> Generator[None, None, None]:
     if initiators:
         # we add a hook for a generic initiator only if the module is imported
 
-        hooks: List[Callable] = []
-        already_hooked: List[str] = []
+        hooks: list[Callable] = []
+        already_hooked: list[str] = []
 
         original_builtin_import = builtins.__import__
 
@@ -130,7 +129,7 @@ def hook_generic(
                 fnc = undecorate(fnc)
 
 
-def list_callables_from_module(records: HTTPRecords, module: str) -> List[Any]:
+def list_callables_from_module(records: HTTPRecords, module: str) -> list[Any]:
     callables = []
 
     try:
@@ -180,7 +179,7 @@ def list_callables_from_class(
     imported_module: ModuleType,
     module: str,
     classname: str,
-) -> List[Any]:
+) -> list[Any]:
     callables = []
 
     try:
