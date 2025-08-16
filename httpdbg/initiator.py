@@ -7,8 +7,6 @@ import os
 import platform
 import traceback
 from typing import Generator
-from typing import List
-from typing import Tuple
 from typing import Union
 from typing import TYPE_CHECKING
 
@@ -25,7 +23,7 @@ class Initiator:
         self,
         label: str,
         short_stack: str,
-        stack: List[str],
+        stack: list[str],
     ):
         self.id = get_new_uuid()
         self.label = label
@@ -86,7 +84,7 @@ def compatible_path(path: str) -> str:
     return p
 
 
-def in_lib(line: str, packages: List[str] = None):
+def in_lib(line: str, packages: list[str] = None):
     if not packages:
         packages = ["requests", "httpx", "aiohttp", "urllib3"]
     return any(
@@ -99,7 +97,7 @@ def in_lib(line: str, packages: List[str] = None):
 
 def get_current_instruction(
     extracted_stack: traceback.StackSummary,
-) -> Tuple[str, str, List[str]]:
+) -> tuple[str, str, list[str]]:
     instruction = ""
     short_stack = ""
     stack = []
@@ -161,7 +159,7 @@ def extract_short_stack_from_file(
     before: int,
     after: int,
     stop_if_instruction_ends: bool = True,
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     instruction = ""
     short_stack = ""
 
@@ -243,7 +241,7 @@ def httpdbg_initiator(
     original_method: Callable,
     *args,
     **kwargs,
-) -> Generator[Union[Tuple[Initiator, Group, bool], None], None, None]:
+) -> Generator[Union[tuple[Initiator, Group, bool], None], None, None]:
 
     try:
         if records.current_initiator is None:

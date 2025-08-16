@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import code
-from typing import List
 from typing import Union
 
 from httpdbg.records import HTTPRecords
@@ -15,7 +14,7 @@ class InteractiveConsoleWithHistory(code.InteractiveConsole):
 
     def __init__(self, records: HTTPRecords, locals=None):
         self.records: HTTPRecords = records
-        self.history: List[str] = []
+        self.history: list[str] = []
         self.incomplete_block: bool = False
         super().__init__(locals)
 

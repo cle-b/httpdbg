@@ -1,7 +1,5 @@
 import datetime
 import sys
-from typing import Dict
-from typing import Tuple
 from typing import Union
 
 from httpdbg.hooks.record import HTTPRecord
@@ -24,11 +22,11 @@ class HTTPRecords:
         self,
         client: bool = True,
         server: bool = False,
-        ignore: Tuple[Tuple[str, int], ...] = (),
+        ignore: tuple[tuple[str, int], ...] = (),
     ) -> None:
         self.client: bool = client
         self.server: bool = server
-        self._ignore: Tuple[Tuple[str, int], ...] = ignore
+        self._ignore: tuple[tuple[str, int], ...] = ignore
         self.reset()
 
     def reset(self) -> None:
@@ -36,11 +34,11 @@ class HTTPRecords:
 
         logger().info("HTTPRecords.reset")
         self.session: HTTPRecordsSessionInfo = HTTPRecordsSessionInfo()
-        self.requests: Dict[str, HTTPRecord] = {}
+        self.requests: dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
-        self.initiators: Dict[str, Initiator] = {}
+        self.initiators: dict[str, Initiator] = {}
         self.current_initiator: Union[str, None] = None
-        self.groups: Dict[str, Group] = {}
+        self.groups: dict[str, Group] = {}
         self.current_group: Union[str, None] = None
         self.current_tag: Union[str, None] = None
         self._tracerhttp1: TracerHTTP1 = TracerHTTP1(ignore=self.ignore)
@@ -79,7 +77,7 @@ class HTTPRecords:
         self.current_group = group.id
 
     @property
-    def ignore(self) -> Tuple[Tuple[str, int], ...]:
+    def ignore(self) -> tuple[tuple[str, int], ...]:
         return self._ignore
 
     @ignore.setter

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
 import datetime
-from typing import List
-from typing import Tuple
 from typing import Union
 
 from httpdbg.utils import get_new_uuid
@@ -23,7 +21,7 @@ class HTTPRecordReqResp(ABC):
 
     @property
     @abstractmethod
-    def headers(self) -> List[HTTPDBGHeader]:
+    def headers(self) -> list[HTTPDBGHeader]:
         pass
 
     @property
@@ -51,7 +49,7 @@ class HTTPRecordRequest(HTTPRecordReqResp, ABC):
 
     @property
     @abstractmethod
-    def cookies(self) -> List[HTTPDBGCookie]:
+    def cookies(self) -> list[HTTPDBGCookie]:
         pass
 
     @property
@@ -74,7 +72,7 @@ class HTTPRecordResponse(HTTPRecordReqResp, ABC):
 
     @property
     @abstractmethod
-    def cookies(self) -> List[HTTPDBGCookie]:
+    def cookies(self) -> list[HTTPDBGCookie]:
         pass
 
     @property
@@ -107,7 +105,7 @@ class HTTPRecord(ABC):
         is_client: bool = True,
     ) -> None:
         self.id = get_new_uuid()
-        self.address: Tuple[str, int] = ("", 0)
+        self.address: tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
         self.initiator_id: Union[str, None] = initiator_id
         self.exception: Union[Exception, None] = None
