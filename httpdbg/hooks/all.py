@@ -29,7 +29,7 @@ def httprecord(
     initiators: Union[List[str], None] = None,
     client: bool = True,
     server: bool = False,
-    ignore: Union[List[Tuple[str, int]], None] = None,
+    ignore: Tuple[Tuple[str, int], ...] = (),
     multiprocess: bool = True,
 ) -> Generator[HTTPRecords, None, None]:
     if records is None:

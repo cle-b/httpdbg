@@ -10,14 +10,150 @@ import ssl
 import sys
 import traceback
 from typing import Generator
+from typing import Dict, Tuple, Union
 
+from httpdbg.initiator import httpdbg_initiator
+from httpdbg.log import logger
+from httpdbg.hooks.recordhttp1 import HTTP1Record
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
-from httpdbg.initiator import httpdbg_initiator
-from httpdbg.records import HTTPRecord
+
 from httpdbg.records import HTTPRecords
-from httpdbg.log import logger
+
+
+class SocketRawData(object):
+    """Store the request data without encryption, even when using an SSLSocket."""
+
+    def __init__(self, id: int, address: Tuple[str, int], ssl: bool) -> None:
+        self.id: int = id
+        self.address: Tuple[str, int] = address
+        self.ssl: bool = ssl
+        self._rawdata: bytes = bytes()
+        self.record: Union[HTTP1Record, None] = None
+        self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
+
+    @property
+    def rawdata(self) -> bytes:
+        return self._rawdata
+
+    @rawdata.setter
+    def rawdata(self, value: bytes) -> None:
+        logger().info(
+            f"SocketRawData id={self.id} newdata={value[:20]!r} len={len(value)}"
+        )
+        self._rawdata = value
+
+    def http_detected(self) -> Union[bool, None]:
+        end_of_first_line = self.rawdata[:2048].find(b"\r\n")
+        if end_of_first_line == -1:
+            if len(self.rawdata) > 2048:
+                return False
+            else:
+                return None
+        firstline = self.rawdata[:end_of_first_line]
+        if firstline.upper().endswith(b"HTTP/1.1"):
+            return True
+        if firstline.upper().endswith(b"HTTP/1.0"):
+            return True
+        return False
+
+    def __repr__(self) -> str:
+        return f"SocketRawData id={self.id} {self.address}"
+
+
+class TracerHTTP1:
+
+    def __init__(
+        self,
+        ignore: Tuple[Tuple[str, int], ...] = (),
+    ):
+        self.sockets: Dict[int, SocketRawData] = {}
+        self.ignore: Tuple[Tuple[str, int], ...] = ignore
+
+    def get_socket_data(
+        self, obj, extra_sock=None, force_new=False, request=None, is_uvicorn=False
+    ) -> Union[SocketRawData, None]:
+        """Record a new SocketRawData (or get an existing one) and return it."""
+        socketdata = None
+
+        if force_new:
+            self.del_socket_data(obj)
+
+        if id(obj) in self.sockets:
+            socketdata = self.sockets[id(obj)]
+            if (
+                request
+                and socketdata
+                and socketdata.record
+                and socketdata.record.is_client
+                and socketdata.record.response.rawdata
+            ) or (
+                (not request)
+                and socketdata
+                and socketdata.record
+                and (not socketdata.record.is_client)
+                and socketdata.record.request.rawdata
+            ):
+                # the socket is reused for a new request
+                self.sockets[id(obj)] = SocketRawData(
+                    id(obj), socketdata.address, socketdata.ssl
+                )
+                socketdata = self.sockets[id(obj)]
+        else:
+            if isinstance(obj, socket.socket):
+                try:
+                    address = obj.getsockname()
+                    if address not in self.ignore:
+                        self.sockets[id(obj)] = SocketRawData(
+                            id(obj), address, isinstance(obj, ssl.SSLSocket)
+                        )
+                        socketdata = self.sockets[id(obj)]
+                except OSError:
+                    # OSError: [WinError 10022] An invalid argument was supplied
+                    pass
+            elif isinstance(obj, asyncio.proactor_events._ProactorSocketTransport):
+                # only for async HTTP requests (not HTTPS) on Windows
+                self.sockets[id(obj)] = SocketRawData(id(obj), ("", 0), False)
+                socketdata = self.sockets[id(obj)]
+            elif is_uvicorn:
+                self.sockets[id(obj)] = SocketRawData(id(obj), ("", 0), False)
+                socketdata = self.sockets[id(obj)]
+            else:
+                if extra_sock:
+                    try:
+                        address = (
+                            extra_sock.getsockname()
+                            if hasattr(extra_sock, "getsockname")
+                            else ("", 0)  # wrap_bio
+                        )
+                        if address not in self.ignore:
+                            self.sockets[id(obj)] = SocketRawData(
+                                id(obj),
+                                address,
+                                isinstance(obj, (ssl.SSLObject, ssl.SSLSocket)),
+                            )
+                            socketdata = self.sockets[id(obj)]
+                    except OSError:
+                        # OSError: [WinError 10022] An invalid argument was supplied
+                        pass
+
+        return socketdata
+
+    def move_socket_data(self, dest, ori):
+        if id(ori) in self.sockets:
+            socketdata = self.get_socket_data(ori)
+            if socketdata:
+                self.sockets[id(dest)] = socketdata
+                if isinstance(dest, (ssl.SSLSocket, ssl.SSLObject)):
+                    socketdata.ssl = True
+                self.del_socket_data(ori)
+
+    def del_socket_data(self, obj):
+        if id(obj) in self.sockets:
+            logger().info(f"SocketRawData del id={id(obj)}")
+            self.sockets[id(obj)] = None
+            del self.sockets[id(obj)]
 
 
 # hook: socket.socket.__init__
@@ -25,7 +161,7 @@ from httpdbg.log import logger
 # action: If an entry exists in the temporary raw socket storage list, it is removed.
 def set_hook_for_socket_init(records: HTTPRecords, method: Callable):
     def hook(self, *args, **kwargs):
-        records.del_socket_data(self)
+        records._tracerhttp1.del_socket_data(self)
 
         return method(self, *args, **kwargs)
 
@@ -38,7 +174,7 @@ def set_hook_for_socket_init(records: HTTPRecords, method: Callable):
 def set_hook_for_socket_connect(records: HTTPRecords, method: Callable):
     def hook(self, *args, **kwargs):
         tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
-        socketdata = records.get_socket_data(self, force_new=True)
+        socketdata = records._tracerhttp1.get_socket_data(self, force_new=True)
         if socketdata:
             logger().info(
                 f"CONNECT - self={self} id={id(self)} socketdata={socketdata} args={args} kwargs={kwargs}"
@@ -129,7 +265,7 @@ def set_hook_for_sslcontext_wrap_socket(records: HTTPRecords, method: Callable):
             f"WRAP_SOCKET (SSLContext) - {type(self)}={id(self)}  {type(sock)}={id(sock)} {type(sslsocket)}={id(sslsocket)}"
         )
 
-        socketdata = records.move_socket_data(sslsocket, sock)
+        socketdata = records._tracerhttp1.move_socket_data(sslsocket, sock)
         if socketdata:
             logger().info(f"WRAP_SOCKET (SSLContext) * - socketdata={socketdata}")
 
@@ -164,7 +300,7 @@ def set_hook_for_socket_wrap_bio(records: HTTPRecords, method: Callable):
             f"WRAP_SOCKET_BIO - {type(self)}={id(self)} {type(sslobject)}={id(sslobject)}"
         )
 
-        socketdata = records.get_socket_data(sslobject, self)
+        socketdata = records._tracerhttp1.get_socket_data(sslobject, self)
         if socketdata:
             logger().info(f"WRAP_SOCKET_BIO * - socketdata={socketdata}")
 
@@ -178,7 +314,7 @@ def set_hook_for_socket_wrap_bio(records: HTTPRecords, method: Callable):
 # action: Append the data to an existing SocketRawData
 def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
     def hook(self, buffer, *args, **kwargs):
-        socketdata = records.get_socket_data(self)
+        socketdata = records._tracerhttp1.get_socket_data(self)
         if socketdata:
             logger().info(
                 f"RECV_INTO - self={self} id={id(self)} socketdata={socketdata} args={args} kwargs={kwargs}"
@@ -217,7 +353,7 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                                 )
                                 initiator.tbegin = tbegin
                                 group.tbegin = tbegin
-                            socketdata.record = HTTPRecord(
+                            socketdata.record = HTTP1Record(
                                 records.current_initiator,
                                 records.current_group,
                                 records.current_tag,
@@ -232,7 +368,7 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                                     socketdata.record
                                 )
                     elif http_detected is False:  # if None, there is nothing to do
-                        records._sockets[id(self)] = None
+                        records._tracerhttp1.sockets[id(self)] = None
 
         return nbytes
 
@@ -244,7 +380,7 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
 # action: Append the data to an existing SocketRawData
 def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
     def hook(self, bufsize, *args, **kwargs):
-        socketdata = records.get_socket_data(self)
+        socketdata = records._tracerhttp1.get_socket_data(self)
         if socketdata:
             logger().info(
                 f"RECV - self={self} id={id(self)} socketdata={socketdata} bufsize={bufsize} args={args} kwargs={kwargs}"
@@ -276,7 +412,7 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
                             )
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
-                        socketdata.record = HTTPRecord(
+                        socketdata.record = HTTP1Record(
                             records.current_initiator,
                             records.current_group,
                             records.current_tag,
@@ -289,7 +425,7 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
                         if records.server:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._sockets[id(self)] = None
+                    records._tracerhttp1.sockets[id(self)] = None
 
         return buffer
 
@@ -302,7 +438,7 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
 # and record it if this is case, otherwise delete the temporay SocketRawData.
 def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
     def hook(self, data, *args, **kwargs):
-        socketdata = records.get_socket_data(self, request=True)
+        socketdata = records._tracerhttp1.get_socket_data(self, request=True)
         if socketdata:
             logger().info(
                 f"SENDALL - self={self} id={id(self)} socketdata={socketdata} data={(b''+bytes(data))[:20]} type={type(data)} args={args} kwargs={kwargs}"
@@ -331,7 +467,7 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                             )
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
-                        socketdata.record = HTTPRecord(
+                        socketdata.record = HTTP1Record(
                             records.current_initiator,
                             records.current_group,
                             records.current_tag,
@@ -343,7 +479,7 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._sockets[id(self)] = None
+                    records._tracerhttp1.sockets[id(self)] = None
 
         return method(self, data, *args, **kwargs)
 
@@ -356,7 +492,7 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
 # and record it if this is case, otherwise delete the temporay SocketRawData.
 def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
     def hook(self, data, *args, **kwargs):
-        socketdata = records.get_socket_data(self, request=True)
+        socketdata = records._tracerhttp1.get_socket_data(self, request=True)
         if socketdata:
             logger().info(
                 f"SEND - self={self} id={id(self)} socketdata={socketdata} bytes={(b''+data)[:20]} args={args} kwargs={kwargs}"
@@ -387,7 +523,7 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                             )
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
-                        socketdata.record = HTTPRecord(
+                        socketdata.record = HTTP1Record(
                             records.current_initiator,
                             records.current_group,
                             records.current_tag,
@@ -399,7 +535,7 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._sockets[id(self)] = None
+                    records._tracerhttp1.sockets[id(self)] = None
         return size
 
     return hook
@@ -420,7 +556,7 @@ def set_hook_for_asyncio_create_connection(records: HTTPRecords, method: Callabl
         if sock:
             ssl_object = transport.get_extra_info("ssl_object")
             if ssl_object:
-                socketdata = records.get_socket_data(
+                socketdata = records._tracerhttp1.get_socket_data(
                     ssl_object, sock, force_new=True
                 )  # to link the cnx info to the sslobject
                 logger().info(
@@ -438,7 +574,7 @@ def set_hook_for_asyncio_create_connection(records: HTTPRecords, method: Callabl
 def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
     def hook(self, buf, *args, **kwargs):
         logger().info(f"WRITE - {type(self)}={id(self)} buf={(b'' + buf)[:20]}")
-        socketdata = records.get_socket_data(self, request=True)
+        socketdata = records._tracerhttp1.get_socket_data(self, request=True)
         if socketdata:
             logger().info(f"WRITE * - socketdata={socketdata}")
 
@@ -467,7 +603,7 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                             )
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
-                        socketdata.record = HTTPRecord(
+                        socketdata.record = HTTP1Record(
                             records.current_initiator,
                             records.current_group,
                             records.current_tag,
@@ -479,7 +615,7 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records.sockets[id(self)] = None
+                    records._tracerhttp1.sockets[id(self)] = None
         return size
 
     return hook
@@ -491,7 +627,7 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
 def set_hook_for_sslobject_read(records: HTTPRecords, method: Callable):
     def hook(self, *args, **kwargs):
         logger().info(f"READ - {type(self)}={id(self)}")
-        socketdata = records.get_socket_data(self)
+        socketdata = records._tracerhttp1.get_socket_data(self)
         if socketdata:
             logger().info(f"READ * - socketdata={socketdata}")
 

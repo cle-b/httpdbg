@@ -40,8 +40,8 @@ class ServerThread(threading.Thread):
             HttpbgHTTPRequestHandler(records, *args, **kwargs)
 
         self.srv = HTTPServer((host, port), http_request_handler)
-        records.ignore.append(
-            (str(self.srv.server_address[0]), self.srv.server_address[1])
+        records.ignore += (
+            (str(self.srv.server_address[0]), self.srv.server_address[1]),
         )
 
     def run(self):
