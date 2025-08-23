@@ -134,21 +134,22 @@ def set_hook_for_unittest_module_setup(records: HTTPRecords, method: Callable):
 
             test_module = inspect.getmodule(test_suite)
 
-            label = f"setUpModule ({test_module.__name__})"  # may be __main__
-            full_label = label
+            if test_module:
+                label = f"setUpModule ({test_module.__name__})"  # may be __main__
+                full_label = label
 
-            test_module_path = getattr(test_module, "__file__")
-            if test_module_path:
-                # if we execute the tests using the script mode, the module name is __main__
-                # this is why we retrieve the module name from the path
-                module_name = os.path.splitext(os.path.basename(test_module_path))[0]
-                label = f"setUpModule ({module_name})"
+                test_module_path = getattr(test_module, "__file__")
+                if test_module_path:
+                    # if we execute the tests using the script mode, the module name is __main__
+                    # this is why we retrieve the module name from the path
+                    module_name = os.path.splitext(os.path.basename(test_module_path))[0]
+                    label = f"setUpModule ({module_name})"
 
-                test_module_path = os.path.relpath(test_module_path)
-                full_label = f"{test_module_path}::setUpModule"
+                    test_module_path = os.path.relpath(test_module_path)
+                    full_label = f"{test_module_path}::setUpModule"
 
-            with httpdbg_group(records, label, full_label, updatable=False):
-                return method(*args, **kwargs)
+                with httpdbg_group(records, label, full_label, updatable=False):
+                    return method(*args, **kwargs)
         else:
             return method(*args, **kwargs)
 
@@ -177,19 +178,20 @@ def set_hook_for_unittest_module_teardown(records: HTTPRecords, method: Callable
 
                 test_module = inspect.getmodule(test_class)
 
-                label = f"tearDownModule ({test_module.__name__})"  # may be __main__
+                if test_module:
+                    label = f"tearDownModule ({test_module.__name__})"  # may be __main__
 
-                test_module_path = getattr(test_module, "__file__")
-                if test_module_path:
-                    # if we execute the tests using the script mode, the module name is __main__
-                    # this is why we retrieve the module name from the path
-                    module_name = os.path.splitext(os.path.basename(test_module_path))[
-                        0
-                    ]
-                    label = f"tearDownModule ({module_name})"
+                    test_module_path = getattr(test_module, "__file__")
+                    if test_module_path:
+                        # if we execute the tests using the script mode, the module name is __main__
+                        # this is why we retrieve the module name from the path
+                        module_name = os.path.splitext(os.path.basename(test_module_path))[
+                            0
+                        ]
+                        label = f"tearDownModule ({module_name})"
 
-                    test_module_path = os.path.relpath(test_module_path)
-                    full_label = f"{test_module_path}::tearDownModule"
+                        test_module_path = os.path.relpath(test_module_path)
+                        full_label = f"{test_module_path}::tearDownModule"
 
             with httpdbg_group(records, label, full_label, updatable=False):
                 return method(*args, **kwargs)
