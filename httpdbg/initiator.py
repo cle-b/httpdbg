@@ -241,7 +241,7 @@ def httpdbg_initiator(
     original_method: Callable,
     *args,
     **kwargs,
-) -> Generator[Union[tuple[Initiator, Group, bool], None], None, None]:
+) -> Generator[tuple[Initiator, Group, bool], None, None]:
 
     try:
         if records.current_initiator is None:
@@ -273,13 +273,11 @@ def httpdbg_initiator(
         ) as group:  # by default we group the requests by initiator
             yield current_initiator, group, initiator_already_set is False
     except Exception:
+        raise
+    finally:
+        # import to make the context manager reentrant 
         if not initiator_already_set:
             records.current_initiator = None
-        raise
-
-    if not initiator_already_set:
-        records.current_initiator = None
-
 
 @contextmanager
 def httpdbg_tag(records: "HTTPRecords", tag: str) -> Generator[None, None, None]:
