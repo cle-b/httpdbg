@@ -275,9 +275,10 @@ def httpdbg_initiator(
     except Exception:
         raise
     finally:
-        # import to make the context manager reentrant 
+        # import to make the context manager reentrant
         if not initiator_already_set:
             records.current_initiator = None
+
 
 @contextmanager
 def httpdbg_tag(records: "HTTPRecords", tag: str) -> Generator[None, None, None]:

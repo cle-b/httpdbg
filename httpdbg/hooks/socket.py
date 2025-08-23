@@ -366,7 +366,7 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                                 records.requests[socketdata.record.id] = (
                                     socketdata.record
                                 )
-                    elif http_detected is False:  # if None, there is nothing to do                        
+                    elif http_detected is False:  # if None, there is nothing to do
                         records._tracerhttp1.del_socket_data(self)
 
         return nbytes
