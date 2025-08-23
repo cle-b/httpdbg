@@ -2,6 +2,7 @@
 from collections.abc import Callable
 import inspect
 import typing
+from typing import Any
 
 from httpdbg.log import logger
 
@@ -15,6 +16,8 @@ def getcallargs(original_method, *args, **kwargs):
     ):  # to retrieve the original method in case of nested hooks
         original_method = original_method.__httpdbg__
 
+    callargs: dict[str, Any] = dict()
+
     try:
         callargs = (
             inspect.signature(original_method).bind_partial(*args, **kwargs).arguments
@@ -22,7 +25,6 @@ def getcallargs(original_method, *args, **kwargs):
     except Exception as ex:
         logger().debug(f"getcallargs - exception {str(ex)}")
         # TypeError('too many positional arguments') may occur when using pytest (seems related to teardown_method)
-        callargs = {}
         i = 0
         for arg in args:
             i += 1
