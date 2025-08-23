@@ -68,7 +68,9 @@ class TracerHTTP1:
         self,
         ignore: tuple[tuple[str, int], ...] = (),
     ):
-        self.sockets: dict[int, SocketRawData] = {}
+        self.sockets: dict[int, Union[SocketRawData, None]] = (
+            {}
+        )  # if None, this is not a HTTP/1 request
         self.ignore: tuple[tuple[str, int], ...] = ignore
 
     def get_socket_data(
@@ -153,6 +155,11 @@ class TracerHTTP1:
         if id(obj) in self.sockets:
             logger().info(f"SocketRawData del id={id(obj)}")
             self.sockets.pop(id(obj))
+
+    def mark_as_not_a_http_request(self, obj):
+        if id(obj) in self.sockets:
+            logger().info(f"Socket not HTTP request id={id(obj)}")
+            self.sockets[id(obj)] = None
 
 
 # hook: socket.socket.__init__
@@ -367,7 +374,7 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                                     socketdata.record
                                 )
                     elif http_detected is False:  # if None, there is nothing to do
-                        records._tracerhttp1.del_socket_data(self)
+                        records._tracerhttp1.mark_as_not_a_http_request(self)
 
         return nbytes
 
@@ -424,7 +431,7 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
                         if records.server:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.del_socket_data(self)
+                    records._tracerhttp1.mark_as_not_a_http_request(self)
 
         return buffer
 
@@ -478,7 +485,7 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.del_socket_data(self)
+                    records._tracerhttp1.mark_as_not_a_http_request(self)
 
         return method(self, data, *args, **kwargs)
 
@@ -534,7 +541,7 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.del_socket_data(self)
+                    records._tracerhttp1.mark_as_not_a_http_request(self)
         return size
 
     return hook
@@ -614,7 +621,7 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.del_socket_data(self)
+                    records._tracerhttp1.mark_as_not_a_http_request(self)
         return size
 
     return hook
