@@ -43,6 +43,7 @@ version = {attr = "httpdbg.__version__"}
 [tool.mypy]
 no_implicit_optional = false
 disable_error_code= ["method-assign",]
+check_untyped_defs = true
 files = ["httpdbg"]
 
 [project.urls]
