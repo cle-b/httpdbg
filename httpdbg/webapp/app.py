@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections.abc import Callable
 from contextlib import contextmanager
 import glob
 from http.server import BaseHTTPRequestHandler
@@ -6,7 +7,10 @@ import json
 import mimetypes
 import os
 import re
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import ParseResult
+from urllib.parse import parse_qs
+from urllib.parse import urlparse
+
 
 from httpdbg import __version__
 from httpdbg.log import logger
@@ -35,18 +39,20 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         url = urlparse(self.path)
 
         # we try different method to serve the URL until the good one is done
-        for serve in [
+        serve_funcs: list[Callable[[ParseResult], bool]] = [
             self.serve_static,
             self.serve_requests,
             self.serve_request,
             self.serve_request_content_up,
             self.serve_request_content_down,
             self.serve_not_found,
-        ]:
+        ]
+
+        for serve in serve_funcs:
             if serve(url):
                 break
 
-    def serve_static(self: "HttpbgHTTPRequestHandler", url):
+    def serve_static(self, url: ParseResult):
         base_path = os.path.dirname(os.path.realpath(__file__))
 
         if not (
@@ -65,10 +71,10 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         if not fullpath.startswith(base_path):
             # if the file is not in the static directory, we don't serve it
-            return self.serve_not_found()
+            return self.serve_not_found(url)
 
         if not os.path.exists(fullpath):
-            return self.serve_not_found()
+            return self.serve_not_found(url)
         else:
             self.send_response(200)
             self.send_header(
@@ -103,7 +109,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def serve_requests(self: "HttpbgHTTPRequestHandler", url):
+    def serve_requests(self, url: ParseResult):
         if not (url.path.lower() == "/requests"):
             return False
 
@@ -126,7 +132,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def serve_request(self: "HttpbgHTTPRequestHandler", url):
+    def serve_request(self, url: ParseResult):
         regexp = r"/request/([\w\-]+)"
 
         if re.fullmatch(regexp, url.path) is None:
@@ -135,7 +141,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         req_id = re.findall(regexp, url.path)[0]
 
         if req_id not in self.records.requests:
-            return self.serve_not_found()
+            return self.serve_not_found(url)
 
         self.send_response(200)
         self.send_header("Content-type", "application/json")
@@ -149,7 +155,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def serve_request_content_up(self: "HttpbgHTTPRequestHandler", url):
+    def serve_request_content_up(self, url: ParseResult):
         regexp = r"/request/([\w\-]+)/up"
 
         if re.fullmatch(regexp, url.path) is None:
@@ -158,7 +164,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         req_id = re.findall(regexp, url.path)[0]
 
         if req_id not in self.records.requests:
-            return self.serve_not_found()
+            return self.serve_not_found(url)
 
         req = self.records.requests[req_id]
 
@@ -170,7 +176,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def serve_request_content_down(self: "HttpbgHTTPRequestHandler", url):
+    def serve_request_content_down(self, url: ParseResult):
         regexp = r"/request/([\w\-]+)/down"
 
         if re.fullmatch(regexp, url.path) is None:
@@ -179,7 +185,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         req_id = re.findall(regexp, url.path)[0]
 
         if req_id not in self.records.requests:
-            return self.serve_not_found()
+            return self.serve_not_found(url)
 
         req = self.records.requests[req_id]
 
@@ -191,7 +197,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def serve_not_found(self: "HttpbgHTTPRequestHandler", *kwargs):
+    def serve_not_found(self, url: ParseResult):
         self.send_response(404)
         self.send_header_no_cache()
         self.end_headers()
@@ -199,11 +205,11 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
 
         return True
 
-    def log_message(self: "HttpbgHTTPRequestHandler", format, *args):
+    def log_message(self, format, *args):
         pass
 
     def send_header_no_cache(self):
         self.send_header("Cache-Control", "max-age=0, no-cache, no-store, private")
 
-    def send_header_with_cache(self: "HttpbgHTTPRequestHandler", seconds):
+    def send_header_with_cache(self, seconds):
         self.send_header("Cache-Control", f"max-age={seconds}")

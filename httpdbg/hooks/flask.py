@@ -4,7 +4,7 @@ from contextlib import contextmanager
 import functools
 from functools import wraps
 from typing import Generator
-from typing import Union
+
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate
@@ -35,7 +35,7 @@ def set_hook_flask_endpoint(records: HTTPRecords, method: Callable):
 def set_hook_flask_add_url_rule(
     records: HTTPRecords,
     method: Callable,
-    already_mapped: Union[dict[Callable, Callable], None] = None,
+    already_mapped: dict[Callable, Callable],
 ):
 
     def hook(*args, **kwargs):
@@ -54,7 +54,9 @@ def set_hook_flask_add_url_rule(
             else:
                 callargs[param] = already_mapped[original_view_func]
 
-            args = [callargs[param] if x == original_view_func else x for x in args]
+            args = tuple(
+                callargs[param] if x == original_view_func else x for x in args
+            )
             if param in kwargs:
                 kwargs[param] = callargs[param]
 
@@ -66,7 +68,7 @@ def set_hook_flask_add_url_rule(
 def set_hook_flask_register_error_handler(
     records: HTTPRecords,
     method: Callable,
-    already_mapped: Union[dict[Callable, Callable], None] = None,
+    already_mapped: dict[Callable, Callable],
 ):
 
     def hook(*args, **kwargs):
@@ -85,7 +87,9 @@ def set_hook_flask_register_error_handler(
             else:
                 callargs[param] = already_mapped[original_view_func]
 
-            args = [callargs[param] if x == original_view_func else x for x in args]
+            args = tuple(
+                callargs[param] if x == original_view_func else x for x in args
+            )
             if param in kwargs:
                 kwargs[param] = callargs[param]
 

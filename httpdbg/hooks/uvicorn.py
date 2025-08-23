@@ -40,9 +40,13 @@ def set_hook_uvicorn_connection_made(records: HTTPRecords, method: Callable):
         socketdata = records._tracerhttp1.get_socket_data(
             self, force_new=True, is_uvicorn=True
         )
-        logger().debug(f"UVICORN - connection made - {socketdata}")
-
-        return method(self, TCPTransport(transport, socketdata))
+        if socketdata:
+            logger().debug(f"UVICORN - connection made - {socketdata}")
+            return method(self, TCPTransport(transport, socketdata))
+        else:
+            # should not happen
+            logger().debug("UVICORN - connection made - ignored")
+            return method(self, transport)
 
     return hook
 
@@ -86,7 +90,7 @@ def set_hook_uvicorn_data_received(records: HTTPRecords, method: Callable):
                         if records.server:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.sockets[id(self)] = None
+                    records._tracerhttp1.mark_as_not_a_http_request(self)
 
         return method(self, data)
 

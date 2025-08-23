@@ -4,7 +4,6 @@ from contextlib import contextmanager
 import functools
 from functools import wraps
 from typing import Generator
-from typing import Union
 
 import datetime
 
@@ -36,7 +35,7 @@ def set_hook_fastapi_endpoint(records: HTTPRecords, method: Callable):
 def set_hook_fastapi_apirouter_add_api_route(
     records: HTTPRecords,
     method: Callable,
-    already_mapped: Union[dict[Callable, Callable], None] = None,
+    already_mapped: dict[Callable, Callable],
 ):
 
     @wraps(method)
@@ -55,7 +54,9 @@ def set_hook_fastapi_apirouter_add_api_route(
             else:
                 callargs[param] = already_mapped[original_view_func]
 
-            args = [callargs[param] if x == original_view_func else x for x in args]
+            args = tuple(
+                callargs[param] if x == original_view_func else x for x in args
+            )
             if param in kwargs:
                 kwargs[param] = callargs[param]
 
@@ -84,14 +85,15 @@ def set_hook_fastapi_app(records: HTTPRecords, method: Callable):
             *args,
             **kwargs,
         ) as group:
-            if group and (group.id in records.groups):
-                if socketdata_id and (socketdata_id in records._tracerhttp1.sockets):
-                    records.groups[group.id].tbegin = records._tracerhttp1.sockets[
-                        socketdata_id
-                    ].record.tbegin - datetime.timedelta(milliseconds=1)
-                    records._tracerhttp1.sockets[socketdata_id].record.group_id = (
-                        group.id
-                    )
+            if group and socketdata_id:
+                sock = records._tracerhttp1.sockets.get(socketdata_id)
+                if (sock is not None) and (sock.record is not None):
+                    record = records.groups.get(group.id)
+                    if record is not None:
+                        record.tbegin = sock.record.tbegin - datetime.timedelta(
+                            milliseconds=1
+                        )
+                        sock.record.group_id = group.id
 
             ret = await method(*args, **kwargs)
 
