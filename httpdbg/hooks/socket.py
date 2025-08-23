@@ -68,7 +68,9 @@ class TracerHTTP1:
         self,
         ignore: tuple[tuple[str, int], ...] = (),
     ):
-        self.sockets: dict[int, SocketRawData] = {}
+        self.sockets: dict[int, Union[SocketRawData, None]] = (
+            {}
+        )  # if None, this is not a HTTP/1 request
         self.ignore: tuple[tuple[str, int], ...] = ignore
 
     def get_socket_data(
@@ -152,8 +154,12 @@ class TracerHTTP1:
     def del_socket_data(self, obj):
         if id(obj) in self.sockets:
             logger().info(f"SocketRawData del id={id(obj)}")
+            self.sockets.pop(id(obj))
+
+    def mark_as_not_a_http_request(self, obj):
+        if id(obj) in self.sockets:
+            logger().info(f"Socket not HTTP request id={id(obj)}")
             self.sockets[id(obj)] = None
-            del self.sockets[id(obj)]
 
 
 # hook: socket.socket.__init__
@@ -354,8 +360,8 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                                 initiator.tbegin = tbegin
                                 group.tbegin = tbegin
                             socketdata.record = HTTP1Record(
-                                records.current_initiator,
-                                records.current_group,
+                                initiator.id,
+                                group.id,
                                 records.current_tag,
                                 tbegin=socketdata.tbegin,
                                 is_client=False,
@@ -368,7 +374,7 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                                     socketdata.record
                                 )
                     elif http_detected is False:  # if None, there is nothing to do
-                        records._tracerhttp1.sockets[id(self)] = None
+                        records._tracerhttp1.mark_as_not_a_http_request(self)
 
         return nbytes
 
@@ -413,8 +419,8 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
                         socketdata.record = HTTP1Record(
-                            records.current_initiator,
-                            records.current_group,
+                            initiator.id,
+                            group.id,
                             records.current_tag,
                             tbegin=socketdata.tbegin,
                             is_client=False,
@@ -425,7 +431,7 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
                         if records.server:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.sockets[id(self)] = None
+                    records._tracerhttp1.mark_as_not_a_http_request(self)
 
         return buffer
 
@@ -441,7 +447,7 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
         socketdata = records._tracerhttp1.get_socket_data(self, request=True)
         if socketdata:
             logger().info(
-                f"SENDALL - self={self} id={id(self)} socketdata={socketdata} data={(b''+bytes(data))[:20]} type={type(data)} args={args} kwargs={kwargs}"
+                f"SENDALL - self={self} id={id(self)} socketdata={socketdata} data={(b''+bytes(data))[:20]!r} type={type(data)} args={args} kwargs={kwargs}"
             )
         if socketdata:
             if socketdata.record:
@@ -468,8 +474,8 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
                         socketdata.record = HTTP1Record(
-                            records.current_initiator,
-                            records.current_group,
+                            initiator.id,
+                            group.id,
                             records.current_tag,
                             tbegin=socketdata.tbegin,
                         )
@@ -479,7 +485,7 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.sockets[id(self)] = None
+                    records._tracerhttp1.mark_as_not_a_http_request(self)
 
         return method(self, data, *args, **kwargs)
 
@@ -524,8 +530,8 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
                         socketdata.record = HTTP1Record(
-                            records.current_initiator,
-                            records.current_group,
+                            initiator.id,
+                            group.id,
                             records.current_tag,
                             tbegin=socketdata.tbegin,
                         )
@@ -535,7 +541,7 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.sockets[id(self)] = None
+                    records._tracerhttp1.mark_as_not_a_http_request(self)
         return size
 
     return hook
@@ -604,8 +610,8 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
                         socketdata.record = HTTP1Record(
-                            records.current_initiator,
-                            records.current_group,
+                            initiator.id,
+                            group.id,
                             records.current_tag,
                             tbegin=socketdata.tbegin,
                         )
@@ -615,7 +621,7 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.sockets[id(self)] = None
+                    records._tracerhttp1.mark_as_not_a_http_request(self)
         return size
 
     return hook
