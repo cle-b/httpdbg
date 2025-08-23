@@ -98,8 +98,8 @@ class HTTPRecord(ABC):
     @abstractmethod
     def __init__(
         self,
-        initiator_id: str = None,
-        group_id: str = None,
+        initiator_id: str,
+        group_id: str,
         tag: str = None,
         tbegin: datetime.datetime = None,
         is_client: bool = True,
@@ -107,12 +107,12 @@ class HTTPRecord(ABC):
         self.id = get_new_uuid()
         self.address: tuple[str, int] = ("", 0)
         self._url: Union[str, None] = None
-        self.initiator_id: Union[str, None] = initiator_id
+        self.initiator_id: str = initiator_id
         self.exception: Union[Exception, None] = None
         self.ssl: Union[bool, None] = None
         self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
         self.tag: Union[str, None] = tag
-        self.group_id: Union[str, None] = group_id
+        self.group_id: str = group_id
         self.is_client: bool = is_client
         if tbegin:
             self.tbegin = tbegin

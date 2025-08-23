@@ -162,8 +162,8 @@ class HTTP1RecordResponse(HTTPRecordResponse, HTTP1RecordReqResp):
 class HTTP1Record(HTTPRecord):
     def __init__(
         self,
-        initiator_id: str = None,
-        group_id: str = None,
+        initiator_id: str,
+        group_id: str,
         tag: str = None,
         tbegin: datetime.datetime = None,
         is_client: bool = True,

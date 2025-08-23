@@ -353,8 +353,8 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                                 initiator.tbegin = tbegin
                                 group.tbegin = tbegin
                             socketdata.record = HTTP1Record(
-                                records.current_initiator,
-                                records.current_group,
+                                initiator.id,
+                                group.id,
                                 records.current_tag,
                                 tbegin=socketdata.tbegin,
                                 is_client=False,
@@ -412,8 +412,8 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
                         socketdata.record = HTTP1Record(
-                            records.current_initiator,
-                            records.current_group,
+                            initiator.id,
+                            group.id,
                             records.current_tag,
                             tbegin=socketdata.tbegin,
                             is_client=False,
@@ -467,8 +467,8 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
                         socketdata.record = HTTP1Record(
-                            records.current_initiator,
-                            records.current_group,
+                            initiator.id,
+                            group.id,
                             records.current_tag,
                             tbegin=socketdata.tbegin,
                         )
@@ -523,8 +523,8 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
                         socketdata.record = HTTP1Record(
-                            records.current_initiator,
-                            records.current_group,
+                            initiator.id,
+                            group.id,
                             records.current_tag,
                             tbegin=socketdata.tbegin,
                         )
@@ -603,8 +603,8 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                             initiator.tbegin = tbegin
                             group.tbegin = tbegin
                         socketdata.record = HTTP1Record(
-                            records.current_initiator,
-                            records.current_group,
+                            initiator.id,
+                            group.id,
                             records.current_tag,
                             tbegin=socketdata.tbegin,
                         )

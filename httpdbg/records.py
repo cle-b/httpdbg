@@ -60,10 +60,8 @@ class HTTPRecords:
 
         if initiator.id not in self.initiators:
             self.initiators[initiator.id] = initiator
-        new_record = HTTP1Record()
+        new_record = HTTP1Record(initiator.id, group.id)
         new_record.url = url
-        new_record.initiator_id = initiator.id
-        new_record.group_id = group.id
         new_record.exception = exception
         self.requests[new_record.id] = new_record
         return new_record
