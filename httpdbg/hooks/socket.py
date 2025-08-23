@@ -230,7 +230,7 @@ def set_hook_for_ssl_wrap_socket(records: HTTPRecords, method: Callable):
             f"WRAP_SOCKET - {type(sock)}={id(sock)} {type(sslsocket)}={id(sslsocket)}"
         )
 
-        socketdata = records.move_socket_data(sslsocket, sock)
+        socketdata = records._tracerhttp1.move_socket_data(sslsocket, sock)
         if socketdata:
             logger().info(f"WRAP_SOCKET * - socketdata={socketdata}")
 
