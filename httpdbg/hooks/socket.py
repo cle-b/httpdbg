@@ -152,8 +152,7 @@ class TracerHTTP1:
     def del_socket_data(self, obj):
         if id(obj) in self.sockets:
             logger().info(f"SocketRawData del id={id(obj)}")
-            self.sockets[id(obj)] = None
-            del self.sockets[id(obj)]
+            self.sockets.pop(id(obj))
 
 
 # hook: socket.socket.__init__
@@ -367,8 +366,8 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                                 records.requests[socketdata.record.id] = (
                                     socketdata.record
                                 )
-                    elif http_detected is False:  # if None, there is nothing to do
-                        records._tracerhttp1.sockets[id(self)] = None
+                    elif http_detected is False:  # if None, there is nothing to do                        
+                        records._tracerhttp1.del_socket_data(self)
 
         return nbytes
 
@@ -425,7 +424,7 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
                         if records.server:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.sockets[id(self)] = None
+                    records._tracerhttp1.del_socket_data(self)
 
         return buffer
 
@@ -441,7 +440,7 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
         socketdata = records._tracerhttp1.get_socket_data(self, request=True)
         if socketdata:
             logger().info(
-                f"SENDALL - self={self} id={id(self)} socketdata={socketdata} data={(b''+bytes(data))[:20]} type={type(data)} args={args} kwargs={kwargs}"
+                f"SENDALL - self={self} id={id(self)} socketdata={socketdata} data={(b''+bytes(data))[:20]!r} type={type(data)} args={args} kwargs={kwargs}"
             )
         if socketdata:
             if socketdata.record:
@@ -479,7 +478,7 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.sockets[id(self)] = None
+                    records._tracerhttp1.del_socket_data(self)
 
         return method(self, data, *args, **kwargs)
 
@@ -535,7 +534,7 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.sockets[id(self)] = None
+                    records._tracerhttp1.del_socket_data(self)
         return size
 
     return hook
@@ -615,7 +614,7 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                         if records.client:
                             records.requests[socketdata.record.id] = socketdata.record
                 elif http_detected is False:  # if None, there is nothing to do
-                    records._tracerhttp1.sockets[id(self)] = None
+                    records._tracerhttp1.del_socket_data(self)
         return size
 
     return hook
