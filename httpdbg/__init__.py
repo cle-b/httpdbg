@@ -3,6 +3,6 @@ from httpdbg.hooks.all import httprecord
 from httpdbg.records import HTTPRecords
 
 
-__version__ = "1.3.0"
+__version__ = "2.0.0"
 
 __all__ = ["httprecord", "HTTPRecords"]
