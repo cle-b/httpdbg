@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from typing import Union
 
 
@@ -25,6 +24,13 @@ def generate_preview(
             import brotli  # type: ignore
 
             raw_data = brotli.decompress(raw_data)
+        except Exception:
+            # if there is no brotli library available to decompress the data we keep the compressed data
+            pass
+        try:
+            import brotlicffi  # type: ignore
+
+            raw_data = brotlicffi.decompress(raw_data)
         except Exception:
             # if there is no brotli library available to decompress the data we keep the compressed data
             pass

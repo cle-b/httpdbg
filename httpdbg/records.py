@@ -31,6 +31,7 @@ class HTTPRecords:
 
     def reset(self) -> None:
         from httpdbg.hooks.socket import TracerHTTP1
+        from httpdbg.hooks.h2 import TracerHTTP2
 
         logger().info("HTTPRecords.reset")
         self.session: HTTPRecordsSessionInfo = HTTPRecordsSessionInfo()
@@ -42,6 +43,7 @@ class HTTPRecords:
         self.current_group: Union[str, None] = None
         self.current_tag: Union[str, None] = None
         self._tracerhttp1: TracerHTTP1 = TracerHTTP1(ignore=self.ignore)
+        self._tracerhttp2: TracerHTTP2 = TracerHTTP2(ignore=self.ignore)
 
     @property
     def unread(self) -> int:

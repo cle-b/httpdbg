@@ -1,23 +1,27 @@
-# -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
 import datetime
 from typing import Union
+from urllib.parse import urlparse
 
 from httpdbg.utils import get_new_uuid
 from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
+from httpdbg.utils import list_cookies_headers_request_simple_cookies
+from httpdbg.utils import list_cookies_headers_response_simple_cookies
 
 
 class HTTPRecordReqResp(ABC):
 
-    @abstractmethod
-    def get_header(self, name: str, default: str = "") -> str:
-        pass
+    def __init__(self) -> None:
+        self.last_update: datetime.datetime = datetime.datetime.now(
+            datetime.timezone.utc
+        )
 
-    @property
-    @abstractmethod
-    def rawheaders(self) -> bytes:
-        pass
+    def get_header(self, name: str, default: str = "") -> str:
+        for header in self.headers:
+            if header.name.lower() == name.lower():
+                return header.value
+        return default
 
     @property
     @abstractmethod
@@ -34,23 +38,12 @@ class HTTPRecordReqResp(ABC):
     def preview(self):
         pass
 
-    @property
-    @abstractmethod
-    def rawdata(self) -> bytes:
-        pass
-
-    @rawdata.setter
-    @abstractmethod
-    def rawdata(self, value: bytes):
-        pass
-
 
 class HTTPRecordRequest(HTTPRecordReqResp, ABC):
 
     @property
-    @abstractmethod
     def cookies(self) -> list[HTTPDBGCookie]:
-        pass
+        return list_cookies_headers_request_simple_cookies(self.headers)
 
     @property
     @abstractmethod
@@ -71,9 +64,8 @@ class HTTPRecordRequest(HTTPRecordReqResp, ABC):
 class HTTPRecordResponse(HTTPRecordReqResp, ABC):
 
     @property
-    @abstractmethod
     def cookies(self) -> list[HTTPDBGCookie]:
-        pass
+        return list_cookies_headers_response_simple_cookies(self.headers)
 
     @property
     @abstractmethod
@@ -129,39 +121,47 @@ class HTTPRecord(ABC):
         pass
 
     @property
-    @abstractmethod
-    def method(self) -> str:
-        pass
-
-    @property
-    @abstractmethod
-    def status_code(self) -> int:
-        pass
-
-    @property
-    @abstractmethod
-    def reason(self) -> str:
-        pass
-
-    @property
-    @abstractmethod
-    def netloc(self) -> str:
-        pass
-
-    @property
-    @abstractmethod
     def urlext(self) -> str:
         return self.url[len(self.netloc) :]
 
     @property
-    @abstractmethod
-    def in_progress(self) -> bool:
-        pass
+    def method(self) -> str:
+        return self.request.method
 
     @property
-    @abstractmethod
+    def status_code(self) -> int:
+        if self.exception:
+            return -1
+        else:
+            return self.response.status_code if self.response.status_code else 0
+
+    @property
+    def reason(self) -> str:
+        desc = "in progress"
+        if self.response.message:
+            desc = self.response.message
+        elif self.exception is not None:
+            desc = getattr(type(self.exception), "__name__", str(type(self.exception)))
+        return desc
+
+    @property
+    def netloc(self) -> str:
+        url = urlparse(self.url)
+        return f"{url.scheme}://{url.netloc}"
+
+    @property
+    def in_progress(self) -> bool:
+        try:
+            length = int(self.response.get_header("Content-Length", "0"))
+            if length:
+                return len(self.response.content) < length
+        except Exception:
+            pass
+        return False
+
+    @property
     def last_update(self) -> datetime.datetime:
-        pass
+        return max(self.request.last_update, self.response.last_update)
 
     @abstractmethod
     def receive_data(self, data: bytes):
@@ -172,6 +172,8 @@ class HTTPRecord(ABC):
         pass
 
     @property
-    @abstractmethod
     def protocol(self) -> str:
-        pass
+        if self.response.protocol == self.request.protocol:
+            return self.request.protocol
+        else:
+            return f"{self.request.protocol} -> {self.response.protocol}"

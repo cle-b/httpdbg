@@ -1,5 +1,4 @@
 import datetime
-from urllib.parse import urlparse
 
 from httpdbg.preview import generate_preview
 from httpdbg.hooks.record import HTTPRecord
@@ -7,26 +6,15 @@ from httpdbg.hooks.record import HTTPRecordReqResp
 from httpdbg.hooks.record import HTTPRecordRequest
 from httpdbg.hooks.record import HTTPRecordResponse
 from httpdbg.utils import chunked_to_bytes
-from httpdbg.utils import HTTPDBGCookie
 from httpdbg.utils import HTTPDBGHeader
-from httpdbg.utils import list_cookies_headers_request_simple_cookies
-from httpdbg.utils import list_cookies_headers_response_simple_cookies
 
 
 class HTTP1RecordReqResp(HTTPRecordReqResp):
     def __init__(self) -> None:
+        super().__init__()
         self._rawdata: bytes = bytes()
         self._rawheaders: bytes = bytes()
         self._headers: list[HTTPDBGHeader] = []
-        self.last_update: datetime.datetime = datetime.datetime.now(
-            datetime.timezone.utc
-        )
-
-    def get_header(self, name: str, default: str = "") -> str:
-        for header in self.headers:
-            if header.name.lower() == name.lower():
-                return header.value
-        return default
 
     @property
     def rawheaders(self) -> bytes:
@@ -96,10 +84,6 @@ class HTTP1RecordRequest(HTTPRecordRequest, HTTP1RecordReqResp):
         self._uri = bytes()
         self._protocol = bytes()
 
-    @property
-    def cookies(self) -> list[HTTPDBGCookie]:
-        return list_cookies_headers_request_simple_cookies(self.headers)
-
     def _parse_first_line(self) -> None:
         if self.rawheaders:
             firstline = self.rawheaders[: self.rawheaders.find(b"\r\n")]
@@ -130,10 +114,6 @@ class HTTP1RecordResponse(HTTPRecordResponse, HTTP1RecordReqResp):
         self._protocol = bytes()
         self._status_code = bytes()
         self._message = bytes()
-
-    @property
-    def cookies(self) -> list[HTTPDBGCookie]:
-        return list_cookies_headers_response_simple_cookies(self.headers)
 
     def _parse_first_line(self) -> None:
         if self.rawheaders:
@@ -194,49 +174,6 @@ class HTTP1Record(HTTPRecord):
     def url(self, value: str) -> None:
         self._url = value
 
-    @property
-    def method(self) -> str:
-        return self.request.method
-
-    @property
-    def status_code(self) -> int:
-        if self.exception:
-            return -1
-        else:
-            return self.response.status_code if self.response.status_code else 0
-
-    @property
-    def reason(self) -> str:
-        desc = "in progress"
-        if self.response.message:
-            desc = self.response.message
-        elif self.exception is not None:
-            desc = getattr(type(self.exception), "__name__", str(type(self.exception)))
-        return desc
-
-    @property
-    def netloc(self) -> str:
-        url = urlparse(self.url)
-        return f"{url.scheme}://{url.netloc}"
-
-    @property
-    def urlext(self) -> str:
-        return self.url[len(self.netloc) :]
-
-    @property
-    def in_progress(self) -> bool:
-        try:
-            length = int(self.response.get_header("Content-Length", "0"))
-            if length:
-                return len(self.response.content) < length
-        except Exception:
-            pass
-        return False
-
-    @property
-    def last_update(self) -> datetime.datetime:
-        return max(self.request.last_update, self.response.last_update)
-
     def receive_data(self, data: bytes):
         if self.is_client:
             self.response.rawdata += data
@@ -258,10 +195,3 @@ class HTTP1Record(HTTPRecord):
             self.request.rawdata += data
         else:
             self.response.rawdata += data
-
-    @property
-    def protocol(self) -> str:
-        if self.response.protocol == self.request.protocol:
-            return self.request.protocol
-        else:
-            return f"{self.request.protocol} -> {self.response.protocol}"

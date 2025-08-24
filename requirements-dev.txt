@@ -8,7 +8,7 @@ flask
 tox
 coverage
 requests
-httpx
+httpx[http2]
 pytest-asyncio
 aiohttp
 build
