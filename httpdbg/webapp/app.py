@@ -23,7 +23,10 @@ def silently_catch_error():
     try:
         yield
     except Exception as ex:
-        logger().info(f"HttpbgHTTPRequestHandler - silently_catch_error - {str(ex)}")
+        logger().info(
+            f"HttpbgHTTPRequestHandler - silently_catch_error - {str(ex)}",
+            exc_info=True,
+        )
 
 
 class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
