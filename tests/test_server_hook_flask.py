@@ -69,6 +69,8 @@ def flaskapp(port):
         server_thread.join(timeout=5)
 
 
+@pytest.mark.server_requests
+@pytest.mark.flask
 def test_flask_endpoint(httpdbg_port):
 
     with httprecord(client=False, server=True) as records:
@@ -85,6 +87,8 @@ def test_flask_endpoint(httpdbg_port):
     assert "hello_world()" in group.full_label
 
 
+@pytest.mark.server_requests
+@pytest.mark.flask
 def test_flask_endpoint_with_parameters(httpdbg_port):
 
     with httprecord(client=False, server=True) as records:
@@ -102,6 +106,8 @@ def test_flask_endpoint_with_parameters(httpdbg_port):
     assert 'hello_custom(xxxx="Salut",yyyy="toi",)' in full_label
 
 
+@pytest.mark.server_requests
+@pytest.mark.flask
 def test_flask_not_found(httpdbg_port):
 
     with httprecord(client=False, server=True) as records:
@@ -124,6 +130,8 @@ def test_flask_not_found(httpdbg_port):
     platform.system().lower() == "windows",
     reason="[#189] on Windows, the group label is empty in case of Internal Server Error in a Flask endpoint",
 )
+@pytest.mark.server_requests
+@pytest.mark.flask
 def test_flask_internal_server_error(httpdbg_port):
 
     with httprecord(client=False, server=True) as records:
@@ -141,6 +149,8 @@ def test_flask_internal_server_error(httpdbg_port):
     assert "division by zero" in group.full_label
 
 
+@pytest.mark.server_requests
+@pytest.mark.flask
 def test_flask_client_request_in_endpoint(httpdbg_port, httpbin):
 
     with httprecord(
