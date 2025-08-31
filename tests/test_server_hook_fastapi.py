@@ -32,6 +32,8 @@ def fastapi_app(port):
     platform.system().lower() == "windows",
     reason="on windows, the server requests are recorded twice for fastapi",
 )
+@pytest.mark.server_requests
+@pytest.mark.fastapi
 def test_fastapi_endpoint(httpdbg_port):
 
     with httprecord(client=False, server=True) as records:
@@ -89,6 +91,8 @@ def test_fastapi_endpoint(httpdbg_port):
     platform.system().lower() == "windows",
     reason="[#188] on windows, the server requests are recorded twice for fastapi",
 )
+@pytest.mark.server_requests
+@pytest.mark.fastapi
 def test_fastapi_client_request_in_endpoint(httpdbg_port, httpbin):
 
     with httprecord(

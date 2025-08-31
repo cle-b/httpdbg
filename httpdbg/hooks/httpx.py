@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collections.abc import Callable
 from contextlib import contextmanager
 import traceback
@@ -90,6 +89,19 @@ def hook_httpx(records: HTTPRecords) -> Generator[None, None, None]:
             records, httpx.AsyncClient.request, set_hook_for_httpx_async
         )
 
+        httpx.Client.get = decorate(records, httpx.Client.get, set_hook_for_httpx)
+        httpx.Client.post = decorate(records, httpx.Client.post, set_hook_for_httpx)
+        httpx.Client.patch = decorate(records, httpx.Client.patch, set_hook_for_httpx)
+        httpx.Client.put = decorate(records, httpx.Client.put, set_hook_for_httpx)
+        httpx.Client.delete = decorate(records, httpx.Client.delete, set_hook_for_httpx)
+        httpx.Client.head = decorate(records, httpx.Client.head, set_hook_for_httpx)
+        httpx.Client.options = decorate(
+            records, httpx.Client.options, set_hook_for_httpx
+        )
+        httpx.Client.request = decorate(
+            records, httpx.Client.request, set_hook_for_httpx
+        )
+
         httpx.get = decorate(records, httpx.get, set_hook_for_httpx)
         httpx.post = decorate(records, httpx.post, set_hook_for_httpx)
         httpx.patch = decorate(records, httpx.patch, set_hook_for_httpx)
@@ -114,6 +126,15 @@ def hook_httpx(records: HTTPRecords) -> Generator[None, None, None]:
         httpx.AsyncClient.head = undecorate(httpx.AsyncClient.head)
         httpx.AsyncClient.options = undecorate(httpx.AsyncClient.options)
         httpx.AsyncClient.request = undecorate(httpx.AsyncClient.request)
+
+        httpx.Client.get = undecorate(httpx.Client.get)
+        httpx.Client.post = undecorate(httpx.Client.post)
+        httpx.Client.patch = undecorate(httpx.Client.patch)
+        httpx.Client.put = undecorate(httpx.Client.put)
+        httpx.Client.delete = undecorate(httpx.Client.delete)
+        httpx.Client.head = undecorate(httpx.Client.head)
+        httpx.Client.options = undecorate(httpx.Client.options)
+        httpx.Client.request = undecorate(httpx.Client.request)
 
         httpx.get = undecorate(httpx.get)
         httpx.post = undecorate(httpx.post)

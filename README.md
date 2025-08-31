@@ -6,6 +6,8 @@ To use it, execute your program using the `pyhttpdbg` command instead of `python
 
 ![](https://github.com/cle-b/httpdbg/blob/main/ui.png?raw=true)
 
+Supports `HTTP/1.0`, `HTTP/1.1`, and `HTTP/2`.
+
 Full documentation => [https://httpdbg.readthedocs.io/](https://httpdbg.readthedocs.io/en/latest/)
 
 ## installation 
@@ -129,6 +131,16 @@ The requests are grouped by tests.
 |----------------|-------------------------------------|-----------|-----------|
 | pytest         | supported                           | -         | yes       |
 | unittest       | supported                           | -         | yes       |
+
+### supported HTTP version
+
+| version        | status                                                      |     
+|----------------|-------------------------------------------------------------|
+| 1.0            | supported                                                   |
+| 1.1            | supported                                                   |
+| 2              | supported (only through the `h2` lib)                       |
+
+
 
 ## configuration
 
