@@ -69,6 +69,7 @@ class TracerHTTP2:
         headers: list[tuple[bytes, bytes]],
         is_client: bool = True,
     ) -> Union[HTTP2Record, None]:
+        record = None
         if not is_client:
             if f"{socket_id}-{stream_id}" in self.sockets:
                 # this is a new request received by the server: we "close" the previous one
