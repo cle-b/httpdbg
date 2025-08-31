@@ -101,8 +101,6 @@ def set_hook_for_h2_send_headers(records: HTTPRecords, method: Callable):
         stream_id = callargs.get("stream_id")
         headers = callargs.get("headers")
 
-        initiator_and_group = None
-
         with httpdbg_initiator(
             records, traceback.extract_stack(), method, *args, **kwargs
         ) as initiator_and_group:
@@ -134,7 +132,7 @@ def set_hook_for_h2_send_data(records: HTTPRecords, method: Callable):
         ):
             if all(x is not None for x in (self, stream_id, data)):
                 logger().debug(
-                    f"H2 send_data - self={id(self)} steam_id={stream_id} data={data[:20]}"
+                    f"H2 send_data - self={id(self)} steam_id={stream_id} data={data[:20]!r}"
                 )
                 records._tracerhttp2.send_data(id(self), stream_id, data)
             ret = method(*args, **kwargs)
