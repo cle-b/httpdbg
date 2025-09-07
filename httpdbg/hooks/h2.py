@@ -1,7 +1,6 @@
 from collections.abc import Callable
 from contextlib import contextmanager
 import random
-import traceback
 from typing import Generator
 from typing import Union
 
@@ -101,9 +100,7 @@ def set_hook_for_h2_send_headers(records: HTTPRecords, method: Callable):
         stream_id = callargs.get("stream_id")
         headers = callargs.get("headers")
 
-        with httpdbg_initiator(
-            records, traceback.extract_stack(), method, *args, **kwargs
-        ) as initiator_and_group:
+        with httpdbg_initiator(records, method, *args, **kwargs) as initiator_and_group:
             initiator, group, _ = initiator_and_group
             if all(x is not None for x in (self, stream_id, headers)):
                 logger().debug(
@@ -127,9 +124,7 @@ def set_hook_for_h2_send_data(records: HTTPRecords, method: Callable):
         stream_id = callargs.get("stream_id")
         data = callargs.get("data")
 
-        with httpdbg_initiator(
-            records, traceback.extract_stack(), method, *args, **kwargs
-        ):
+        with httpdbg_initiator(records, method, *args, **kwargs):
             if all(x is not None for x in (self, stream_id, data)):
                 logger().debug(
                     f"H2 send_data - self={id(self)} steam_id={stream_id} data={data[:20]!r}"
@@ -146,9 +141,7 @@ def set_hook_for_h2_receive_data(records: HTTPRecords, method: Callable):
         callargs = getcallargs(method, *args, **kwargs)
         self = callargs.get("self")
 
-        with httpdbg_initiator(
-            records, traceback.extract_stack(), method, *args, **kwargs
-        ) as initiator_and_group:
+        with httpdbg_initiator(records, method, *args, **kwargs) as initiator_and_group:
             initiator, group, _ = initiator_and_group
             ret = method(*args, **kwargs)
 

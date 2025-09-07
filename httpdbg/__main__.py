@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import sys
 import time
 
@@ -24,7 +23,8 @@ def pyhttpdbg(params, subparams, test_mode=False):
 
     url = f"http://{params.host}:{params.port}/{'?hi=on' if params.console else ''}"
 
-    print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
+    if not params.no_banner:
+        print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
 
     sys.path.insert(0, "")  # to mimic the default python command behavior
 
@@ -39,7 +39,8 @@ def pyhttpdbg(params, subparams, test_mode=False):
                 run_console(records, test_mode)
 
         if not (params.force_quit or test_mode):
-            print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
+            if not params.no_banner:
+                print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
 
             if params.keep_up:
                 input("Press enter to quit")

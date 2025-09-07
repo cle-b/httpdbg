@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 from collections.abc import Callable
 from contextlib import contextmanager
 import datetime
-import traceback
 import typing
 from typing import Generator
 
@@ -66,7 +64,6 @@ def set_hook_uvicorn_data_received(records: HTTPRecords, method: Callable):
                     logger().info("UVICORN - http detected")
                     with httpdbg_initiator(
                         records,
-                        traceback.extract_stack(),
                         method,
                         self,
                         data,

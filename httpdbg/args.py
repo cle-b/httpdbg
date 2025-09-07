@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import argparse
 from pathlib import Path
 
@@ -65,7 +64,13 @@ def read_args(args: list[str]) -> tuple[argparse.Namespace, list[str]]:
         help="The log level",
     )
 
-    parser.add_argument("--log", type=Path, help="Path to the log file.")
+    parser.add_argument("--log", type=Path, help="path to the log file.")
+
+    parser.add_argument(
+        "--no-banner",
+        action="store_true",
+        help="do not print the banner in the console",
+    )
 
     actions = parser.add_mutually_exclusive_group()
 
