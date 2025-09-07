@@ -15,7 +15,7 @@ def set_hook_for_httpx_async(records: HTTPRecords, method: Callable):
         initiator_and_group = None
         try:
             with httpdbg_initiator(
-                records, traceback.extract_stack(), method, *args, **kwargs
+                records, method, *args, **kwargs
             ) as initiator_and_group:
                 ret = await method(*args, **kwargs)
             return ret
@@ -39,7 +39,7 @@ def set_hook_for_httpx(records: HTTPRecords, method: Callable):
         initiator_and_group = None
         try:
             with httpdbg_initiator(
-                records, traceback.extract_stack(), method, *args, **kwargs
+                records, method, *args, **kwargs
             ) as initiator_and_group:
                 ret = method(*args, **kwargs)
             return ret

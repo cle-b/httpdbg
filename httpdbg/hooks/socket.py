@@ -193,7 +193,7 @@ def set_hook_for_socket_connect(records: HTTPRecords, method: Callable):
             ):  # BlockingIOError for async, OSError for ipv6
                 if records.client:
                     with httpdbg_initiator(
-                        records, traceback.extract_stack(), method, *args, **kwargs
+                        records, method, *args, **kwargs
                     ) as initiator_and_group:
                         initiator, group, is_new = initiator_and_group
                         if is_new:
@@ -221,7 +221,7 @@ def set_hook_for_ssl_wrap_socket(records: HTTPRecords, method: Callable):
         except Exception as ex:
             if records.client:
                 with httpdbg_initiator(
-                    records, traceback.extract_stack(), method, *args, **kwargs
+                    records, method, *args, **kwargs
                 ) as initiator_and_group:
                     initiator, group, is_new = initiator_and_group
                     if is_new:
@@ -256,7 +256,7 @@ def set_hook_for_sslcontext_wrap_socket(records: HTTPRecords, method: Callable):
         except Exception as ex:
             if records.client:
                 with httpdbg_initiator(
-                    records, traceback.extract_stack(), method, *args, **kwargs
+                    records, method, *args, **kwargs
                 ) as initiator_and_group:
                     initiator, group, is_new = initiator_and_group
                     if is_new:
@@ -291,7 +291,7 @@ def set_hook_for_socket_wrap_bio(records: HTTPRecords, method: Callable):
         except Exception as ex:
             if records.client:
                 with httpdbg_initiator(
-                    records, traceback.extract_stack(), method, *args, **kwargs
+                    records, method, *args, **kwargs
                 ) as initiator_and_group:
                     initiator, group, is_new = initiator_and_group
                     if is_new:
@@ -345,7 +345,6 @@ def set_hook_for_socket_recv_into(records: HTTPRecords, method: Callable):
                         )
                         with httpdbg_initiator(
                             records,
-                            traceback.extract_stack(),
                             method,
                             self,
                             buffer,
@@ -404,7 +403,6 @@ def set_hook_for_socket_recv(records: HTTPRecords, method: Callable):
                     logger().info("RECV - http detected")
                     with httpdbg_initiator(
                         records,
-                        traceback.extract_stack(),
                         method,
                         self,
                         bufsize,
@@ -459,7 +457,6 @@ def set_hook_for_socket_sendall(records: HTTPRecords, method: Callable):
                     logger().info("SENDALL - http detected")
                     with httpdbg_initiator(
                         records,
-                        traceback.extract_stack(),
                         method,
                         self,
                         data,
@@ -515,7 +512,6 @@ def set_hook_for_socket_send(records: HTTPRecords, method: Callable):
                 if http_detected:
                     with httpdbg_initiator(
                         records,
-                        traceback.extract_stack(),
                         method,
                         self,
                         data,
@@ -595,7 +591,6 @@ def set_hook_for_sslobject_write(records: HTTPRecords, method: Callable):
                 if http_detected:
                     with httpdbg_initiator(
                         records,
-                        traceback.extract_stack(),
                         method,
                         self,
                         buf,

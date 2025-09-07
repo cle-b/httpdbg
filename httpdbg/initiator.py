@@ -103,14 +103,13 @@ def get_current_instruction(
     stack = []
 
     try:
-        n_stack = -1
-        framesummary = extracted_stack[-2]
-        while "asyncio" in framesummary.filename:
-            n_stack -= 1
-            framesummary = extracted_stack[n_stack - 1]
+        n_stack = -2
+        framesummary = extracted_stack[-3]
 
-        while ("httpdbg/hooks" in framesummary.filename) or (
-            "httpdbg\\hooks" in framesummary.filename
+        while (
+            ("httpdbg/hooks" in framesummary.filename)
+            or ("httpdbg\\hooks" in framesummary.filename)
+            or ("asyncio" in framesummary.filename)
         ):
             n_stack -= 1
             framesummary = extracted_stack[n_stack - 1]
@@ -124,7 +123,7 @@ def get_current_instruction(
 
             # stack
             to_include = False
-            for i_stack in range(6, len(extracted_stack) + n_stack):
+            for i_stack in range(7, len(extracted_stack) + n_stack):
                 last_stack = i_stack == len(extracted_stack) + n_stack - 1
                 fs = extracted_stack[i_stack]
                 to_include = to_include or (
@@ -237,15 +236,15 @@ def construct_call_str(original_method, *args, **kwargs):
 @contextmanager
 def httpdbg_initiator(
     records: "HTTPRecords",
-    extracted_stack: traceback.StackSummary,
     original_method: Callable,
     *args,
     **kwargs,
 ) -> Generator[tuple[Initiator, Group, bool], None, None]:
-
     try:
         if records.current_initiator is None:
             initiator_already_set = False
+
+            extracted_stack: traceback.StackSummary = traceback.extract_stack()
 
             # temporary set a fake initiator env variable to avoid a recursion error
             #  RecursionError: maximum recursion depth exceeded while calling a Python object

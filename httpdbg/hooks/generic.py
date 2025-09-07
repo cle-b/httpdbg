@@ -22,9 +22,7 @@ def set_hook_for_generic_async(records: HTTPRecords, method: Any):
     logger().info(f"SET_HOOK_FOR_GENERIC_ASYNC {method}")
 
     async def hook(*args, **kwargs):
-        with httpdbg_initiator(
-            records, traceback.extract_stack(), method, *args, **kwargs
-        ):
+        with httpdbg_initiator(records, method, *args, **kwargs):
             ret = await method(*args, **kwargs)
 
         return ret
@@ -36,9 +34,7 @@ def set_hook_for_generic(records: HTTPRecords, method: Any):
     logger().info(f"SET_HOOK_FOR_GENERIC {method}")
 
     def hook(*args, **kwargs):
-        with httpdbg_initiator(
-            records, traceback.extract_stack(), method, *args, **kwargs
-        ):
+        with httpdbg_initiator(records, method, *args, **kwargs):
             ret = method(*args, **kwargs)
 
         return ret
