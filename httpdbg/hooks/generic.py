@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 import builtins
 from collections.abc import Callable
 from contextlib import contextmanager
 import functools
 import importlib
 import inspect
-import traceback
 from types import ModuleType
 from typing import Any
 from typing import Generator

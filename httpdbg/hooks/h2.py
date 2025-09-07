@@ -1,7 +1,6 @@
 from collections.abc import Callable
 from contextlib import contextmanager
 import random
-import traceback
 from typing import Generator
 from typing import Union
 

@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 from collections.abc import Callable
 from contextlib import contextmanager
 import datetime
-import traceback
 import typing
 from typing import Generator
 

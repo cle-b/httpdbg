@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import asyncio
 import asyncio.proactor_events
 from collections.abc import Callable
@@ -8,7 +7,6 @@ import platform
 import socket
 import ssl
 import sys
-import traceback
 from typing import Generator
 from typing import Union
 

@@ -1,6 +1,5 @@
 from collections.abc import Callable
 from contextlib import contextmanager
-import traceback
 from typing import Generator
 
 from httpdbg.hooks.utils import getcallargs
