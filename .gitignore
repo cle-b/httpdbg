@@ -144,3 +144,6 @@ demopck/
 
 # logs pytest_plugin
 **/logs/*
+
+# cProfile
+*.prof
