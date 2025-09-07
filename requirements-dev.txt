@@ -19,3 +19,4 @@ setuptools
 fastapi[standard]
 hypercorn
 cryptography
+snakeviz
