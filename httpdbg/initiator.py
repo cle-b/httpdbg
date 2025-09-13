@@ -2,6 +2,7 @@
 from collections.abc import Callable
 from contextlib import contextmanager
 import datetime
+import linecache
 import inspect
 import os
 import platform
@@ -164,34 +165,34 @@ def extract_short_stack_from_file(
 
     try:
         if os.path.exists(filename):
-            with open(filename, "r") as src:
-                lines = src.read().splitlines()
+            # copy the lines before
+            copyit = False
+            for i in range(max(0, lineno - before), lineno):
+                line = linecache.getline(filename, i).removesuffix("\n").rstrip()
+                copyit = copyit or (line != "")
+                if copyit:
+                    short_stack += f" {i}. {line}\n"
 
-                # copy the lines before
-                for i in range(
-                    max(0, lineno - 1 - before), min(lineno - 1, len(lines))
-                ):
-                    line = lines[i]
-                    short_stack += f" {i+1}. {line}\n"
-
-                # try to recompose the instruction if on multi-lines
-                end_of_instruction_found = False
-                for i in range(max(0, lineno - 1), min(lineno - 1 + after, len(lines))):
-                    line = lines[i]
-                    if not end_of_instruction_found:
-                        instruction += line.strip()
-                    short_stack += f" {i+1}. {line}{' <====' if (before > 0 and i + 1 == lineno) else ''}\n"
-                    nb_parenthesis = 0
-                    for c in instruction[instruction.find("(") :]:
-                        if c == "(":
-                            nb_parenthesis += 1
-                        if c == ")":
-                            nb_parenthesis -= 1
-                        if nb_parenthesis == 0:
-                            end_of_instruction_found = True
-                            break
-                    if end_of_instruction_found and stop_if_instruction_ends:
+            # try to recompose the instruction if on multi-lines
+            end_of_instruction_found = False
+            for i in range(max(0, lineno), lineno + after):
+                line = linecache.getline(filename, i).removesuffix("\n").rstrip()
+                if not end_of_instruction_found:
+                    instruction += line.strip()
+                short_stack += (
+                    f" {i}. {line}{' <====' if (before > 0 and i == lineno) else ''}\n"
+                )
+                nb_parenthesis = 0
+                for c in instruction[instruction.find("(") :]:
+                    if c == "(":
+                        nb_parenthesis += 1
+                    if c == ")":
+                        nb_parenthesis -= 1
+                    if nb_parenthesis == 0:
+                        end_of_instruction_found = True
                         break
+                if end_of_instruction_found and stop_if_instruction_ends:
+                    break
     except Exception as ex:
         logger().info(
             f"EXTRACT_SHORT_STACK_FROM_FILE {filename} lineno={lineno} before={before} after={after}- error - {str(ex)}"
