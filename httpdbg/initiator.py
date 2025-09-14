@@ -2,8 +2,9 @@
 from collections.abc import Callable
 from contextlib import contextmanager
 import datetime
-import linecache
+import functools
 import inspect
+import linecache
 import os
 import platform
 import traceback
@@ -99,9 +100,9 @@ def in_lib(line: str, packages: list[str] = None):
 def get_current_instruction(
     extracted_stack: traceback.StackSummary,
 ) -> tuple[str, str, list[str]]:
-    instruction = ""
-    short_stack = ""
-    stack = []
+    instruction: str = ""
+    short_stack: str = ""
+    stack: list[str] = []
 
     try:
         n_stack = -2
@@ -115,12 +116,7 @@ def get_current_instruction(
             n_stack -= 1
             framesummary = extracted_stack[n_stack - 1]
 
-        short_stack = f'File "{framesummary.filename}", line {framesummary.lineno}, in {framesummary.name}\n'
         if os.path.exists(framesummary.filename) and framesummary.lineno is not None:
-            instruction, s_stack = extract_short_stack_from_file(
-                framesummary.filename, framesummary.lineno, 0, 8
-            )
-            short_stack += s_stack
 
             # stack
             to_include = False
@@ -132,14 +128,20 @@ def get_current_instruction(
                     and ("importlib" not in fs.filename)
                 )  # remove the stack before to start the user part
                 if to_include:
-                    _, s_stack = extract_short_stack_from_file(
+                    instruction, s_stack, l_stack = extract_short_stack_from_file(
                         fs.filename,
                         fs.lineno if fs.lineno else 0,
-                        4 if last_stack else 0,
-                        8,
                         not last_stack,
                     )
-                    stack.append(f'File "{fs.filename}", line {fs.lineno}, \n{s_stack}')
+                    if last_stack:
+                        short_stack = (
+                            f'File "{fs.filename}", line {fs.lineno}, in {fs.name}\n'
+                        )
+                        short_stack += s_stack
+
+                    stack.append(
+                        f'File "{fs.filename}", line {fs.lineno}, \n{l_stack}\n'
+                    )
 
         else:
             instruction = framesummary.line if framesummary.line else "console"
@@ -153,25 +155,27 @@ def get_current_instruction(
     return instruction.replace("\n", " "), short_stack, stack
 
 
+@functools.cache
 def extract_short_stack_from_file(
     filename: str,
     lineno: int,
-    before: int,
-    after: int,
     stop_if_instruction_ends: bool = True,
-) -> tuple[str, str]:
-    instruction = ""
-    short_stack = ""
+) -> tuple[str, str, str]:
+    before: int = 4
+    after: int = 8
+    instruction: str = ""
+    short_stack: str = ""
+    long_stack: str = ""
 
     try:
         if os.path.exists(filename):
-            # copy the lines before
+            # copy the lines before, only for the "long" stack (if they are not empty)
             copyit = False
             for i in range(max(0, lineno - before), lineno):
                 line = linecache.getline(filename, i).removesuffix("\n").rstrip()
                 copyit = copyit or (line != "")
                 if copyit:
-                    short_stack += f" {i}. {line}\n"
+                    long_stack += f" {i}. {line}\n"
 
             # try to recompose the instruction if on multi-lines
             end_of_instruction_found = False
@@ -179,7 +183,8 @@ def extract_short_stack_from_file(
                 line = linecache.getline(filename, i).removesuffix("\n").rstrip()
                 if not end_of_instruction_found:
                     instruction += line.strip()
-                short_stack += (
+                    short_stack += f" {i}. {line}\n"
+                long_stack += (
                     f" {i}. {line}{' <====' if (before > 0 and i == lineno) else ''}\n"
                 )
                 nb_parenthesis = 0
@@ -194,11 +199,13 @@ def extract_short_stack_from_file(
                 if end_of_instruction_found and stop_if_instruction_ends:
                     break
     except Exception as ex:
+        tb = traceback.extract_tb(ex.__traceback__)
+        _, lineno, _, _ = tb[-1]
         logger().info(
-            f"EXTRACT_SHORT_STACK_FROM_FILE {filename} lineno={lineno} before={before} after={after}- error - {str(ex)}"
+            f"EXTRACT_SHORT_STACK_FROM_FILE {filename} lineno={lineno} before={before} after={after}- error (line {lineno}) - {str(ex)}",
         )
 
-    return instruction, short_stack
+    return instruction, short_stack, long_stack
 
 
 def construct_call_str(original_method, *args, **kwargs):
@@ -346,7 +353,7 @@ def httpdbg_endpoint(
     filename = inspect.getsourcefile(original_method)
     if filename:
         _, lineno = inspect.getsourcelines(original_method)
-        instruction, s_stack = extract_short_stack_from_file(filename, lineno, 0, 8)
+        instruction, s_stack, _ = extract_short_stack_from_file(filename, lineno)
         full_label = (
             f'File "{filename}", line {lineno}, in {original_method.__name__}\n'
         )
