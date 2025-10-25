@@ -9,15 +9,6 @@ from httpdbg import HTTPRecords
 from httpdbg.webapp.api import RequestListPayload, RequestPayload
 
 
-def svg_file_to_symbol(svg_path: Path, symbol_id: str) -> str:
-    ET.register_namespace("", "http://www.w3.org/2000/svg")
-    root = ET.parse(svg_path).getroot()
-    symbol = ET.Element("symbol", {"id": symbol_id, "viewBox": root.attrib["viewBox"]})
-    for child in list(root):
-        symbol.append(child)
-    return ET.tostring(symbol, encoding="unicode")
-
-
 def generate_html(records: HTTPRecords, for_export: bool = True) -> str:
 
     current_dir = Path(__file__).resolve().parent
@@ -31,20 +22,27 @@ def generate_html(records: HTTPRecords, for_export: bool = True) -> str:
     with open(current_dir / "webapp/static/favicon.ico", "rb") as ffavicon:
         b64_icon = base64.b64encode(ffavicon.read()).decode("utf-8")
         data_uri = f"data:image/x-icon;base64,{b64_icon}"
-
         html = html.replace(
             '<link rel="shortcut icon" href="static/favicon.ico">',
             f'<link rel="icon" type="image/x-icon" href="{data_uri}">',
         )
 
     # icons
+    def svg_file_to_symbol(svg_path: Path, symbol_id: str) -> str:
+        ET.register_namespace("", "http://www.w3.org/2000/svg")
+        root = ET.parse(svg_path).getroot()
+        symbol = ET.Element(
+            "symbol", {"id": symbol_id, "viewBox": root.attrib["viewBox"]}
+        )
+        for child in list(root):
+            symbol.append(child)
+        return ET.tostring(symbol, encoding="unicode")
+
     icons_inline = ""
     for icon_path in (current_dir / "webapp/static/icons").glob("*.svg"):
-
         icons_inline += "\n        " + svg_file_to_symbol(
             icon_path, icon_path.name[:-4]
         )
-
     icons_inline = f'<svg width="0" height="0" style="position:absolute;visibility:hidden" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">{icons_inline}\n    </svg>'
     html = html.replace("$**PRELOAD_ICONS**$", icons_inline)
 
