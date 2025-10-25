@@ -18,7 +18,7 @@ def svg_file_to_symbol(svg_path: Path, symbol_id: str) -> str:
     return ET.tostring(symbol, encoding="unicode")
 
 
-def generate_html(records: HTTPRecords, for_export: bool = True) -> str:    
+def generate_html(records: HTTPRecords, for_export: bool = True) -> str:
 
     current_dir = Path(__file__).resolve().parent
 
