@@ -1,18 +1,13 @@
-# -*- coding: utf-8 -*-
 from collections.abc import Callable
 from contextlib import contextmanager
-import glob
 from http.server import BaseHTTPRequestHandler
 import json
-import mimetypes
-import os
+from pathlib import Path
 import re
 from urllib.parse import ParseResult
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
-
-from httpdbg import __version__
 from httpdbg.log import logger
 from httpdbg.webapp.api import RequestListPayload, RequestPayload
 from httpdbg.records import HTTPRecords
@@ -56,61 +51,34 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
                 break
 
     def serve_static(self, url: ParseResult):
-        base_path = os.path.dirname(os.path.realpath(__file__))
-
-        if not (
-            (url.path.lower() in ["/", "index.htm", "index.html"])
-            or url.path.startswith("/static/")
-        ):
-            return False
 
         if url.path.lower() in ["/", "index.htm", "index.html"]:
-            self.path = "/static/index.htm"
+            from httpdbg.export import generate_html
 
-        # get real path
-        self.path = self.path.split("-+-")[0]
-
-        fullpath = os.path.realpath(os.path.join(base_path, self.path[1:]))
-
-        if not fullpath.startswith(base_path):
-            # if the file is not in the static directory, we don't serve it
-            return self.serve_not_found(url)
-
-        if not os.path.exists(fullpath):
-            return self.serve_not_found(url)
-        else:
             self.send_response(200)
-            self.send_header(
-                "content-type", mimetypes.types_map[os.path.splitext(fullpath)[1]]
+            self.send_header("content-type", "text/html")
+            self.send_header_no_cache()
+            self.end_headers()
+            self.wfile.write(
+                generate_html(self.records, for_export=False).encode("utf-8")
             )
-            if self.path == "/static/index.htm":
-                self.send_header_no_cache()
-            else:
-                self.send_header_with_cache(604800)
+            return True
+
+        if url.path.lower() == "favicon.ico":
+            self.send_response(200)
+            self.send_header("content-type", "image/x-icon")
+            self.send_header_no_cache()
             self.end_headers()
 
-            with open(fullpath, "rb") as f:
+            current_dir = Path(__file__).resolve().parent
+
+            with open(Path(current_dir) / "static/favicon.ico") as f:
                 filecontent = f.read()
+                self.wfile.write(filecontent.encode("utf-8"))
 
-                if b"$**PRELOAD_ICONS**$" in filecontent:
-                    icons = ""
-                    for icon in glob.glob(
-                        os.path.realpath(base_path) + "/static/icons/*.svg"
-                    ):
-                        icon_path = icon.replace(os.path.realpath(base_path) + "/", "")
-                        icons += f"    <link rel='preload' href='{icon_path}-+-$**HTTPDBG_VERSION**$' as='image' type='image/svg+xml' />\n"
+            return True
 
-                    filecontent = filecontent.replace(
-                        b"$**PRELOAD_ICONS**$", icons.encode("utf-8")
-                    )
-
-                filecontent = filecontent.replace(
-                    b"$**HTTPDBG_VERSION**$", __version__.encode("utf-8")
-                )
-
-                self.wfile.write(filecontent)
-
-        return True
+        return False
 
     def serve_requests(self, url: ParseResult):
         if not (url.path.lower() == "/requests"):

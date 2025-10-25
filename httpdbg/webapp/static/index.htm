@@ -6,25 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>httpdbg</title>
 
-    <link rel="shortcut icon" href="static/favicon.ico-+-$**HTTPDBG_VERSION**$">
+    <link rel="shortcut icon" href="static/favicon.ico">
 
     $**PRELOAD_ICONS**$
 
-    <link rel="stylesheet" href="static/style.css-+-$**HTTPDBG_VERSION**$">
-    <link rel="stylesheet" href="static/table.css-+-$**HTTPDBG_VERSION**$">
-    <link rel="stylesheet" href="static/column.css-+-$**HTTPDBG_VERSION**$">
-    <link rel="stylesheet" href="static/detail.css-+-$**HTTPDBG_VERSION**$">
-    <link rel="stylesheet" href="static/configuration.css-+-$**HTTPDBG_VERSION**$">
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="static/table.css">
+    <link rel="stylesheet" href="static/column.css">
+    <link rel="stylesheet" href="static/detail.css">
+    <link rel="stylesheet" href="static/configuration.css">
     <style type="text/css" id="filter"></style>
     <style type="text/css" id="configurationcss"></style>
     <style type="text/css" id="serverstatuscss"></style>
     <style type="text/css" id="collapsegroupcss"></style>
-    <script src="static/mustache.min.js-+-$**HTTPDBG_VERSION**$"></script>
-    <script src="static/main.js-+-$**HTTPDBG_VERSION**$"></script>
-    <script src="static/api.js-+-$**HTTPDBG_VERSION**$"></script>
-    <script src="static/render.js-+-$**HTTPDBG_VERSION**$"></script>
-    <script src="static/filter.js-+-$**HTTPDBG_VERSION**$"></script>
-    <script src="static/configuration.js-+-$**HTTPDBG_VERSION**$"></script>
+    <script src="static/mustache.min.js"></script>
+    <script src="static/main.js"></script>
+    <script src="static/api.js"></script>
+    <script src="static/render.js"></script>
+    <script src="static/filter.js"></script>
+    <script src="static/configuration.js"></script>
 </head>
 
 <body>
@@ -32,15 +32,16 @@
         <nav id="navbar">
             <div class="menu-left">
                 <button id="trash" type="button" onclick="clean(true)" title="Delete all unpinned requests.">
-                    <img class="icon" src="static/icons/recycle-bin-line-icon.svg-+-$**HTTPDBG_VERSION**$"
-                        alt="Delete all unpinned requests." />
+                    <svg class="icon">
+                        <use href="#recycle-bin-line-icon"></use>
+                    </svg>
                 </button>
                 <form id="configform" onsubmit="return false;">
                     -
                     <input type="checkbox" id="ckeepsession" name="kp" onchange="load_config_from_form(true)">
                     <label for="ckeepsession"
-                        title="If you choose to keep previous sessions, the requests will not be deleted when starting a new session.">
-                        keep previous sessions
+                        title="If you choose to keep hisotry, the requests will not be deleted when starting a new session.">
+                        keep history
                     </label>
                     -
                     <label for="groupby-select">group by</label>
@@ -55,40 +56,48 @@
                         onchange="load_config_from_form(true)">
                     <label for="cinitiator"
                         title="Hide the groups.&#10;Be aware that the order of the requests will not be affected.">
-                        <img class="icon config-checkbox-unchecked"
-                            src="static/icons/eye-icon.svg-+-$**HTTPDBG_VERSION**$" />
-                        <img class="icon config-checkbox-checked"
-                            src="static/icons/eye-blind-icon.svg-+-$**HTTPDBG_VERSION**$" />
+                        <svg class="icon config-checkbox-unchecked">
+                            <use href="#eye-icon"></use>
+                        </svg>
+                        <svg class="icon config-checkbox-checked">
+                            <use href="#eye-blind-icon"></use>
+                        </svg>
                         group
                     </label>
                     -
                     <input class="config-checkbox" type="checkbox" id="ctag" name="ht"
                         onchange="load_config_from_form(true)">
                     <label for="ctag" title="Hide the tags.">
-                        <img class="icon config-checkbox-unchecked"
-                            src="static/icons/eye-icon.svg-+-$**HTTPDBG_VERSION**$" />
-                        <img class="icon config-checkbox-checked"
-                            src="static/icons/eye-blind-icon.svg-+-$**HTTPDBG_VERSION**$" />
+                        <svg class="icon config-checkbox-unchecked">
+                            <use href="#eye-icon"></use>
+                        </svg>
+                        <svg class="icon config-checkbox-checked">
+                            <use href="#eye-blind-icon"></use>
+                        </svg>
                         tag
                     </label>
                     -
                     <input class="config-checkbox" type="checkbox" id="curl" name="hn"
                         onchange="load_config_from_form(true)">
                     <label for="curl" title="Hide the network location and the scheme in the url.">
-                        <img class="icon config-checkbox-unchecked"
-                            src="static/icons/eye-icon.svg-+-$**HTTPDBG_VERSION**$" />
-                        <img class="icon config-checkbox-checked"
-                            src="static/icons/eye-blind-icon.svg-+-$**HTTPDBG_VERSION**$" />
+                        <svg class="icon config-checkbox-unchecked">
+                            <use href="#eye-icon"></use>
+                        </svg>
+                        <svg class="icon config-checkbox-checked">
+                            <use href="#eye-blind-icon"></use>
+                        </svg>
                         netloc
                     </label>
                     -
                     <input class="config-checkbox" type="checkbox" id="cwrap" name="wl"
                         onchange="load_config_from_form(true)">
                     <label for="cwrap" title="Wrap lines on the request/response payload content.">
-                        <img class="icon config-checkbox-unchecked"
-                            src="static/icons/lock-open-line-icon.svg-+-$**HTTPDBG_VERSION**$" />
-                        <img class="icon config-checkbox-checked"
-                            src="static/icons/lock-line-icon.svg-+-$**HTTPDBG_VERSION**$" />
+                        <svg class="icon config-checkbox-unchecked">
+                            <use href="#lock-open-line-icon"></use>
+                        </svg>
+                        <svg class="icon config-checkbox-checked">
+                            <use href="#lock-line-icon"></use>
+                        </svg>
                         wrap lines
                     </label>
                     -
@@ -96,10 +105,12 @@
                         onchange="load_config_from_form(true)">
                     <label for="craw"
                         title="Avoid formatting the request/response payload content according to its content type.">
-                        <img class="icon config-checkbox-unchecked"
-                            src="static/icons/lock-open-line-icon.svg-+-$**HTTPDBG_VERSION**$" />
-                        <img class="icon config-checkbox-checked"
-                            src="static/icons/lock-line-icon.svg-+-$**HTTPDBG_VERSION**$" />
+                        <svg class="icon config-checkbox-unchecked">
+                            <use href="#lock-open-line-icon"></use>
+                        </svg>
+                        <svg class="icon config-checkbox-checked">
+                            <use href="#lock-line-icon"></use>
+                        </svg>
                         raw data
                     </label>
                 </form>
@@ -107,8 +118,9 @@
             <div class="menu-right">
                 <span title="httpdbg v$**HTTPDBG_VERSION**$">httpdbg</span>
                 <button onclick="help()" title="open help">
-                    <img class="icon" src="static/icons/question-mark-round-line-icon.svg-+-$**HTTPDBG_VERSION**$"
-                        alt="open help" />
+                    <svg class="icon">
+                        <use href="#question-mark-round-line-icon"></use>
+                    </svg>
                 </button>
             </div>
         </nav>
@@ -165,9 +177,9 @@
                         <th class="url">
                             url
                             &nbsp;
-                            <img class="icon icon-filter"
-                                src="static/icons/filter-outline-icon.svg-+-$**HTTPDBG_VERSION**$"
-                                alt="filter for url" />
+                            <svg class="icon icon-filter">
+                                <use href="#filter-outline-icon"></use>
+                            </svg>
                             &nbsp;
                             <label for="filter-url" class="visuallyhidden">
                                 filter for url
@@ -186,7 +198,7 @@
                         <tr class="group" data-orderby="{{tbegin}}">
                             <td class="collapse" onclick="event.stopPropagation();">
                                 <input class="collapse-checkbox" type="checkbox" id="collapse{{id}}" onclick="collapse_group('{{id}}',this.checked)">
-                                <label class="collapse-icon" for="collapse{{id}}"><img class="icon" src="static/icons/chevron-direction-top-outline-icon.svg-+-$**HTTPDBG_VERSION**$" alt="click to collapse/expand"/></label>
+                                <label class="collapse-icon" for="collapse{{id}}"><svg class="icon"><use href="#chevron-direction-top-outline-icon"></use></svg></label>
                             </td>
                             <td colspan="3" class="group-label" title="{{full_label}}">
                                 {{label}}
@@ -207,7 +219,7 @@
                         data-qa-request="{{id}}">
                         <td class="pin" onclick="event.stopPropagation();">
                             <input class="pin-checkbox" type="checkbox" id="pin{{id}}" onclick="pin_request('{{id}}',this.checked)" {{pin}}>
-                            <label class="pin-icon" for="pin{{id}}"><img class="icon" src="static/icons/push-pin-green-icon.svg-+-$**HTTPDBG_VERSION**$" alt="click to pin"/></label>
+                            <label class="pin-icon" for="pin{{id}}"><svg class="icon"><use href="#push-pin-green-icon.svg"></use></svg></label>
                         </td>
                         <td class="status"><span title="{{reason}}" data-qa-request-status>{{{status_code_view}}}</span></td>
                         <td class="method"><span title="{{verb}}" data-qa-request-method>{{verb}}</span></td>
@@ -348,14 +360,14 @@
             
                                         {{#body}}
                                             {{#body.path}}
-                                            <a href="{{body.path}}" download="{{body.filename}}" class="need-server"><button title="download"><img class="icon" src="static/icons/download-install-line-icon.svg-+-$**HTTPDBG_VERSION**$"/></button></a>
-                                            <img class="icon need-server-info" title="Use the '-k' option to keep the server up and being able to download the content." src="static/icons/information-mark-circle-outline-icon.svg-+-$**HTTPDBG_VERSION**$" />
+                                            <a href="{{body.path}}" download="{{body.filename}}" class="need-server"><button title="download"><svg class="icon"><use href="#download-install-line-icon"></use></svg></button></a>
+                                            <svg class="icon need-server-info"><use href="#information-mark-circle-outline-icon"></use></svg>
                                             {{/body.path}}
             
                                             {{#body.text}}
                                             
                                             {{#body.raw_text}}
-                                            <button title="copy to clipboard" onclick="navigator.clipboard.writeText({{body.raw_text}});"><img class="icon" src="static/icons/files-papers-outline-icon.svg-+-$**HTTPDBG_VERSION**$"/></button>
+                                            <button title="copy to clipboard" onclick="navigator.clipboard.writeText({{body.raw_text}});"><svg class="icon"><use href="#files-papers-outline-icon"></use></svg></button>
                                             {{/body.raw_text}}
             
                                             <label><input type="checkbox" name="ckwraptext" onclick='show_wrap_lines(this.parentNode.parentNode.querySelector(".previewcode"));'>Wrap lines</label>
@@ -418,6 +430,7 @@
             </table>
         </div>
     </div>
+    $**EXPORT**$
     <script>
         load_config_from_url(true);
         update_filter_url();

@@ -40,20 +40,26 @@ def read_args(args: list[str]) -> tuple[argparse.Namespace, list[str]]:
         help="record only HTTP client requests",
     )
 
-    server_state = parser.add_mutually_exclusive_group()
+    server_or_export = parser.add_mutually_exclusive_group()
 
-    server_state.add_argument(
+    server_or_export.add_argument(
         "--keep-up",
         "-k",
         action="store_true",
         help="keep the server up even if the requests have been read",
     )
 
-    server_state.add_argument(
+    server_or_export.add_argument(
         "--force-quit",
         "-q",
         action="store_true",
         help="stop the server even if the requests have not been read",
+    )
+
+    server_or_export.add_argument(
+        "--export-html",
+        type=str,
+        help="the path to the export file",
     )
 
     parser.add_argument(

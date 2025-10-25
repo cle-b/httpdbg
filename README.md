@@ -166,6 +166,8 @@ options:
   --only-client         record only HTTP client requests
   --keep-up, -k         keep the server up even if the requests have been read
   --force-quit, -q      stop the server even if the requests have not been read
+  --export-html EXPORT_HTML
+                        the path to the export file
   --console             run a python console (default)
   --module MODULE, -m MODULE
                         run library module as a script (the next args are passed to pytest as is)
@@ -198,6 +200,10 @@ All the requests recorded are available on the web interface.
 The requests:
  * are still available in the web page even if the python process stopped (except if you force quit before the requests have been loaded by the web page).
  * are automatically cleaned if a new execution is detected.
+
+## export
+
+You can export the HTTP traces in a single HTML file. In that case, the web interface is not available during the execution of the python command. 
 
 ## limitations
 

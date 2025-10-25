@@ -1,14 +1,19 @@
+import argparse
+from pathlib import Path
 import sys
 import time
+from typing import Union
 
 from httpdbg import __version__
 from httpdbg.args import read_args
+from httpdbg.export import export_html
 from httpdbg.hooks.all import httprecord
 from httpdbg.log import set_env_for_logging
 from httpdbg.server import httpdbg_srv
 from httpdbg.mode_console import run_console
 from httpdbg.mode_module import run_module
 from httpdbg.mode_script import run_script
+from httpdbg.records import HTTPRecords
 
 
 def print_msg(msg):
@@ -17,7 +22,9 @@ def print_msg(msg):
     print(msg)
 
 
-def pyhttpdbg(params, subparams, test_mode=False):
+def pyhttpdbg(
+    params: argparse.Namespace, subparams: list[str], test_mode: bool = False
+):
 
     set_env_for_logging(params.log_level, params.log)
 
@@ -28,9 +35,14 @@ def pyhttpdbg(params, subparams, test_mode=False):
 
     sys.path.insert(0, "")  # to mimic the default python command behavior
 
-    with httpdbg_srv(params.host, params.port) as records:
-        records.server = not params.only_client
-        with httprecord(records, params.initiator, server=records.server):
+    def run_recorder(
+        records: HTTPRecords,
+        initiators: Union[list[str], None],
+        record_server: bool,
+        test_mode: bool,
+    ):
+        records.server = record_server
+        with httprecord(records, initiators, server=records.server):
             if params.module:
                 run_module(subparams)
             elif params.script:
@@ -38,23 +50,35 @@ def pyhttpdbg(params, subparams, test_mode=False):
             else:
                 run_console(records, test_mode)
 
-        if not (params.force_quit or test_mode):
-            if not params.no_banner:
-                print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
+    if params.export_html:
+        records = HTTPRecords()
 
-            if params.keep_up:
-                input("Press enter to quit")
-            else:
-                # we keep the server up until all the requests have been loaded in the web interface
-                print(
-                    "Waiting until all the requests have been loaded in the web interface."
-                )
-                print("Press Ctrl+C to quit.")
-                try:
-                    while records.unread:
-                        time.sleep(0.5)
-                except KeyboardInterrupt:  # pragma: no cover
-                    pass
+        run_recorder(records, params.initiator, not params.only_client, test_mode)
+
+        export_html(records, Path(params.export_html))
+
+    else:
+        with httpdbg_srv(params.host, params.port) as records:
+
+            run_recorder(records, params.initiator, not params.only_client, test_mode)
+
+            if not (params.force_quit or test_mode):
+                if not params.no_banner:
+                    print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
+
+                if params.keep_up:
+                    input("Press enter to quit")
+                else:
+                    # we keep the server up until all the requests have been loaded in the web interface
+                    print(
+                        "Waiting until all the requests have been loaded in the web interface."
+                    )
+                    print("Press Ctrl+C to quit.")
+                    try:
+                        while records.unread:
+                            time.sleep(0.5)
+                    except KeyboardInterrupt:  # pragma: no cover
+                        pass
 
 
 def pyhttpdbg_entry_point(test_mode=False):
