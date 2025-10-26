@@ -9,7 +9,7 @@
     <link rel="shortcut icon" href="static/favicon.ico">
 
     <style>
-        .reduce-mode {
+        .compact-mode {
             display: none !important;
         }
 
@@ -18,7 +18,7 @@
                 display: none !important;
             }
 
-            .reduce-mode {
+            .compact-mode {
                 display: block !important;
             }
         }
@@ -447,13 +447,13 @@
         </div>
     </div>
 
-    <div class="reduce-mode">
+    <div class="compact-mode">
         <b><i>You're seeing a simplified view of the HTTP traces report. Make your window larger to see the full
                 interface.</i></b>
         <br>
-        <ul id="requests-list-reduce-mode">
-            <script id="template_request_reduce_mode" type="x-tmpl-mustache">
-                    <li id="request-reduce-mode-{{id}}">
+        <ul id="requests-list-compact-mode">
+            <script id="template_request_compact_mode" type="x-tmpl-mustache">
+                    <li id="request-compact-mode-{{id}}">
                         {{verb}} {{{status_code_view}}} {{netloc}}{{urlext}}
                     </li>
             </script>

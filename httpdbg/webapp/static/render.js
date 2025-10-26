@@ -44,15 +44,15 @@ async function refresh_resquests() {
                 request.to_refresh = false;
             }
 
-            // refresh the reduce mode
-            var elt_reduce_mode = document.getElementById("request-reduce-mode" + request.id);
-            var template_request_reduce_mode = document.getElementById("template_request_reduce_mode").innerHTML;
-            var rendered_reduce_mode = Mustache.render(template_request_reduce_mode, request);
-            if (!elt_reduce_mode) {
-                var elt_requests_list_reduce_mode = document.getElementById("requests-list-reduce-mode");
-                elt_requests_list_reduce_mode.insertAdjacentHTML("beforeend", rendered_reduce_mode);
+            // refresh the compact mode
+            var elt_compact_mode = document.getElementById("request-compact-mode" + request.id);
+            var template_request_compact_mode = document.getElementById("template_request_compact_mode").innerHTML;
+            var rendered_compact_mode = Mustache.render(template_request_compact_mode, request);
+            if (!elt_compact_mode) {
+                var elt_requests_list_compact_mode = document.getElementById("requests-list-compact-mode");
+                elt_requests_list_compact_mode.insertAdjacentHTML("beforeend", rendered_compact_mode);
             } else {
-                elt_reduce_mode.innerHTML = rendered_reduce_mode;
+                elt_compact_mode.innerHTML = rendered_compact_mode;
             };
         }
     };
