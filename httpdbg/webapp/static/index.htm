@@ -8,6 +8,22 @@
 
     <link rel="shortcut icon" href="static/favicon.ico">
 
+    <style>
+        .reduce-mode {
+            display: none !important;
+        }
+
+        @media (max-width: 900px) {
+            .default-mode {
+                display: none !important;
+            }
+
+            .reduce-mode {
+                display: block !important;
+            }
+        }
+    </style>
+
     $**PRELOAD_ICONS**$
 
     <link rel="stylesheet" href="static/style.css">
@@ -28,7 +44,7 @@
 </head>
 
 <body>
-    <header>
+    <header class="default-mode">
         <nav id="navbar">
             <div class="menu-left">
                 <button id="trash" type="button" onclick="clean(true)" title="Delete all unpinned requests.">
@@ -126,7 +142,7 @@
         </nav>
     </header>
 
-    <div id="help">
+    <div id="help" class="default-mode">
         <h4>About</h4>
         httpdbg v$**HTTPDBG_VERSION**$
         <br>
@@ -163,7 +179,7 @@
         <br>
     </div>
 
-    <div class="grid-container">
+    <div class="grid-container default-mode">
 
         <div class="grid-column grid-column-left">
 
@@ -430,6 +446,25 @@
             </table>
         </div>
     </div>
+
+    <div class="reduce-mode">
+        <b><i>You're seeing a simplified view of the HTTP traces report. Make your window larger to see the full
+                interface.</i></b>
+        <br>
+        <ul id="requests-list-reduce-mode">
+            <script id="template_request_reduce_mode" type="x-tmpl-mustache">
+                    <li id="request-reduce-mode-{{id}}">
+                        {{verb}} {{{status_code_view}}} {{netloc}}{{urlext}}
+                    </li>
+            </script>
+        </ul>
+
+        <b><i>You're seeing a simplified view of the HTTP traces report. Make your window larger to see the full
+                interface.</i></b>
+        <br>
+        httpdbg v$**HTTPDBG_VERSION**$
+    </div>
+
     $**EXPORT**$
     <script>
         load_config_from_url(true);

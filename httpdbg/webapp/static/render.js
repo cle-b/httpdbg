@@ -14,6 +14,7 @@ async function refresh_resquests() {
 
     for (const [request_id, request] of Object.entries(global.requests)) {
         if (request.to_refresh) {
+            // refresh the default mode
             var elt = document.getElementById("request-" + request.id);
 
             request.title = request.url;
@@ -24,7 +25,7 @@ async function refresh_resquests() {
 
             let groupby = get_groupby(global.groupby, request);
 
-            if(groupby) { // the group may be missing if the clean list is executed in parrallel
+            if (groupby) { // the group may be missing if the clean list is executed in parrallel
                 request.groupby_id = groupby.id;
 
                 var rendered = Mustache.render(template_request, request);
@@ -39,9 +40,20 @@ async function refresh_resquests() {
                 } else {
                     elt.innerHTML = rendered;
                 };
-    
-                request.to_refresh = false;    
+
+                request.to_refresh = false;
             }
+
+            // refresh the reduce mode
+            var elt_reduce_mode = document.getElementById("request-reduce-mode" + request.id);
+            var template_request_reduce_mode = document.getElementById("template_request_reduce_mode").innerHTML;
+            var rendered_reduce_mode = Mustache.render(template_request_reduce_mode, request);
+            if (!elt_reduce_mode) {
+                var elt_requests_list_reduce_mode = document.getElementById("requests-list-reduce-mode");
+                elt_requests_list_reduce_mode.insertAdjacentHTML("beforeend", rendered_reduce_mode);
+            } else {
+                elt_reduce_mode.innerHTML = rendered_reduce_mode;
+            };
         }
     };
     filter_requests_count();
