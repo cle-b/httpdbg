@@ -260,7 +260,6 @@ async function disable_link_if_server_disconnected() {
 
     if (global.connected) {
         sheet.insertRule(".need-server {}");
-        sheet.insertRule(".need-server-info {display: none;}");
     } else {
         sheet.insertRule(".need-server {\
             color: var(--link-server-disconnected);\
@@ -268,11 +267,6 @@ async function disable_link_if_server_disconnected() {
             opacity: 0.5;\
             text-decoration: none;\
         }");
-        sheet.insertRule(".need-server-info {\
-             display: inline;\
-             color: var(--link-server-disconnected);\
-             opacity: 0.5;\
-         }");
     }
 }
 
