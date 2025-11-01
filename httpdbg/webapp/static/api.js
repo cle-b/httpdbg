@@ -50,10 +50,13 @@ function save_request(request_id, request, session_id) {
 }
 
 async function load_all_requests() {
+    // export mode
     if (typeof global.static_all_requests !== "undefined") {
+        global.connected = false;
         return global.static_all_requests;
     }
 
+    // connected mode
     var requests_already_loaded = 0
     for (const [request_id, request] of Object.entries(global.requests)) {
         if (request.loaded && (global.session == request.session_id)) {
@@ -65,95 +68,104 @@ async function load_all_requests() {
         "requests_already_loaded": requests_already_loaded,
     })
 
-    const res = await fetch(url);
-    const data = await res.json();
-    return data;
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        global.connected = true;
+        return data;
+    } catch (error) {
+        global.connected = false;
+        return null;
+    }
 }
 
 
 async function get_all_requests() {
 
-    await load_all_requests()
-        .then(data => {
-            global.connected = true;
+    const data = await load_all_requests();
 
-            if (data.session.id != global.session) {
-                clean();
-                global.session = data.session.id;
-                global.sessions[data.session.id] = data.session;
-            };
+    if (!data) {
+        return;
+    }
 
-            // for the initiators and the groups, we can just save them without any verification
-            Object.assign(global.initiators, data.initiators);
-            Object.assign(global.groups, data.groups);
+    if (data.session.id != global.session) {
+        clean();
+        global.session = data.session.id;
+        global.sessions[data.session.id] = data.session;
+    };
 
-            // for the requests, we may have to update them 
-            for (const [request_id, request] of Object.entries(data.requests)) {
-                if (!(request_id in global.requests)) {
-                    // this is a new request
-                    save_request(request_id, request, data.session.id);
-                } else {
-                    if (global.requests[request_id].last_update < request.last_update) {
-                        // this request has been updated (probably a "big" file) 
-                        save_request(request_id, request, data.session.id);
-                    }
-                };
-            };
-        })
-        .catch((error) => {
-            global.connected = false;
-        });
+    // for the initiators and the groups, we can just save them without any verification
+    Object.assign(global.initiators, data.initiators);
+    Object.assign(global.groups, data.groups);
+
+    // for the requests, we may have to update them 
+    for (const [request_id, request] of Object.entries(data.requests)) {
+        if (!(request_id in global.requests)) {
+            // this is a new request
+            save_request(request_id, request, data.session.id);
+        } else {
+            if (global.requests[request_id].last_update < request.last_update) {
+                // this request has been updated (probably a "big" file) 
+                save_request(request_id, request, data.session.id);
+            }
+        };
+    };
 }
 
 async function load_request(request_id) {
     if (typeof global.static_requests !== "undefined") {
+        global.connected = false;        
         return global.static_requests[request_id];
     }
 
-    const res = await fetch("/request/" + request_id);
-    const data = await res.json();
-    return data;
+    try {
+        const res = await fetch("/request/" + request_id);
+        const data = await res.json();
+        global.connected = true;
+        return data;
+    } catch (error) {
+        global.connected = false;
+        return null;
+    }    
 }
 
 async function get_request(request_id) {
 
-    await load_request(request_id)
-        .then(data => {
-            global.connected = true;
-            global.requests[request_id].filter = prepare_for_filter(global.requests[request_id].url);
+    const data = await load_request(request_id);
 
-            global.requests[request_id].request = data.request;
-            if (data.request.body && data.request.body.text) {
-                global.requests[request_id].filter += " " + prepare_for_filter(
-                    parse_raw_text(
-                        data.request.body.text,
-                        data.request.body.content_type
-                    ) || data.request.body.text
-                );
-            }
+    if (!data) {
+        return;
+    }
 
-            global.requests[request_id].response = data.response;
-            if (data.response.body && data.response.body.text) {
-                global.requests[request_id].filter += " " + prepare_for_filter(
-                    parse_raw_text(
-                        data.response.body.text,
-                        data.response.body.content_type
-                    ) || data.response.body.text
-                );
-            }
+    global.requests[request_id].filter = prepare_for_filter(global.requests[request_id].url);
 
-            // the full stack is not present in request summary
-            global.requests[request_id].initiator_id = data.initiator_id;
-            global.requests[request_id].exception = data.exception;
+    global.requests[request_id].request = data.request;
+    if (data.request.body && data.request.body.text) {
+        global.requests[request_id].filter += " " + prepare_for_filter(
+            parse_raw_text(
+                data.request.body.text,
+                data.request.body.content_type
+            ) || data.request.body.text
+        );
+    }
 
-            global.requests[request_id].to_refresh = true;
+    global.requests[request_id].response = data.response;
+    if (data.response.body && data.response.body.text) {
+        global.requests[request_id].filter += " " + prepare_for_filter(
+            parse_raw_text(
+                data.response.body.text,
+                data.response.body.content_type
+            ) || data.response.body.text
+        );
+    }
 
-            global.requests[request_id].loaded = true;
-        })
-        .catch((error) => {
-            global.connected = false;
-        });
+    // the full stack is not present in request summary
+    global.requests[request_id].initiator_id = data.initiator_id;
+    global.requests[request_id].exception = data.exception;
 
+    global.requests[request_id].to_refresh = true;
+
+    global.requests[request_id].loaded = true;
 }
 
 async function pol_new_data() {

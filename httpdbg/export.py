@@ -94,6 +94,7 @@ def generate_html(records: HTTPRecords, for_export: bool = True) -> str:
     global.static_requests = JSON.parse(
         document.getElementById('requests-map').textContent
     );
+    global.connected = false;
     </script>
 """
 
