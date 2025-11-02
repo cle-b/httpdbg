@@ -7,7 +7,7 @@ async function refresh_resquests() {
     var template_request = document.getElementById("template_request").innerHTML;
     var template_group = document.getElementById("template_group").innerHTML;
 
-    if (global.session != session_id) {
+    if (session_id != null && global.session !== session_id) {
         clean();
     };
     session_id = global.session;
