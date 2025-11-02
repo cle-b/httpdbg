@@ -13,7 +13,6 @@ const global = {
 
 function save_request(request_id, request, session_id) {
     const initiator = global.initiators[request.initiator_id] ?? null;
-    console.log("initiator " + initiator);
     if (initiator !== null) {  // the initiator may be missing if the clean list is executed in parrallel
         request.loaded = false;
         request.to_refresh = true;
