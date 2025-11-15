@@ -28,11 +28,6 @@ def pyhttpdbg(
 
     set_env_for_logging(params.log_level, params.log)
 
-    url = f"http://{params.host}:{params.port}/{'?hi=on' if params.console else ''}"
-
-    if not params.no_banner:
-        print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
-
     sys.path.insert(0, "")  # to mimic the default python command behavior
 
     def run_recorder(
@@ -58,6 +53,11 @@ def pyhttpdbg(
         export_html(records, Path(params.export_html))
 
     else:
+        url = f"http://{params.host}:{params.port}/{'?hi=on' if params.console else ''}"
+
+        if not params.no_banner:
+            print_msg(f"  httpdbg - HTTP(S) requests available at {url}")
+
         with httpdbg_srv(params.host, params.port) as records:
 
             run_recorder(records, params.initiator, not params.only_client, test_mode)
