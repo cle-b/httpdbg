@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 import code
+from typing import Optional
 from typing import Union
 
 from httpdbg.records import HTTPRecords
@@ -18,7 +18,7 @@ class InteractiveConsoleWithHistory(code.InteractiveConsole):
         self.incomplete_block: bool = False
         super().__init__(locals)
 
-    def push(self, line):
+    def push(self, line: str, filename: Optional[str] = None) -> bool:
         if line:  # if the line is empty, we don't add it in the history
             if (
                 self.incomplete_block
@@ -43,7 +43,10 @@ class InteractiveConsoleWithHistory(code.InteractiveConsole):
         full_label = ">>> " + "\n>>> ".join(latest_history)
 
         with httpdbg_group(self.records, label, full_label):
-            self.incomplete_block = super().push(line)
+            if filename is None:
+                self.incomplete_block = super().push(line)
+            else:
+                self.incomplete_block = super().push(line, filename)
 
         return self.incomplete_block
 

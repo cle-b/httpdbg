@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import httpx
 import requests
 

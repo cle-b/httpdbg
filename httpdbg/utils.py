@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from http.cookies import SimpleCookie
 import secrets
 import string

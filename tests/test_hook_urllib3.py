@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 import json
 from packaging import version
-import pkg_resources
 
 import pytest
 import urllib3
@@ -246,8 +244,7 @@ def test_urllib3_get_empty_request_content(httpbin_both):
 @pytest.mark.initiator
 @pytest.mark.urllib3
 @pytest.mark.skipif(
-    version.parse(pkg_resources.get_distribution("urllib3").version)
-    < version.parse("2.0.0"),
+    version.parse(urllib3.__version__) < version.parse("2.0.0"),
     reason="only urllib3 v2",
 )
 def test_urllib3_v2_request(httpbin):

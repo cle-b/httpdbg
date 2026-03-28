@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 
 from httpdbg.preview import generate_preview

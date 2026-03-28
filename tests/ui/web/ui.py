@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import niobium  # noqa: F401 - niobium automatically patches selenium
 from selenium.webdriver.common.by import By
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import asyncio
 import platform
 
@@ -24,8 +23,8 @@ def test_initiator_script(httpbin):
     assert initiator.label == 'requests.get(f"{httpbin.url}/get")'
 
     assert (
-        '''test_initiator.py", line 19, in test_initiator_script
- 19.         requests.get(f"{httpbin.url}/get")
+        '''test_initiator.py", line 18, in test_initiator_script
+ 18.         requests.get(f"{httpbin.url}/get")
 ----------
 requests.api.get(
     url="'''
@@ -35,18 +34,18 @@ requests.api.get(
         in initiator.short_stack
     )
 
-    full_stack_ref = """test_initiator.py", line 19, 
- 15. @pytest.mark.initiator
- 16. def test_initiator_script(httpbin):
- 17. 
- 18.     with httprecord() as records:
- 19.         requests.get(f"{httpbin.url}/get") <====
- 20. 
- 21.     assert len(records) == 1
- 22.     initiator = records.initiators[records[0].initiator_id]
- 23. 
- 24.     assert initiator.label == 'requests.get(f"{httpbin.url}/get")'
- 25."""  # noqa W291
+    full_stack_ref = """test_initiator.py", line 18, 
+ 14. @pytest.mark.initiator
+ 15. def test_initiator_script(httpbin):
+ 16. 
+ 17.     with httprecord() as records:
+ 18.         requests.get(f"{httpbin.url}/get") <====
+ 19. 
+ 20.     assert len(records) == 1
+ 21.     initiator = records.initiators[records[0].initiator_id]
+ 22. 
+ 23.     assert initiator.label == 'requests.get(f"{httpbin.url}/get")'
+ 24."""  # noqa W291
     full_stack = initiator.stack[0]
     assert (
         full_stack_ref in full_stack
