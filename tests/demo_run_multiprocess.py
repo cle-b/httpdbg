@@ -2,7 +2,6 @@ import multiprocessing
 import os
 import requests
 
-
 BASE_URL = os.environ.get(
     "HTTPDBG_TEST_MULTIPROCESS_BASE_URL", "http://localhost:4909/"
 )
