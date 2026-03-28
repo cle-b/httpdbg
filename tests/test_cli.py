@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 
 from httpdbg import __version__

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from json import JSONEncoder
 import traceback
 from typing import Any

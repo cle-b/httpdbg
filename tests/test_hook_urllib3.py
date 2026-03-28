@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 from packaging import version
 import pkg_resources

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collections.abc import Callable
 from contextlib import contextmanager
 from typing import Generator
