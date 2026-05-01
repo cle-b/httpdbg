@@ -171,8 +171,8 @@ options:
   --no-banner           do not print the banner in the console
   --console             run a Python console (default)
   --module MODULE, -m MODULE
-                        run a Python module (like 'python -m'; remaining arguments are passed to the module).
-  --script SCRIPT       run a Python script (remaining arguments are passed to the script).
+                        run a Python module (like 'python -m'; remaining arguments are passed to the module)
+  --script SCRIPT       run a Python script (remaining arguments are passed to the script)
 ```
 
 ### web interace 

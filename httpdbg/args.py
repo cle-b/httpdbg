@@ -70,7 +70,7 @@ def read_args(args: list[str]) -> tuple[argparse.Namespace, list[str]]:
         help="The log level",
     )
 
-    parser.add_argument("--log", type=Path, help="path to the log file.")
+    parser.add_argument("--log", type=Path, help="path to the log file")
 
     parser.add_argument(
         "--no-banner",
@@ -88,13 +88,13 @@ def read_args(args: list[str]) -> tuple[argparse.Namespace, list[str]]:
         "--module",
         "-m",
         type=str,
-        help="run a Python module (like 'python -m'; remaining arguments are passed to the module).",
+        help="run a Python module (like 'python -m'; remaining arguments are passed to the module)",
     )
 
     actions.add_argument(
         "--script",
         type=str,
-        help="run a Python script (remaining arguments are passed to the script).",
+        help="run a Python script (remaining arguments are passed to the script)",
     )
 
     return parser.parse_args(httpdbg_args), client_args
