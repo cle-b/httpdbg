@@ -168,10 +168,11 @@ options:
   --force-quit, -q      stop the server even if the requests have not been read
   --export-html EXPORT_HTML
                         the path to the export file
-  --console             run a python console (default)
+  --no-banner           do not print the banner in the console
+  --console             run a Python console (default)
   --module MODULE, -m MODULE
-                        run library module as a script (the next args are passed to pytest as is)
-  --script SCRIPT       run a script (the next args are passed to the script as is)
+                        run a Python module (like 'python -m'; remaining arguments are passed to the module).
+  --script SCRIPT       run a Python script (remaining arguments are passed to the script).
 ```
 
 ### web interace 

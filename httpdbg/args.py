@@ -81,20 +81,20 @@ def read_args(args: list[str]) -> tuple[argparse.Namespace, list[str]]:
     actions = parser.add_mutually_exclusive_group()
 
     actions.add_argument(
-        "--console", action="store_true", help="run a python console (default)"
+        "--console", action="store_true", help="run a Python console (default)"
     )
 
     actions.add_argument(
         "--module",
         "-m",
         type=str,
-        help="run library module as a script (the next args are passed to pytest as is)",
+        help="run a Python module (like 'python -m'; remaining arguments are passed to the module).",
     )
 
     actions.add_argument(
         "--script",
         type=str,
-        help="run a script (the next args are passed to the script as is)",
+        help="run a Python script (remaining arguments are passed to the script).",
     )
 
     return parser.parse_args(httpdbg_args), client_args
