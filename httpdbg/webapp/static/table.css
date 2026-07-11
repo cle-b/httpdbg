@@ -66,7 +66,7 @@
     opacity: 1 !important;
 }
 
-.pin-checkbox:checked+label img {
+.pin-checkbox:checked+label svg {
     transform: rotate(-45deg);
 }
 
@@ -154,7 +154,7 @@
     filter: none !important;
 }
 
-.collapse-checkbox:checked+label img {
+.collapse-checkbox:checked+label svg {
     transform: rotate(-90deg);
 }
 
