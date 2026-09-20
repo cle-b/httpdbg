@@ -1,4 +1,4 @@
-__version__ = "2.1.8"
+__version__ = "2.2.0"
 
 __all__ = ["export_html", "httprecord", "HTTPRecords"]
 
