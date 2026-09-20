@@ -5,12 +5,25 @@ from httpdbg.log import LogLevel
 
 
 def read_args(args: list[str]) -> tuple[argparse.Namespace, list[str]]:
+    """
+    Parse the raw command-line arguments to separate the arguments intended
+    for httpdbg from those intended for the script or module being executed.
+
+    The httpdbg arguments are everything up to and including the selected
+    execution option (e.g. ``--script``, ``--module``, or ``-m``), while the
+    remaining arguments are passed to the target script or module.
+    """
     httpdbg_args = args
     client_args = []
-    for action in ["--console", "--module", "-m", "--script"]:
-        if action in args:
-            httpdbg_args = args[: args.index(action) + 2]
-            client_args = args[args.index(action) + 1 :]
+    for arg in args:
+        tostop = False
+        for action in ["--console", "--module", "-m", "--script"]:
+            if action == arg:
+                httpdbg_args = args[: args.index(action) + 2]
+                client_args = args[args.index(action) + 1 :]
+                tostop = True
+                break
+        if tostop:
             break
 
     parser = argparse.ArgumentParser(
