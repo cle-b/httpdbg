@@ -162,6 +162,7 @@ function fill_content(request_id, name) {
     } catch {
         req.is_http = false;
     }
+    req.url_to_clipboard = "global.requests['" + request_id + "'].url";
 
     update_with_template("template_title", document.querySelector("#title > div[name='" + name + "']"), req);
 
