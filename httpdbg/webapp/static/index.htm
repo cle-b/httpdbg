@@ -299,7 +299,14 @@
                                 </div>
 
                                 <script id="template_headers" type="x-tmpl-mustache">
-                                       <b>{{ method }}</b> <a href="{{ url }}">{{ url }}</a>
+                                       <button title="copy to clipboard" onclick="navigator.clipboard.writeText({{url_to_clipboard}});"><svg class="icon"><use href="#files-papers-outline-icon"></use></svg></button>
+                                       <span class="header-cookie-key">{{verb}}</span>
+                                       {{#is_http}}
+                                       <a class="header-cookie-value" target="_blank" href="{{url}}">{{url}}</a>
+                                       {{/is_http}}
+                                       {{^is_http}}
+                                       <span class="header-cookie-value" title="Warning: This URL uses a non-HTTP/HTTPS scheme and has been disabled for security reasons.">{{url}}</span>
+                                       {{/is_http}}
                                        <hr>
                                             <span class="header-cookie-key">status:</span>
                                             <span class="header-cookie-value">{{ status_code }} {{ reason }} {{#http100}}(after 100 Continue){{/http100}}</span>
