@@ -156,6 +156,13 @@ function fill_content(request_id, name) {
 
     var req = global.requests[request_id];
 
+    try {
+        const parsed_url = new URL(req.url);
+        req.is_http = ["http:", "https:"].includes(parsed_url.protocol);
+    } catch {
+        req.is_http = false;
+    }
+
     update_with_template("template_title", document.querySelector("#title > div[name='" + name + "']"), req);
 
     update_with_template("template_headers", document.querySelector("#headers > div[name='" + name + "']"), req);

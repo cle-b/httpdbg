@@ -299,7 +299,12 @@
                                 </div>
 
                                 <script id="template_headers" type="x-tmpl-mustache">
-                                       <b>{{ method }}</b> <a href="{{ url }}">{{ url }}</a>
+                                       {{#is_http}}
+                                       <b>{{method}}</b> <a href="{{url}}">{{url}}</a>
+                                       {{/is_http}}
+                                       {{^is_http}}
+                                       <b>{{method}}</b> <span title="Warning: This URL uses a non-HTTP/HTTPS scheme and has been disabled for security reasons.">{{url}}</span>
+                                       {{/is_http}}
                                        <hr>
                                             <span class="header-cookie-key">status:</span>
                                             <span class="header-cookie-value">{{ status_code }} {{ reason }} {{#http100}}(after 100 Continue){{/http100}}</span>
