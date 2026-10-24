@@ -7,10 +7,10 @@ setup:
 	pip install -r requirements-dev-ui.txt
 
 format:
-	black httpdbg tests --target-version py39
+	black httpdbg tests --target-version py310
 
 lint:
-	black --check httpdbg tests --target-version py39
+	black --check httpdbg tests --target-version py310
 	flake8 httpdbg tests
 
 typing:
