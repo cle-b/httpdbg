@@ -1,5 +1,5 @@
 pytest-asyncio
-selenium
+selenium<4.51
 niobium
 pytest-html
 pytest-selenium
