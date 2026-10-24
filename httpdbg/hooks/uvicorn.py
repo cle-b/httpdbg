@@ -1,8 +1,8 @@
 from collections.abc import Callable
+from collections.abc import Generator
 from contextlib import contextmanager
 import datetime
 import typing
-from typing import Generator
 
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate

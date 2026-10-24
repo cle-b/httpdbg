@@ -1,6 +1,4 @@
 import code
-from typing import Optional
-from typing import Union
 
 from httpdbg.records import HTTPRecords
 from httpdbg.initiator import httpdbg_group
@@ -50,7 +48,7 @@ class InteractiveConsoleWithHistory(code.InteractiveConsole):
 
 def run_console(
     records: HTTPRecords, test_mode: bool = False
-) -> Union[InteractiveConsoleWithHistory, None]:
+) -> InteractiveConsoleWithHistory | None:
     try:
         vars = globals()
         vars.update(locals())

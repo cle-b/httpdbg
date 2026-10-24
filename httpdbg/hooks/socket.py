@@ -1,14 +1,13 @@
 import asyncio
 import asyncio.proactor_events
 from collections.abc import Callable
+from collections.abc import Generator
 from contextlib import contextmanager
 import datetime
 import platform
 import socket
 import ssl
 import sys
-from typing import Generator
-from typing import Union
 
 from httpdbg.initiator import httpdbg_initiator
 from httpdbg.log import logger
@@ -28,7 +27,7 @@ class SocketRawData(object):
         self.address: tuple[str, int] = address
         self.ssl: bool = ssl
         self._rawdata: bytes = bytes()
-        self.record: Union[HTTP1Record, None] = None
+        self.record: HTTP1Record | None = None
         self.tbegin: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
 
     @property
@@ -42,7 +41,7 @@ class SocketRawData(object):
         )
         self._rawdata = value
 
-    def http_detected(self) -> Union[bool, None]:
+    def http_detected(self) -> bool | None:
         end_of_first_line = self.rawdata[:2048].find(b"\r\n")
         if end_of_first_line == -1:
             if len(self.rawdata) > 2048:
@@ -66,14 +65,14 @@ class TracerHTTP1:
         self,
         ignore: tuple[tuple[str, int], ...] = (),
     ):
-        self.sockets: dict[int, Union[SocketRawData, None]] = (
+        self.sockets: dict[int, SocketRawData | None] = (
             {}
         )  # if None, this is not a HTTP/1 request
         self.ignore: tuple[tuple[str, int], ...] = ignore
 
     def get_socket_data(
         self, obj, extra_sock=None, force_new=False, request=None, is_uvicorn=False
-    ) -> Union[SocketRawData, None]:
+    ) -> SocketRawData | None:
         """Record a new SocketRawData (or get an existing one) and return it."""
         socketdata = None
 

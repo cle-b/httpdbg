@@ -1,12 +1,11 @@
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
 import glob
 import os
 import pickle
 import tempfile
 import time
 import threading
-from typing import Union
 
 from httpdbg.env import HTTPDBG_MULTIPROCESS_DIR
 from httpdbg.log import logger
@@ -16,7 +15,7 @@ from httpdbg.records import HTTPRecords
 @contextmanager
 def watcher_external(
     records: HTTPRecords,
-    initiators: Union[list[str], None] = None,
+    initiators: list[str] | None = None,
     server: bool = False,
 ) -> Generator[HTTPRecords, None, None]:
     if HTTPDBG_MULTIPROCESS_DIR not in os.environ:

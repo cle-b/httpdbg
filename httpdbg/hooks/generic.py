@@ -1,13 +1,12 @@
 import builtins
 from collections.abc import Callable
+from collections.abc import Generator
 from contextlib import contextmanager
 import functools
 import importlib
 import inspect
 from types import ModuleType
 from typing import Any
-from typing import Generator
-from typing import Union
 
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import undecorate
@@ -42,7 +41,7 @@ def set_hook_for_generic(records: HTTPRecords, method: Any):
 
 @contextmanager
 def hook_generic(
-    records: HTTPRecords, initiators: Union[list[str], None] = None
+    records: HTTPRecords, initiators: list[str] | None = None
 ) -> Generator[None, None, None]:
     if initiators:
         # we add a hook for a generic initiator only if the module is imported

@@ -1,6 +1,3 @@
-from typing import Union
-
-
 def parse_content_type(content_type: str) -> tuple[str, dict[str, str]]:
     s = content_type.split(";")
     media_type = s[0]
@@ -14,8 +11,8 @@ def parse_content_type(content_type: str) -> tuple[str, dict[str, str]]:
 
 def generate_preview(
     raw_data: bytes, content_type: str, content_encoding: str
-) -> dict[str, Union[str, bool]]:
-    body: dict[str, Union[str, bool]] = {}
+) -> dict[str, str | bool]:
+    body: dict[str, str | bool] = {}
 
     body["content_type"] = content_type
 

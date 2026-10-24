@@ -1,6 +1,5 @@
 import datetime
 import sys
-from typing import Union
 
 from httpdbg.hooks.record import HTTPRecord
 from httpdbg.initiator import Group
@@ -38,10 +37,10 @@ class HTTPRecords:
         self.requests: dict[str, HTTPRecord] = {}
         self.requests_already_loaded = 0
         self.initiators: dict[str, Initiator] = {}
-        self.current_initiator: Union[str, None] = None
+        self.current_initiator: str | None = None
         self.groups: dict[str, Group] = {}
-        self.current_group: Union[str, None] = None
-        self.current_tag: Union[str, None] = None
+        self.current_group: str | None = None
+        self.current_tag: str | None = None
         self._tracerhttp1: TracerHTTP1 = TracerHTTP1(ignore=self.ignore)
         self._tracerhttp2: TracerHTTP2 = TracerHTTP2(ignore=self.ignore)
 

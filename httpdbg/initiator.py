@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from collections.abc import Generator
 from contextlib import contextmanager
 import datetime
 import functools
@@ -7,8 +8,6 @@ import linecache
 import os
 import platform
 import traceback
-from typing import Generator
-from typing import Union
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -347,7 +346,7 @@ def httpdbg_group(
 @contextmanager
 def httpdbg_endpoint(
     records: "HTTPRecords", original_method: Callable, *args, **kwargs
-) -> Generator[Union[Group, None], None, None]:
+) -> Generator[Group | None, None, None]:
 
     filename = inspect.getsourcefile(original_method)
     if filename:

@@ -1,8 +1,8 @@
 from collections.abc import Callable
+from collections.abc import Generator
 from contextlib import contextmanager
 import functools
 from functools import wraps
-from typing import Generator
 
 
 from httpdbg.hooks.utils import getcallargs

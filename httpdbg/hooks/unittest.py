@@ -1,9 +1,9 @@
 from collections.abc import Callable
+from collections.abc import Generator
 from contextlib import contextmanager
 import inspect
 import os
 import typing
-from typing import Generator
 
 from httpdbg.initiator import httpdbg_group
 from httpdbg.initiator import httpdbg_tag

@@ -3,7 +3,6 @@ from functools import cache
 import logging
 import os
 from pathlib import Path
-from typing import Union
 
 from httpdbg.env import HTTPDBG_LOG_LEVEL
 from httpdbg.env import HTTPDBG_LOG_PATH
@@ -18,7 +17,7 @@ class LogLevel(Enum):
     CRITICAL = "critical"
 
 
-def set_env_for_logging(log_level: LogLevel, path: Union[Path, None]):
+def set_env_for_logging(log_level: LogLevel, path: Path | None):
 
     os.environ[HTTPDBG_LOG_LEVEL] = str(
         {
