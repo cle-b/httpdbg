@@ -16,7 +16,7 @@ class InteractiveConsoleWithHistory(code.InteractiveConsole):
         self.incomplete_block: bool = False
         super().__init__(locals)
 
-    def push(self, line: str, filename: Optional[str] = None) -> bool:
+    def push(self, line: str, filename: str | None = None) -> bool:
         if line:  # if the line is empty, we don't add it in the history
             if (
                 self.incomplete_block
