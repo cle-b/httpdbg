@@ -16,7 +16,7 @@ class InteractiveConsoleWithHistory(code.InteractiveConsole):
         self.incomplete_block: bool = False
         super().__init__(locals)
 
-    def push(self, line: str, filename: str | None = None) -> bool:
+    def push(self, line: str, *args, **kwargs) -> bool:
         if line:  # if the line is empty, we don't add it in the history
             if (
                 self.incomplete_block
@@ -41,10 +41,7 @@ class InteractiveConsoleWithHistory(code.InteractiveConsole):
         full_label = ">>> " + "\n>>> ".join(latest_history)
 
         with httpdbg_group(self.records, label, full_label):
-            if filename is None:
-                self.incomplete_block = super().push(line)
-            else:
-                self.incomplete_block = super().push(line, filename)
+            self.incomplete_block = super().push(line, *args, **kwargs)
 
         return self.incomplete_block
 
