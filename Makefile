@@ -16,7 +16,11 @@ lint:
 typing:
 	mypy
 
-check: lint typing
+typingall:
+	mypy --python-version 3.10 httpdbg
+	mypy --python-version 3.15 httpdbg
+
+check: lint typingall
 
 test:
 	pytest -v -m "not ui" tests/
