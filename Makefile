@@ -7,16 +7,20 @@ setup:
 	pip install -r requirements-dev-ui.txt
 
 format:
-	black httpdbg tests --target-version py39
+	black httpdbg tests --target-version py310
 
 lint:
-	black --check httpdbg tests --target-version py39
+	black --check httpdbg tests --target-version py310
 	flake8 httpdbg tests
 
 typing:
 	mypy
 
-check: lint typing
+typingall:
+	mypy --python-version 3.10 httpdbg
+	mypy --python-version 3.15 httpdbg
+
+check: lint typingall
 
 test:
 	pytest -v -m "not ui" tests/

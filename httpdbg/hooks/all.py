@@ -1,6 +1,5 @@
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
-from typing import Union
 
 from httpdbg.hooks.aiohttp import hook_aiohttp
 from httpdbg.hooks.external import watcher_external
@@ -24,7 +23,7 @@ from httpdbg.records import HTTPRecords
 @contextmanager
 def httprecord(
     records: HTTPRecords = None,
-    initiators: Union[list[str], None] = None,
+    initiators: list[str] | None = None,
     client: bool = True,
     server: bool = False,
     ignore: tuple[tuple[str, int], ...] = (),

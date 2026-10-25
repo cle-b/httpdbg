@@ -1,5 +1,3 @@
-from typing import Union
-
 from fastapi import FastAPI
 from fastapi import HTTPException
 from pydantic import BaseModel
@@ -18,7 +16,7 @@ def hello_world():
 
 
 @app.get("/items/{item_id}")
-def get_item(item_id: int, q: Union[str, None] = None):
+def get_item(item_id: int, q: str | None = None):
     if item_id == 456:
         raise HTTPException(
             status_code=456,

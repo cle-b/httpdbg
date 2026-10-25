@@ -1,7 +1,7 @@
+from collections.abc import Generator
 from contextlib import contextmanager
 from http.server import HTTPServer
 import threading
-from typing import Generator
 
 from httpdbg.exception import HttpdbgException
 from httpdbg.records import HTTPRecords

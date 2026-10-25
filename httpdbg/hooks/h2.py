@@ -1,8 +1,7 @@
 from collections.abc import Callable
+from collections.abc import Generator
 from contextlib import contextmanager
 import random
-from typing import Generator
-from typing import Union
 
 from httpdbg.hooks.recordhttp2 import HTTP2Record
 from httpdbg.hooks.utils import decorate
@@ -67,7 +66,7 @@ class TracerHTTP2:
         stream_id: int,
         headers: list[tuple[bytes, bytes]],
         is_client: bool = True,
-    ) -> Union[HTTP2Record, None]:
+    ) -> HTTP2Record | None:
         record = None
         if not is_client:
             if f"{socket_id}-{stream_id}" in self.sockets:

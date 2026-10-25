@@ -2,7 +2,6 @@ import argparse
 from pathlib import Path
 import sys
 import time
-from typing import Union
 
 from httpdbg import __version__
 from httpdbg.args import read_args
@@ -32,7 +31,7 @@ def pyhttpdbg(
 
     def run_recorder(
         records: HTTPRecords,
-        initiators: Union[list[str], None],
+        initiators: list[str] | None,
         record_server: bool,
         test_mode: bool,
     ):

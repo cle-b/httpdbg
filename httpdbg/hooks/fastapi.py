@@ -1,10 +1,9 @@
 from collections.abc import Callable
+from collections.abc import Generator
 from contextlib import contextmanager
+import datetime
 import functools
 from functools import wraps
-from typing import Generator
-
-import datetime
 
 from httpdbg.hooks.utils import decorate
 from httpdbg.hooks.utils import getcallargs

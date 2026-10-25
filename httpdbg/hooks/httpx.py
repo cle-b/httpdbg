@@ -1,6 +1,6 @@
 from collections.abc import Callable
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
 
 from httpdbg.hooks.utils import getcallargs
 from httpdbg.hooks.utils import decorate

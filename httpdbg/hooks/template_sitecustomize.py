@@ -4,7 +4,6 @@ import pickle
 import sys
 import time
 import threading
-from typing import Union
 import uuid
 
 from httpdbg import HTTPRecords
@@ -25,7 +24,7 @@ class HttpdbgRecorder:
             os.environ[HTTPDBG_MULTIPROCESS_DIR], str(uuid.uuid1())
         )
         self.context = None
-        self.records: Union[HTTPRecords, None] = None
+        self.records: HTTPRecords | None = None
 
     def _save_to_disk_loop(self):
         while self._running:

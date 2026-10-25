@@ -1,7 +1,6 @@
 from json import JSONEncoder
 import traceback
 from typing import Any
-from typing import Union
 
 from httpdbg.records import HTTPRecords
 from httpdbg.records import HTTPRecord
@@ -71,7 +70,7 @@ class RequestListPayload(JSONEncoder):
             records, HTTPRecords
         ), "This encoder works only for HTTPRecords object."
 
-        payload: dict[str, dict[str, Union[str, dict]]] = {
+        payload: dict[str, dict[str, str | dict]] = {
             "session": {
                 "id": records.session.id,
                 "command_line": records.session.command_line,
