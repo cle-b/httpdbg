@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
 import datetime
+import json
+import traceback
+from typing import Any
 from urllib.parse import urlparse
 
 from httpdbg.utils import get_new_uuid
@@ -176,3 +179,62 @@ class HTTPRecord(ABC):
             return self.request.protocol
         else:
             return f"{self.request.protocol} -> {self.response.protocol}"
+
+    @property
+    def payload(self) -> bytes:
+        payload: dict[str, Any] = {
+            "id": self.id,
+            "url": self.url,
+            "netloc": self.netloc,
+            "urlext": self.urlext,
+            "method": self.method,
+            "status_code": self.status_code,
+            "http100": self.http100,
+            "reason": self.reason,
+            "request": None,
+            "response": None,
+            "exception": None,
+            "tag": self.tag,
+            "initiator_id": self.initiator_id,
+            "group_id": self.group_id,
+            "in_progress": self.in_progress,
+            "is_server": not self.is_client,
+        }
+
+        payload["request"] = {
+            "headers": [header.to_json() for header in self.request.headers],
+            "cookies": [cookie.to_json() for cookie in self.request.cookies],
+        }
+
+        if self.request.content:
+            payload["request"]["body"] = {
+                "path": f"/request/{self.id}/up",
+                "filename": "upload",
+            }
+            payload["request"]["body"].update(self.request.preview)
+
+        payload["response"] = {
+            "headers": [header.to_json() for header in self.response.headers],
+            "cookies": [cookie.to_json() for cookie in self.response.cookies],
+        }
+
+        if self.response.content:
+            payload["response"]["body"] = {
+                "path": f"/request/{self.id}/down",
+                "filename": "download",
+            }
+            payload["response"]["body"].update(self.response.preview)
+
+        if self.exception is not None:
+            payload["exception"] = {
+                "type": str(type(self.exception)),
+                "message": "".join(
+                    traceback.format_exception(
+                        type(self.exception),
+                        self.exception,
+                        self.exception.__traceback__,
+                    )
+                ),
+            }
+
+        return json.dumps(payload).encode("utf-8")

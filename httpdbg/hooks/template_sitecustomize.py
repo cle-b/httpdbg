@@ -1,6 +1,6 @@
 import atexit
+import json
 import os
-import pickle
 import sys
 import time
 import threading
@@ -9,10 +9,20 @@ import uuid
 from httpdbg import HTTPRecords
 from httpdbg.env import HTTPDBG_MULTIPROCESS_DIR
 from httpdbg.hooks.all import httprecord
+from httpdbg.hooks.record import HTTPRecord
+from httpdbg.hooks.recordhttp1 import HTTP1Record
+from httpdbg.hooks.recordhttp2 import HTTP2Record
 from httpdbg.log import logger
 
 HTTPDBG_INITIATORS = []  # type: ignore
 HTTPDBG_RECORD_SERVER = False
+
+
+def _safe_write_json_file(filename, content):
+    with open(f"{filename}.tmp", "wb") as f:
+        f.write(json.dumps(content).encode("utf-8"))
+
+    os.replace(f"{filename}.tmp", filename)
 
 
 class HttpdbgRecorder:
@@ -23,8 +33,7 @@ class HttpdbgRecorder:
         self.fname: str = os.path.join(
             os.environ[HTTPDBG_MULTIPROCESS_DIR], str(uuid.uuid1())
         )
-        self.context = None
-        self.records: HTTPRecords | None = None
+        self.serialized: list[str] = []
 
     def _save_to_disk_loop(self):
         while self._running:
@@ -44,19 +53,39 @@ class HttpdbgRecorder:
             time.sleep(1)
 
     def save_to_disk(self):
-        if self.records and len(self.records.requests) > 0:
-            with open(f"{self.fname}.httpdbgrecords.tmp", "wb") as f:
-                pickle.dump(self.records, f)
-            os.replace(
-                f"{self.fname}.httpdbgrecords.tmp", f"{self.fname}.httpdbgrecords"
-            )
+        # initiators
+        for initiator in self.records.initiators.values():
+            if initiator.id not in self.serialized:
+                self.serialized.append(initiator.id)
+                filename = f"{self.fname}.{initiator.id}.httpdbg-initiator"
+                _safe_write_json_file(filename, initiator.to_json())
+
+        # groups
+        for group in self.records.groups.values():
+            if group.id not in self.serialized:
+                self.serialized.append(group.id)
+                filename = f"{self.fname}.{group.id}.httpdbg-group"
+                _safe_write_json_file(filename, group.to_json())
+
+        # requests
+        for request in self.records.requests.values():
+            if isinstance(request, HTTPRecord):
+                marker = f"{request.id}-{request.last_update.isoformat()}"
+                if marker not in self.serialized:
+                    self.serialized.append(marker)
+                    if isinstance(request, HTTP1Record):
+                        filename = f"{self.fname}.{marker}.httpdbg-http1record"
+                        _safe_write_json_file(filename, request.to_json())
+                    elif isinstance(request, HTTP2Record):
+                        filename = f"{self.fname}.{marker}.httpdbg-http2record"
+                        _safe_write_json_file(filename, request.to_json())
 
     def start(self):
         """Start recording."""
         self.context = httprecord(
             initiators=HTTPDBG_INITIATORS, server=HTTPDBG_RECORD_SERVER
         )
-        self.records = self.context.__enter__()
+        self.records: HTTPRecords = self.context.__enter__()
         self._running = True
         self._thread = threading.Thread(target=self._save_to_disk_loop, daemon=True)
         self._thread.start()

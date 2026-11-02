@@ -1,3 +1,4 @@
+import base64
 import datetime
 
 from httpdbg.preview import generate_preview
@@ -111,3 +112,42 @@ class HTTP2Record(HTTPRecord):
             self.request.content += data
         else:
             self.response.content += data
+
+    def to_json(self) -> dict:
+        return {
+            "id": self.id,
+            "initiator_id": self.initiator_id,
+            "group_id": self.group_id,
+            "tag": self.tag,
+            "tbegin": self.tbegin.isoformat(),
+            "is_client": self.is_client,
+            "request": {
+                "headers": [header.to_json() for header in self.request.headers],
+                "content": base64.b64encode(self.request.content).decode("ascii"),
+            },
+            "response": {
+                "headers": [header.to_json() for header in self.response.headers],
+                "content": base64.b64encode(self.response.content).decode("ascii"),
+            },
+            "last_update": self.last_update.isoformat(),
+        }
+
+    @staticmethod
+    def from_json(data: dict) -> "HTTP2Record":
+        http2record = HTTP2Record(
+            data["initiator_id"],
+            data["group_id"],
+            data["tag"],
+            datetime.datetime.fromisoformat(data["tbegin"]),
+            data["is_client"],
+        )
+        http2record.id = data["id"]
+        http2record.request._headers = [
+            HTTPDBGHeader.from_json(header) for header in data["request"]["headers"]
+        ]
+        http2record.request.content = base64.b64decode(data["request"]["content"])
+        http2record.response._headers = [
+            HTTPDBGHeader.from_json(header) for header in data["response"]["headers"]
+        ]
+        http2record.response.content = base64.b64decode(data["response"]["content"])
+        return http2record

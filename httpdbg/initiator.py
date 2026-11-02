@@ -59,6 +59,17 @@ class Initiator:
             }
         return json
 
+    @staticmethod
+    def from_json(data: dict) -> "Initiator":
+        initiator = Initiator(
+            data["label"],
+            data["short_stack"],
+            data["stack"].split("\n"),
+        )
+        initiator.id = data["id"]
+        initiator.tbegin = datetime.datetime.fromisoformat(data["tbegin"])
+        return initiator
+
 
 class Group:
     def __init__(self, label: str, full_label: str, updatable: bool):
@@ -75,6 +86,17 @@ class Group:
             "full_label": self.full_label,
             "tbegin": self.tbegin.isoformat(),
         }
+
+    @staticmethod
+    def from_json(data: dict) -> "Group":
+        group = Group(
+            data["label"],
+            data["full_label"],
+            False,
+        )
+        group.id = data["id"]
+        group.tbegin = datetime.datetime.fromisoformat(data["tbegin"])
+        return group
 
 
 def compatible_path(path: str) -> str:

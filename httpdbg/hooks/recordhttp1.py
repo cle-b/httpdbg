@@ -1,3 +1,4 @@
+import base64
 import datetime
 
 from httpdbg.preview import generate_preview
@@ -195,3 +196,34 @@ class HTTP1Record(HTTPRecord):
             self.request.rawdata += data
         else:
             self.response.rawdata += data
+
+    def to_json(self) -> dict:
+        return {
+            "id": self.id,
+            "initiator_id": self.initiator_id,
+            "group_id": self.group_id,
+            "tag": self.tag,
+            "tbegin": self.tbegin.isoformat(),
+            "is_client": self.is_client,
+            "received": base64.b64encode(
+                self.response.rawdata if self.is_client else self.request.rawdata
+            ).decode("ascii"),
+            "sent": base64.b64encode(
+                self.request.rawdata if self.is_client else self.response.rawdata,
+            ).decode("ascii"),
+            "last_update": self.last_update.isoformat(),
+        }
+
+    @staticmethod
+    def from_json(data: dict) -> "HTTP1Record":
+        http1record = HTTP1Record(
+            data["initiator_id"],
+            data["group_id"],
+            data["tag"],
+            datetime.datetime.fromisoformat(data["tbegin"]),
+            data["is_client"],
+        )
+        http1record.id = data["id"]
+        http1record.receive_data(base64.b64decode(data["received"]))
+        http1record.send_data(base64.b64decode(data["sent"]))
+        return http1record

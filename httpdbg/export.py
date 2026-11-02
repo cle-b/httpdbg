@@ -6,7 +6,6 @@ import xml.etree.ElementTree as ET
 
 import httpdbg
 from httpdbg import HTTPRecords
-from httpdbg.webapp.api import RequestListPayload, RequestPayload
 
 
 def generate_html(records: HTTPRecords, for_export: bool = True) -> str:
@@ -67,12 +66,10 @@ def generate_html(records: HTTPRecords, for_export: bool = True) -> str:
 
     # static export of the requests data
     if for_export:
-        static_all_requests = json.dumps(
-            records, cls=RequestListPayload, ensure_ascii=False
-        )
+        static_all_requests = records.payload.decode("ascii")
         map_requests: dict[str, object] = dict()
         for record in records:
-            map_requests[record.id] = json.loads(json.dumps(record, cls=RequestPayload))
+            map_requests[record.id] = json.loads(record.payload.decode("ascii"))
         static_requests: str = json.dumps(map_requests, ensure_ascii=False)
 
         def safe_for_script_tag(s: str) -> str:

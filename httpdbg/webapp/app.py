@@ -1,7 +1,6 @@
 from collections.abc import Callable
 from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler
-import json
 from pathlib import Path
 import re
 from urllib.parse import ParseResult
@@ -9,7 +8,6 @@ from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
 from httpdbg.log import logger
-from httpdbg.webapp.api import RequestListPayload, RequestPayload
 from httpdbg.records import HTTPRecords
 
 
@@ -97,9 +95,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "application/json")
         self.send_header_no_cache()
         self.end_headers()
-        self.wfile.write(
-            json.dumps(self.records, cls=RequestListPayload).encode("utf-8")
-        )
+        self.wfile.write(self.records.payload)
 
         return True
 
@@ -118,11 +114,7 @@ class HttpbgHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "application/json")
         self.send_header_no_cache()
         self.end_headers()
-        self.wfile.write(
-            json.dumps(self.records.requests[req_id], cls=RequestPayload).encode(
-                "utf-8"
-            )
-        )
+        self.wfile.write(self.records.requests[req_id].payload)
 
         return True
 
