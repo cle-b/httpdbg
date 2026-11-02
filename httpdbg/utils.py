@@ -66,6 +66,10 @@ class HTTPDBGHeader(object):
     def to_json(self) -> dict:
         return {"name": self.name, "value": self.value}
 
+    @staticmethod
+    def from_json(data) -> "HTTPDBGHeader":
+        return HTTPDBGHeader(data["name"], data["value"])
+
     def __eq__(self, other) -> bool:
         if type(other) is HTTPDBGHeader:
             return (self.name == other.name) and (self.value == other.value)

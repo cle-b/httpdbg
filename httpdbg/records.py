@@ -1,4 +1,5 @@
 import datetime
+import json
 import sys
 
 from httpdbg.hooks.record import HTTPRecord
@@ -89,3 +90,44 @@ class HTTPRecords:
             print(f"+ {request.url}")
             print(f"  - initiator: {self.initiators[request.initiator_id].label}")
             print(f"  - group: {self.groups[request.group_id].label}")
+
+    @property
+    def payload(self) -> bytes:
+        payload: dict[str, dict[str, str | dict]] = {
+            "session": {
+                "id": self.session.id,
+                "command_line": self.session.command_line,
+                "tbegin": self.session.tbegin.isoformat(),
+            },
+            "requests": {},
+            "initiators": {},
+            "groups": {},
+        }
+
+        for id, req in self.requests.items():
+            payload["requests"][id] = {
+                "id": req.id,
+                "url": req.url,
+                "netloc": req.netloc,
+                "urlext": req.urlext,
+                "status_code": req.status_code,
+                "http100": req.http100,
+                "protocol": req.protocol,
+                "reason": req.reason,
+                "verb": req.method,
+                "tag": req.tag,
+                "initiator_id": req.initiator_id,
+                "group_id": req.group_id,
+                "in_progress": req.in_progress,
+                "is_server": not req.is_client,
+                "tbegin": req.tbegin.isoformat(),
+                "last_update": req.last_update.isoformat(),
+            }
+
+        for id, initiator in self.initiators.items():
+            payload["initiators"][id] = initiator.to_json(full=True)
+
+        for id, group in self.groups.items():
+            payload["groups"][id] = group.to_json()
+
+        return json.dumps(payload).encode("utf-8")

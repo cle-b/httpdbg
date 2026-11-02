@@ -1,15 +1,29 @@
 from collections.abc import Generator
 from contextlib import contextmanager
+import json
 import glob
 import os
-import pickle
 import tempfile
 import time
 import threading
 
 from httpdbg.env import HTTPDBG_MULTIPROCESS_DIR
+from httpdbg.hooks.recordhttp1 import HTTP1Record
+from httpdbg.hooks.recordhttp2 import HTTP2Record
+from httpdbg.initiator import Group
+from httpdbg.initiator import Initiator
 from httpdbg.log import logger
 from httpdbg.records import HTTPRecords
+
+
+def _safe_delete_file(filename):
+    try:
+        os.remove(filename)
+    except Exception as ex:
+        logger().info(
+            f"_safe_delete_file - silently_catch_error - {str(ex)}",
+            exc_info=True,
+        )
 
 
 @contextmanager
@@ -77,12 +91,41 @@ class WatcherSubprocessDirThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def load_dump(self):
-        for dump in glob.glob(os.path.join(self.directory, "*.httpdbgrecords")):
-            with open(dump, "rb") as dumpfile:
-                newrecords: HTTPRecords = pickle.load(dumpfile)
-                self.records.requests.update(newrecords.requests)
-                self.records.initiators.update(newrecords.initiators)
-                self.records.groups.update(newrecords.groups)
+        # initiators
+        for filename in glob.glob(os.path.join(self.directory, "*.httpdbg-initiator")):
+            with open(filename, "r") as f:
+                data = json.load(f)
+                initiator = Initiator.from_json(data)
+                self.records.initiators[initiator.id] = initiator
+            _safe_delete_file(filename)
+
+        # group
+        for filename in glob.glob(os.path.join(self.directory, "*.httpdbg-group")):
+            with open(filename, "r") as f:
+                data = json.load(f)
+                group = Group.from_json(data)
+                self.records.groups[group.id] = group
+            _safe_delete_file(filename)
+
+        # httprecord HTTP1
+        for filename in sorted(
+            glob.glob(os.path.join(self.directory, "*.httpdbg-http1record"))
+        ):
+            with open(filename, "r") as f:
+                data = json.load(f)
+                http1record = HTTP1Record.from_json(data)
+                self.records.requests[http1record.id] = http1record
+            _safe_delete_file(filename)
+
+        # httprecord HTTP2
+        for filename in sorted(
+            glob.glob(os.path.join(self.directory, "*.httpdbg-http2record"))
+        ):
+            with open(filename, "r") as f:
+                data = json.load(f)
+                http2record = HTTP2Record.from_json(data)
+                self.records.requests[http2record.id] = http2record
+            _safe_delete_file(filename)
 
     def run(self):
         while self._running:
