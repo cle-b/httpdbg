@@ -238,3 +238,23 @@ class HTTPRecord(ABC):
             }
 
         return json.dumps(payload).encode("utf-8")
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, HTTPRecord):
+            return False
+
+        return (
+            self.url == other.url
+            and self.method == other.method
+            and self.status_code == other.status_code
+            and self.protocol == other.protocol
+            and self.tag == other.tag
+            and self.initiator_id == other.initiator_id
+            and self.group_id == other.group_id
+            and self.is_client == other.is_client
+            and self.http100 == other.http100
+            and type(self.exception) is type(other.exception)
+            and str(self.exception) == str(other.exception)
+            and self.request == other.request
+            and self.response == other.response
+        )
