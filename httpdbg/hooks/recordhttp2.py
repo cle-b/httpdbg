@@ -42,6 +42,16 @@ class HTTP2RecordReqResp(HTTPRecordReqResp):
             self.get_header("Content-Encoding"),
         )
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, HTTP2RecordReqResp):
+            return False
+
+        return (
+            self.headers == other.headers
+            and self.content == other.content
+            and self.last_update == other.last_update
+        )
+
 
 class HTTP2RecordRequest(HTTPRecordRequest, HTTP2RecordReqResp):
 
@@ -129,7 +139,8 @@ class HTTP2Record(HTTPRecord):
                 "headers": [header.to_json() for header in self.response.headers],
                 "content": base64.b64encode(self.response.content).decode("ascii"),
             },
-            "last_update": self.last_update.isoformat(),
+            "last_update_request": self.request.last_update.isoformat(),
+            "last_update_response": self.response.last_update.isoformat(),
         }
 
     @staticmethod
@@ -146,8 +157,16 @@ class HTTP2Record(HTTPRecord):
             HTTPDBGHeader.from_json(header) for header in data["request"]["headers"]
         ]
         http2record.request.content = base64.b64decode(data["request"]["content"])
+        http2record.request.last_update = datetime.datetime.fromisoformat(
+            data["last_update_request"]
+        )
+
         http2record.response._headers = [
             HTTPDBGHeader.from_json(header) for header in data["response"]["headers"]
         ]
         http2record.response.content = base64.b64decode(data["response"]["content"])
+        http2record.response.last_update = datetime.datetime.fromisoformat(
+            data["last_update_response"]
+        )
+
         return http2record

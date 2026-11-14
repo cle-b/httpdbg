@@ -77,6 +77,12 @@ class HTTP1RecordReqResp(HTTPRecordReqResp):
         self.last_update = datetime.datetime.now(datetime.timezone.utc)
         self._rawdata = value
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, HTTP1RecordReqResp):
+            return False
+
+        return self.rawdata == other.rawdata and self.last_update == other.last_update
+
 
 class HTTP1RecordRequest(HTTPRecordRequest, HTTP1RecordReqResp):
     def __init__(self) -> None:
@@ -211,7 +217,8 @@ class HTTP1Record(HTTPRecord):
             "sent": base64.b64encode(
                 self.request.rawdata if self.is_client else self.response.rawdata,
             ).decode("ascii"),
-            "last_update": self.last_update.isoformat(),
+            "last_update_request": self.request.last_update.isoformat(),
+            "last_update_response": self.response.last_update.isoformat(),
         }
 
     @staticmethod
@@ -224,6 +231,12 @@ class HTTP1Record(HTTPRecord):
             data["is_client"],
         )
         http1record.id = data["id"]
-        http1record.receive_data(base64.b64decode(data["received"]))
         http1record.send_data(base64.b64decode(data["sent"]))
+        http1record.receive_data(base64.b64decode(data["received"]))
+        http1record.request.last_update = datetime.datetime.fromisoformat(
+            data["last_update_request"]
+        )
+        http1record.response.last_update = datetime.datetime.fromisoformat(
+            data["last_update_response"]
+        )
         return http1record
